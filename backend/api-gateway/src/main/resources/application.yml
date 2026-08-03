@@ -1,0 +1,73 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+
+  config:
+    import: "optional:configserver:http://config-server:8888"
+
+  cloud:
+    config:
+      uri: http://config-server:8888
+      fail-fast: true
+
+    gateway:
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins:
+              - "http://localhost:5173"
+              - "http://localhost:3000"
+              - "http://127.0.0.1:5173"
+              - "http://localhost:5174"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - PATCH
+              - OPTIONS
+            allowedHeaders: "*"
+            allowCredentials: true
+
+      routes:
+        - id: user-service
+          uri: lb://user-service
+          predicates:
+            - Path=/api/v1/users/**,/api/v1/internal/users/**
+
+        - id: product-service
+          uri: lb://product-service
+          predicates:
+            - Path=/api/v1/products/**,/api/v1/categories/**,/api/v1/brands/**,/api/v1/admin/products/**,/api/v1/admin/categories/**,/api/v1/admin/brands/**,/api/v1/reviews/**,/api/v1/admin/coupons/**
+
+        - id: order-service
+          uri: lb://order-service
+          predicates:
+            - Path=/api/v1/orders/**,/api/v1/admin/orders/**
+
+        - id: user-service-admin
+          uri: lb://user-service
+          predicates:
+            - Path=/api/v1/admin/users/**
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://${EUREKA_HOST:eureka-server}:8761/eureka/
+
+  instance:
+    hostname: ${EUREKA_INSTANCE_HOSTNAME:api-gateway}
+    prefer-ip-address: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+logging:
+  level:
+    org.springframework.cloud.gateway: INFO

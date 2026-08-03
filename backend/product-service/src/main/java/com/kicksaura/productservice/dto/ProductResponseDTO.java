@@ -1,0 +1,36 @@
+package com.kicksaura.productservice.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class ProductResponseDTO {
+
+    private String id;
+    private String name;
+    private String searchName;
+    private String brand;
+    private String searchBrand;
+    private String searchText;
+    private String category;
+    private String description;
+    private Double basePrice;
+    private Double discountedPrice;
+    private List<String> imageUrls;
+    private List<String> videoUrls;
+    private boolean isVisible;
+    private boolean isSaleVisible;
+    private boolean isVideoVisible;
+    private LocalDateTime createdAt;
+    
+    private List<VariantDTO> variants;
+}

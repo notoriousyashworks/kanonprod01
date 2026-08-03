@@ -1,0 +1,283 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres
+    hostname: postgres
+    environment:
+      POSTGRES_USER: kicksaura
+      POSTGRES_PASSWORD: kicksaura
+      POSTGRES_DB: kicksaura
+      TZ: Asia/Kolkata
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      kicksaura-net:
+        aliases:
+          - kicksaura
+          - postgres
+          - kicksaura-db
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kicksaura -d kicksaura"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: kicksaura-redis
+    hostname: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      kicksaura-net:
+        aliases:
+          - redis
+          - kicksaura-cache
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  config-server:
+    build: ./backend/config-server
+    container_name: kicksaura-config-server
+    hostname: config-server
+    ports:
+      - "8888:8888"
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: kicksaura
+      POSTGRES_PASSWORD: kicksaura
+      POSTGRES_DB: kicksaura
+      REDIS_HOST: redis
+      EUREKA_HOST: eureka-server
+      TZ: Asia/Kolkata
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - kicksaura-net
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/localhost/8888' || wget -q --spider http://localhost:8888 || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+    restart: unless-stopped
+
+  eureka-server:
+    build: ./backend/eureka-server
+    container_name: kicksaura-eureka-server
+    hostname: eureka-server
+    ports:
+      - "8761:8761"
+    environment:
+      SPRING_CONFIG_IMPORT: "optional:configserver:http://config-server:8888"
+      SPRING_CLOUD_CONFIG_URI: "http://config-server:8888"
+      TZ: Asia/Kolkata
+    depends_on:
+      config-server:
+        condition: service_healthy
+    networks:
+      - kicksaura-net
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/localhost/8761' || wget -q --spider http://localhost:8761 || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+    restart: unless-stopped
+
+  user-service:
+    build: ./backend/user-service
+    container_name: kicksaura-user-service
+    hostname: user-service
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_CONFIG_IMPORT: "optional:configserver:http://config-server:8888"
+      SPRING_CLOUD_CONFIG_URI: "http://config-server:8888"
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: kicksaura
+      POSTGRES_PASSWORD: kicksaura
+      POSTGRES_DB: kicksaura
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      EUREKA_HOST: eureka-server
+      EUREKA_INSTANCE_HOSTNAME: user-service
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
+      MSG91_WIDGET_ID: ${MSG91_WIDGET_ID:-36677868776e353439383633}
+      MSG91_WIDGET_TOKEN: ${MSG91_WIDGET_TOKEN:-}
+      MSG91_AUTHKEY: ${MSG91_AUTHKEY:-}
+      TZ: Asia/Kolkata
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - kicksaura-net
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/localhost/8081' || wget -q --spider http://localhost:8081 || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+    restart: unless-stopped
+
+  product-service:
+    build: ./backend/product-service
+    container_name: kicksaura-product-service
+    hostname: product-service
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_CONFIG_IMPORT: "optional:configserver:http://config-server:8888"
+      SPRING_CLOUD_CONFIG_URI: "http://config-server:8888"
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: kicksaura
+      POSTGRES_PASSWORD: kicksaura
+      POSTGRES_DB: kicksaura
+      EUREKA_HOST: eureka-server
+      EUREKA_INSTANCE_HOSTNAME: product-service
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
+      TZ: Asia/Kolkata
+    depends_on:
+      postgres:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - kicksaura-net
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/localhost/8082' || wget -q --spider http://localhost:8082 || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+    restart: unless-stopped
+
+  order-service:
+    build: ./backend/order-service
+    container_name: kicksaura-order-service
+    hostname: order-service
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_CONFIG_IMPORT: "optional:configserver:http://config-server:8888"
+      SPRING_CLOUD_CONFIG_URI: "http://config-server:8888"
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: kicksaura
+      POSTGRES_PASSWORD: kicksaura
+      POSTGRES_DB: kicksaura
+      EUREKA_HOST: eureka-server
+      EUREKA_INSTANCE_HOSTNAME: order-service
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
+      TZ: Asia/Kolkata
+    depends_on:
+      postgres:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - kicksaura-net
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/localhost/8083' || wget -q --spider http://localhost:8083 || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+    restart: unless-stopped
+
+
+
+  api-gateway:
+    build: ./backend/api-gateway
+    container_name: kicksaura-api-gateway
+    hostname: api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_CONFIG_IMPORT: "optional:configserver:http://config-server:8888"
+      SPRING_CLOUD_CONFIG_URI: "http://config-server:8888"
+      EUREKA_HOST: eureka-server
+      TZ: Asia/Kolkata
+    depends_on:
+      config-server:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      user-service:
+        condition: service_healthy
+      product-service:
+        condition: service_healthy
+      order-service:
+        condition: service_healthy
+    networks:
+      - kicksaura-net
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/localhost/8080' || wget -q --spider http://localhost:8080 || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    container_name: kicksaura-frontend
+    hostname: frontend
+    ports:
+      - "5173:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+      - ./HeroBannerMain.png:/images-override/HeroBannerMain.png:ro
+    depends_on:
+      api-gateway:
+        condition: service_healthy
+    networks:
+      - kicksaura-net
+    restart: unless-stopped
+
+  admin:
+    build: ./admin
+    container_name: kicksaura-admin
+    hostname: admin
+    ports:
+      - "5174:80"
+    volumes:
+      - ./admin:/usr/share/nginx/html:ro
+    depends_on:
+      api-gateway:
+        condition: service_healthy
+    networks:
+      - kicksaura-net
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  kicksaura-net:
+    name: kicksaura

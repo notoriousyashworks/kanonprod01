@@ -1,0 +1,134 @@
+/* ============================================
+   KicksAura Design System — CSS Custom Properties
+   From Google Stitch DESIGN.md
+   ============================================ */
+
+:root {
+  /* === Brand Colors === */
+  --color-primary: #b7102a;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #db313f;
+  --color-on-primary-container: #fffbff;
+  --color-inverse-primary: #ffb3b1;
+
+  --color-secondary: #485f84;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #bbd3fd;
+  --color-on-secondary-container: #445a7f;
+
+  --color-tertiary: #336366;
+  --color-on-tertiary: #ffffff;
+  --color-tertiary-container: #4c7c7f;
+
+  /* === Surface Colors === */
+  --color-surface: #f9f9f9;
+  --color-surface-dim: #dadada;
+  --color-surface-bright: #f9f9f9;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f3f3f3;
+  --color-surface-container: #eeeeee;
+  --color-surface-container-high: #e8e8e8;
+  --color-surface-container-highest: #e2e2e2;
+  --color-on-surface: #1a1c1c;
+  --color-on-surface-variant: #5b403f;
+  --color-inverse-surface: #2f3131;
+  --color-inverse-on-surface: #f1f1f1;
+  --color-surface-tint: #bb152c;
+
+  /* === Outline === */
+  --color-outline: #8f6f6e;
+  --color-outline-variant: #e4bebc;
+
+  /* === Error === */
+  --color-error: #ba1a1a;
+  --color-on-error: #ffffff;
+  --color-error-container: #ffdad6;
+
+  /* === System States === */
+  --color-success: #2A9D8F;
+  --color-warning: #F4A261;
+  --color-danger: #D62828;
+
+  /* === Background === */
+  --color-background: #f9f9f9;
+  --color-on-background: #1a1c1c;
+
+  /* === Typography === */
+  --font-display: 'Montserrat', sans-serif;
+  --font-body: 'Inter', sans-serif;
+
+  /* Display Large */
+  --display-lg-size: 48px;
+  --display-lg-weight: 800;
+  --display-lg-line-height: 1.1;
+  --display-lg-letter-spacing: -0.02em;
+
+  /* Headline Large */
+  --headline-lg-size: 32px;
+  --headline-lg-weight: 700;
+  --headline-lg-line-height: 40px;
+
+  /* Headline Medium */
+  --headline-md-size: 24px;
+  --headline-md-weight: 700;
+  --headline-md-line-height: 32px;
+
+  /* Headline Small */
+  --headline-sm-size: 20px;
+  --headline-sm-weight: 600;
+  --headline-sm-line-height: 28px;
+
+  /* Body Large */
+  --body-lg-size: 18px;
+  --body-lg-weight: 400;
+  --body-lg-line-height: 28px;
+
+  /* Body Medium */
+  --body-md-size: 16px;
+  --body-md-weight: 400;
+  --body-md-line-height: 24px;
+
+  /* Body Small */
+  --body-sm-size: 14px;
+  --body-sm-weight: 400;
+  --body-sm-line-height: 20px;
+
+  /* Label Bold */
+  --label-bold-size: 12px;
+  --label-bold-weight: 700;
+  --label-bold-line-height: 16px;
+  --label-bold-letter-spacing: 0.05em;
+
+  /* Mobile Headline */
+  --headline-lg-mobile-size: 28px;
+  --headline-lg-mobile-weight: 700;
+  --headline-lg-mobile-line-height: 36px;
+
+  /* === Spacing === */
+  --space-base: 8px;
+  --space-xs: 4px;
+  --space-sm: 12px;
+  --space-md: 24px;
+  --space-lg: 48px;
+  --space-xl: 80px;
+  --container-max: 1280px;
+  --gutter: 24px;
+
+  /* === Border Radius === */
+  --radius-sm: 0.25rem;
+  --radius-default: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --radius-full: 9999px;
+
+  /* === Elevation / Shadows === */
+  --shadow-level-0: none;
+  --shadow-level-2: 0px 4px 20px rgba(0, 0, 0, 0.05);
+  --shadow-level-3: 0px 8px 30px rgba(0, 0, 0, 0.08);
+
+  /* === Transitions === */
+  --transition-fast: 150ms ease;
+  --transition-normal: 250ms ease;
+  --transition-slow: 400ms cubic-bezier(0.4, 0, 0.2, 1);
+}

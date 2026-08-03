@@ -1,0 +1,248 @@
+package com.kicksaura.productservice.service;
+
+import com.kicksaura.productservice.dto.ProductRequestDTO;
+import com.kicksaura.productservice.dto.ProductResponseDTO;
+import com.kicksaura.productservice.dto.VariantDTO;
+import com.kicksaura.productservice.entity.Product;
+import com.kicksaura.productservice.entity.ProductVariant;
+import com.kicksaura.productservice.exception.ResourceNotFoundException;
+import com.kicksaura.productservice.repository.ProductRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.kicksaura.productservice.repository.ProductSpecification;
+import org.springframework.data.jpa.domain.Specification;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+public class ProductService {
+
+    private final ProductRepository productRepository;
+
+    // ----- Public Methods -----
+
+    @Transactional(readOnly = true)
+    public List<ProductResponseDTO> filterProducts(List<String> categories, List<String> brands, Double minPrice, Double maxPrice, List<String> sizes) {
+        Specification<Product> spec = Specification.where(ProductSpecification.isVisible())
+                .and(ProductSpecification.hasCategoryIn(categories))
+                .and(ProductSpecification.hasBrandIn(brands))
+                .and(ProductSpecification.hasPriceBetween(minPrice, maxPrice))
+                .and(ProductSpecification.hasSizeIn(sizes));
+
+        return productRepository.findAll(spec).stream()
+                .map(this::mapToResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProductResponseDTO> getAllVisibleProducts() {
+        return productRepository.findByIsVisibleTrueOrderByCreatedAtDesc().stream()
+                .map(this::mapToResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public ProductResponseDTO getVisibleProductById(String id) {
+        Product product = productRepository.findById(UUID.fromString(id))
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
+
+        if (!product.isVisible()) {
+            throw new ResourceNotFoundException("Product is currently not visible.");
+        }
+
+        return mapToResponseDTO(product);
+    }
+
+    // ----- Admin Methods -----
+
+    @Transactional(readOnly = true)
+    public List<ProductResponseDTO> getAllProducts() {
+        return productRepository.findAll().stream()
+                .map(this::mapToResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public ProductResponseDTO getProductById(String id) {
+        Product product = productRepository.findById(UUID.fromString(id))
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
+        return mapToResponseDTO(product);
+    }
+
+
+    @Transactional
+    public ProductResponseDTO createProduct(ProductRequestDTO request) {
+        Product product = Product.builder()
+                .name(request.getName())
+                .searchName(request.getSearchName())
+                .brand(request.getBrand())
+                .searchBrand(request.getSearchBrand())
+                .searchText(request.getSearchText())
+                .category(request.getCategory())
+                .description(request.getDescription())
+                .basePrice(request.getBasePrice())
+                .discountedPrice(request.getDiscountedPrice())
+                .imageUrls(request.getImageUrls() != null ? new ArrayList<>(request.getImageUrls()) : new ArrayList<>())
+                .videoUrls(request.getVideoUrls() != null ? new ArrayList<>(request.getVideoUrls()) : new ArrayList<>())
+                .isVisible(request.isVisible())
+                .isSaleVisible(request.isSaleVisible())
+                .isVideoVisible(request.isVideoVisible())
+                .build();
+
+        if (request.getVariants() != null) {
+            for (VariantDTO variantDTO : request.getVariants()) {
+                ProductVariant variant = ProductVariant.builder()
+                        .size(variantDTO.getSize())
+                        .stockQuantity(variantDTO.getStockQuantity())
+                        .sku(variantDTO.getSku())
+                        .build();
+                product.addVariant(variant);
+            }
+        }
+
+        System.out.println("[STEP 5 - Service] Mapped Product entity imageUrls: " + product.getImageUrls());
+        System.out.println("[STEP 6 - Entity] Product entity field imageUrls mapped to @ElementCollection product_images table with @Column(name=\"image_url\"). Value: " + product.getImageUrls());
+        Product savedProduct = productRepository.save(product);
+        System.out.println("[STEP 7 - Repository] productRepository.save() completed for ID: " + savedProduct.getId() + " with imageUrls: " + savedProduct.getImageUrls());
+        productRepository.flush();
+        Product verifiedFromDb = productRepository.findById(savedProduct.getId()).orElse(savedProduct);
+        System.out.println("[STEP 8 - PostgreSQL] Verified reading from DB right after save. product_images table contains imageUrls: " + verifiedFromDb.getImageUrls());
+        return mapToResponseDTO(savedProduct);
+    }
+
+    @Transactional
+    public ProductResponseDTO updateProduct(String id, ProductRequestDTO request) {
+        Product product = productRepository.findById(UUID.fromString(id))
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
+
+        product.setName(request.getName());
+        product.setSearchName(request.getSearchName());
+        product.setBrand(request.getBrand());
+        product.setSearchBrand(request.getSearchBrand());
+        product.setSearchText(request.getSearchText());
+        product.setCategory(request.getCategory());
+        product.setDescription(request.getDescription());
+        product.setBasePrice(request.getBasePrice());
+        product.setDiscountedPrice(request.getDiscountedPrice());
+        product.setImageUrls(request.getImageUrls() != null ? new ArrayList<>(request.getImageUrls()) : new ArrayList<>());
+        product.setVideoUrls(request.getVideoUrls() != null ? new ArrayList<>(request.getVideoUrls()) : new ArrayList<>());
+        product.setVisible(request.isVisible());
+        product.setSaleVisible(request.isSaleVisible());
+        product.setVideoVisible(request.isVideoVisible());
+
+        // Simple variant update strategy: remove old, add new to handle additions/deletions easily.
+        product.getVariants().clear();
+        if (request.getVariants() != null) {
+            for (VariantDTO variantDTO : request.getVariants()) {
+                ProductVariant variant = ProductVariant.builder()
+                        .size(variantDTO.getSize())
+                        .stockQuantity(variantDTO.getStockQuantity())
+                        .sku(variantDTO.getSku())
+                        .build();
+                product.addVariant(variant);
+            }
+        }
+
+        System.out.println("[STEP 5 - Service] Mapped Product entity imageUrls on update: " + product.getImageUrls());
+        System.out.println("[STEP 6 - Entity] Product entity field imageUrls mapped to @ElementCollection product_images table with @Column(name=\"image_url\"). Value: " + product.getImageUrls());
+        Product updatedProduct = productRepository.save(product);
+        System.out.println("[STEP 7 - Repository] productRepository.save() completed for ID: " + updatedProduct.getId() + " with imageUrls: " + updatedProduct.getImageUrls());
+        productRepository.flush();
+        Product verifiedFromDb = productRepository.findById(updatedProduct.getId()).orElse(updatedProduct);
+        System.out.println("[STEP 8 - PostgreSQL] Verified reading from DB right after update. product_images table contains imageUrls: " + verifiedFromDb.getImageUrls());
+        return mapToResponseDTO(updatedProduct);
+    }
+
+    @Transactional
+    public void deleteProduct(String id) {
+        if (!productRepository.existsById(UUID.fromString(id))) {
+            throw new ResourceNotFoundException("Product not found with id: " + id);
+        }
+        productRepository.deleteById(UUID.fromString(id));
+    }
+
+    @Transactional
+    public ProductResponseDTO updateVisibility(String id, boolean isVisible) {
+        Product product = productRepository.findById(UUID.fromString(id))
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
+        product.setVisible(isVisible);
+        Product savedProduct = productRepository.save(product);
+        return mapToResponseDTO(savedProduct);
+    }
+
+    @Transactional
+    public void deductStock(String productId, String variantId, Integer quantity) {
+        Product product = productRepository.findById(UUID.fromString(productId))
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + productId));
+
+        ProductVariant variant = product.getVariants().stream()
+                .filter(v -> v.getId().toString().equals(variantId))
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException("Variant not found with id: " + variantId));
+
+        if (variant.getStockQuantity() < quantity) {
+            throw new IllegalArgumentException("Insufficient stock for variant");
+        }
+
+        variant.setStockQuantity(variant.getStockQuantity() - quantity);
+        productRepository.save(product);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProductResponseDTO> searchProducts(String query) {
+        if (query == null || query.trim().isEmpty()) {
+            return getAllVisibleProducts();
+        }
+        return productRepository.searchProductsByQuery(query.trim())
+                .stream()
+                .map(this::mapToResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProductResponseDTO> getProductsByCategory(String category) {
+        return productRepository.findByCategoryIgnoreCaseAndIsVisibleTrue(category)
+                .stream()
+                .map(this::mapToResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+    // ----- Helper Mappers -----
+
+    private ProductResponseDTO mapToResponseDTO(Product product) {
+        List<VariantDTO> variantDTOs = product.getVariants().stream().map(v ->
+                VariantDTO.builder()
+                        .id(v.getId().toString())
+                        .size(v.getSize())
+                        .stockQuantity(v.getStockQuantity())
+                        .sku(v.getSku())
+                        .build()
+        ).collect(Collectors.toList());
+
+        return ProductResponseDTO.builder()
+                .id(product.getId().toString())
+                .name(product.getName())
+                .searchName(product.getSearchName())
+                .brand(product.getBrand())
+                .searchBrand(product.getSearchBrand())
+                .searchText(product.getSearchText())
+                .category(product.getCategory())
+                .description(product.getDescription())
+                .basePrice(product.getBasePrice())
+                .discountedPrice(product.getDiscountedPrice())
+                .imageUrls(product.getImageUrls())
+                .videoUrls(product.getVideoUrls())
+                .isVisible(product.isVisible())
+                .isSaleVisible(product.isSaleVisible())
+                .isVideoVisible(product.isVideoVisible())
+                .createdAt(product.getCreatedAt())
+                .variants(variantDTOs)
+                .build();
+    }
+}

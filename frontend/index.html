@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KicksAura - Premium Kicks & Accessories</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/src/styles/design-system.css">
+  <link rel="stylesheet" href="/src/styles/global.css?v=1.4">
+  <link rel="stylesheet" href="/src/styles/landing.css?v=1.1">
+  <link rel="stylesheet" href="/src/styles/product-card.css?v=1.1">
+</head>
+<body>
+  <!-- Global Preloader -->
+  <div id="global-ka-preloader" style="position: fixed; inset: 0; background: var(--bg-main, #f5f5f5); z-index: 999999; display: flex; align-items: center; justify-content: center; transition: opacity 0.5s ease, visibility 0.5s ease;">
+    <div class="ka-loader" style="min-height: 100vh; margin: 0;">
+      <div class="ka-loader__badge">
+        <div class="ka-loader__wordmark">KICKS<br>AURA</div>
+      </div>
+      <span class="ka-loader__text" style="font-size: 14px;">Loading...</span>
+    </div>
+  </div>
+  <script>
+    (function() {
+      const startTime = Date.now();
+      const minDelay = 0;
+      function hideLoader() {
+        const preloader = document.getElementById("global-ka-preloader");
+        if (!preloader) return;
+        const elapsed = Date.now() - startTime;
+        const remaining = Math.max(0, minDelay - elapsed);
+        setTimeout(() => {
+          preloader.style.opacity = "0";
+          preloader.style.visibility = "hidden";
+          setTimeout(() => preloader.remove(), 500);
+        }, remaining);
+      }
+      if (document.readyState === "complete") {
+        hideLoader();
+      } else {
+        window.addEventListener("load", hideLoader);
+      }
+    })();
+  </script>
+  
+  <div id="navbar-container"></div>
+
+  <main>
+    <!-- Hero Banner -->
+    <style>
+      .hero-banner-wrapper {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 14px;
+        margin-top: 20px;
+        width: 80%;
+        max-width: 1000px;
+        overflow: hidden;
+        padding: 3px;
+        background: #000;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      }
+      .hero-banner-wrapper::before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: conic-gradient(transparent, transparent, transparent, #ffffff);
+        animation: rotateLight 3s linear infinite;
+      }
+      @keyframes rotateLight {
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+      .hero-banner-wrapper img {
+        position: relative;
+        width: 100%;
+        height: auto;
+        display: block;
+        border-radius: 11px; /* Slightly smaller than wrapper to fit perfectly */
+        z-index: 1;
+        background: #000; /* Prevent transparency bleeding */
+      }
+    </style>
+    <section class="hero-banner">
+      <div class="container" style="padding: 0; text-align: center;">
+        <div class="hero-banner-wrapper">
+          <img src="/images/HeroBannerMain.png" alt="Hero Banner">
+        </div>
+      </div>
+    </section>
+
+    <!-- New Arrivals -->
+    <section id="new-arrivals" class="new-arrivals">
+      <div class="container">
+        <h2 class="section-title">NEW ARRIVALS</h2>
+        <!-- Empty state or loaded products will go here -->
+        <div id="new-arrivals-grid" class="product-grid">
+          <!-- Fallback skeletons -->
+          <div class="product-card skeleton"></div>
+          <div class="product-card skeleton"></div>
+          <div class="product-card skeleton"></div>
+          <div class="product-card skeleton"></div>
+          <div class="product-card skeleton"></div>
+          <div class="product-card skeleton"></div>
+          <div class="product-card skeleton"></div>
+          <div class="product-card skeleton"></div>
+        </div>
+        <button id="explore-all-btn" class="btn-explore" style="display: none; cursor: pointer;">View All</button>
+      </div>
+    </section>
+
+    <!-- Why Kicks Aura -->
+    <section class="why-kicksaura">
+      <div class="container">
+        <h2 class="section-title">WHY KICKS AURA?</h2>
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+            </div>
+            <h3>Prepaid Order Off</h3>
+            <p>Get instant ₹ 200 off on all prepaid orders.</p>
+          </div>
+          <div class="feature-card feature-card--ribbon">
+            <div class="feature-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+            </div>
+            <h3>COD Available Pan India</h3>
+            <p>Pay conveniently on delivery with just ₹ 99 advance.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+            </div>
+            <h3>24/7 WhatsApp Support</h3>
+            <p>Our captains respond in less than 10 minutes.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+            </div>
+            <h3>Easy Return & Exchange</h3>
+            <p>Hassle-free returns &amp; exchanges. Contact us in case of any issue.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+            </div>
+            <h3>Fast Delivery</h3>
+            <p>Delivery across Pan India within 4–5 working days.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
+            </div>
+            <h3>Live Video Call Before Dispatch</h3>
+            <p>Check quality on video call before dispatch</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Shop By Category -->
+    <section id="shop-category" class="shop-category">
+      <div class="container">
+        <h2 class="section-title">SHOP BY CATEGORY</h2>
+        <div class="category-grid" id="category-grid">
+          <!-- Populated dynamically from the database via /api/v1/categories -->
+        </div>
+      </div>
+    </section>
+
+
+
+    <!-- Customer Reviews -->
+    <section id="customer-reviews" class="customer-reviews">
+      <div class="container">
+        <h2 class="section-title">WHAT OUR CUSTOMERS SAY</h2>
+        <div class="reviews-carousel">
+          <button class="carousel-btn carousel-btn--prev">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+          
+          <div class="review-card" style="display:none"></div>
+
+          <button class="carousel-btn carousel-btn--next">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <div id="footer-container"></div>
+
+  <script type="module" src="/src/js/landing.js?v=1.2"></script>
+</body>
+</html>

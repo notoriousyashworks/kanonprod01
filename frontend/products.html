@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shop — KicksAura</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/src/styles/global.css?v=1.3" />
+  <link rel="stylesheet" href="/src/styles/product-card.css?v=1.1" />
+  <link rel="stylesheet" href="/src/styles/products.css?v=1.2" />
+</head>
+<body>
+  <!-- Global Preloader -->
+  <div id="global-ka-preloader" style="position: fixed; inset: 0; background: var(--bg-main, #f5f5f5); z-index: 999999; display: flex; align-items: center; justify-content: center; transition: opacity 0.5s ease, visibility 0.5s ease;">
+    <div class="ka-loader" style="min-height: 100vh; margin: 0;">
+      <div class="ka-loader__badge">
+        <div class="ka-loader__wordmark">KICKS<br>AURA</div>
+      </div>
+      <span class="ka-loader__text" style="font-size: 14px;">Loading...</span>
+    </div>
+  </div>
+  <script>
+    (function() {
+      const startTime = Date.now();
+      const minDelay = 0;
+      function hideLoader() {
+        const preloader = document.getElementById("global-ka-preloader");
+        if (!preloader) return;
+        const elapsed = Date.now() - startTime;
+        const remaining = Math.max(0, minDelay - elapsed);
+        setTimeout(() => {
+          preloader.style.opacity = "0";
+          preloader.style.visibility = "hidden";
+          setTimeout(() => preloader.remove(), 500);
+        }, remaining);
+      }
+      if (document.readyState === "complete") {
+        hideLoader();
+      } else {
+        window.addEventListener("load", hideLoader);
+      }
+    })();
+  </script>
+  <div id="navbar-container"></div>
+
+  <div class="products-layout">
+    <!-- Left Column -->
+    <div class="products-left-column">
+      <!-- Toggle Button -->
+      <button id="toggle-filters-btn" class="filters-sort-btn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="4" y1="21" x2="4" y2="14"></line>
+          <line x1="4" y1="10" x2="4" y2="3"></line>
+          <line x1="12" y1="21" x2="12" y2="12"></line>
+          <line x1="12" y1="8" x2="12" y2="3"></line>
+          <line x1="20" y1="21" x2="20" y2="16"></line>
+          <line x1="20" y1="12" x2="20" y2="3"></line>
+          <line x1="1" y1="14" x2="7" y2="14"></line>
+          <line x1="9" y1="8" x2="15" y2="8"></line>
+          <line x1="17" y1="16" x2="23" y2="16"></line>
+        </svg>
+        Filters
+      </button>
+
+      <div id="filter-overlay" class="filter-overlay"></div>
+
+      <!-- Sidebar -->
+      <aside class="products-sidebar" id="products-sidebar">
+        <div class="sidebar-header">
+          <div class="sidebar-tabs">
+            <span class="sidebar-tab active">FILTERS</span>
+          </div>
+          <button class="close-sidebar-btn" id="close-sidebar-btn">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
+        </div>
+
+        <!-- CATEGORY (Accordion) -->
+        <details class="filter-accordion">
+          <summary class="filter-summary">CATEGORY <span class="accordion-icon"></span></summary>
+          <div class="filter-content" id="category-filter-group">
+            <!-- Category checkboxes injected by products.js -->
+          </div>
+        </details>
+
+        <div class="filter-divider"></div>
+
+        <!-- BRANDS (Accordion) -->
+        <details class="filter-accordion">
+          <summary class="filter-summary">BRANDS <span class="accordion-icon"></span></summary>
+          <div class="filter-content" id="brand-filter-group">
+            <!-- Brand checkboxes injected by products.js -->
+          </div>
+        </details>
+
+        <div class="filter-divider"></div>
+
+        <!-- PRICE (Accordion) -->
+        <details class="filter-accordion">
+          <summary class="filter-summary price-summary"><span class="price-label">PRICE</span> <span class="accordion-icon"></span></summary>
+          <div class="filter-content" id="price-filter-group">
+            <div class="price-slider-container">
+              <div class="range-slider">
+                <span class="range-track"></span>
+                <input type="range" id="price-slider-min" min="0" max="35000" step="100" value="0" />
+                <input type="range" id="price-slider-max" min="0" max="35000" step="100" value="35000" />
+              </div>
+              <div class="price-values">
+                <span id="price-display">₹0 - ₹35,000</span>
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <div class="filter-divider"></div>
+
+        <!-- SIZE (Accordion) -->
+        <details class="filter-accordion">
+          <summary class="filter-summary">SIZE <span class="accordion-icon"></span></summary>
+          <div class="filter-content" id="size-filter-group">
+            <!-- Size checkboxes injected by products.js -->
+          </div>
+        </details>
+
+      </aside>
+    </div>
+
+    <!-- Main Content -->
+    <main class="products-main">
+      <div class="products-header">
+        <h1 class="category-title" id="products-page-title">All Products</h1>
+        <p class="category-count" id="results-count"></p>
+      </div>
+
+      <!-- Active Filter Chips -->
+      <div class="active-chips-row" id="active-chips-row"></div>
+
+      <div class="products-grid" id="products-grid">
+        <!-- Products injected by JS -->
+      </div>
+    </main>
+  </div>
+
+  <div id="footer-container"></div>
+
+  <script type="module" src="/src/js/products.js"></script>
+</body>
+</html>
