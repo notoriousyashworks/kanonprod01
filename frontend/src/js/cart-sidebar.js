@@ -210,13 +210,15 @@ export function initCartSidebar() {
 
   function openCartSidebar() {
     sidebar.classList.add('open');
-    overlay.classList.add('open');
+    overlay?.classList.add('open');
+    document.body.classList.add('sidebar-lock');
     renderCartSidebar();
   }
 
   function closeCartSidebar() {
     sidebar.classList.remove('open');
-    overlay.classList.remove('open');
+    overlay?.classList.remove('open');
+    document.body.classList.remove('sidebar-lock');
   }
 
   trigger.addEventListener('click', (e) => {
@@ -226,6 +228,17 @@ export function initCartSidebar() {
 
   closeBtn?.addEventListener('click', closeCartSidebar);
   overlay?.addEventListener('click', closeCartSidebar);
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('#close-cart')) {
+      e.preventDefault();
+      closeCartSidebar();
+    }
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && sidebar.classList.contains('open')) {
+      closeCartSidebar();
+    }
+  });
 
   // Also re-render whenever cart updates
   window.addEventListener('cart-updated', () => {

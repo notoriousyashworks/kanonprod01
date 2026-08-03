@@ -98,9 +98,12 @@ function renderOrdersList() {
     return;
   }
 
-  listView.innerHTML = currentOrders.map((order, idx) => {
+  const ordersHtml = currentOrders.map((order, idx) => {
     const orderNum = order.orderId ? `${order.orderId}` : `Order ${currentOrders.length - idx}`;
     const total = (order.total || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 });
+    const orderStatus = statusMap[order.status] || statusMap[(order.status || '').toUpperCase()] || 'Order Placed';
+    const itemCount = (order.items || []).reduce((sum, item) => sum + (item.quantity || 1), 0) || 1;
+    const placedDate = formatDate(order.placedAt);
     
     // Using first item's image for the card
     const firstItem = order.items?.[0];
@@ -119,14 +122,33 @@ function renderOrdersList() {
         <div class="noc-image">${imgHtml}</div>
         <div class="noc-info">
           <h3 class="noc-status">${displayTitle}</h3>
-          <p class="noc-meta">
-            #${orderNum}
-          </p>
+          <p class="noc-meta">#${orderNum}</p>
+          <div class="noc-extra-row">
+            <span class="noc-chip noc-chip--status">${orderStatus}</span>
+            <span class="noc-chip">${placedDate}</span>
+            <span class="noc-chip">${itemCount} ${itemCount === 1 ? 'item' : 'items'}</span>
+          </div>
         </div>
-        <button style="position: absolute; bottom: 24px; right: 24px; padding: 8px 20px; font-size: 13px; font-weight: 600; color: #3b82f6; background-color: transparent; border-radius: 8px; border: 1.5px solid #3b82f6; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.backgroundColor='#eff6ff'; this.style.transform='scale(1.02)';" onmouseout="this.style.backgroundColor='transparent'; this.style.transform='scale(1)';">View Details</button>
+        <div class="noc-actions">
+          <p class="noc-total">₹${total}</p>
+          <button class="noc-details-btn" type="button">View Details</button>
+        </div>
       </div>
     `;
   }).join('');
+
+  listView.innerHTML = `
+    <div class="orders-page-head">
+      <div>
+        <h1>My Orders</h1>
+        <p>Track your purchases, payments, and delivery updates in one place.</p>
+      </div>
+      <span class="orders-count-pill">${currentOrders.length} ${currentOrders.length === 1 ? 'order' : 'orders'}</span>
+    </div>
+    <div class="orders-list-stack">
+      ${ordersHtml}
+    </div>
+  `;
 
   // Attach click listeners to cards
   listView.querySelectorAll('.new-order-card').forEach(card => {

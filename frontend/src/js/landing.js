@@ -20,6 +20,145 @@ initProfileDropdown();
 initSearch();
 initLoginModalTrigger();
 
+function initHeroCarousel() {
+  const carousel = document.getElementById('hero-carousel');
+  const track = carousel?.querySelector('.hero-carousel-track');
+  const realSlides = Array.from(carousel?.querySelectorAll('.hero-slide') || []);
+  const dots = Array.from(carousel?.querySelectorAll('.hero-carousel-dot') || []);
+  const previousButton = carousel?.querySelector('.hero-carousel-arrow--prev');
+  const nextButton = carousel?.querySelector('.hero-carousel-arrow--next');
+
+  if (!carousel || !track || realSlides.length < 2) return;
+
+  const firstClone = realSlides[0].cloneNode(true);
+  const lastClone = realSlides[realSlides.length - 1].cloneNode(true);
+  firstClone.classList.add('hero-slide--clone');
+  lastClone.classList.add('hero-slide--clone');
+  track.appendChild(firstClone);
+  track.insertBefore(lastClone, realSlides[0]);
+
+  const slides = Array.from(track.querySelectorAll('.hero-slide'));
+  let trackIndex = 1;
+  let autoTimer = null;
+  let startX = 0;
+  let dragDelta = 0;
+  let isDragging = false;
+
+  const getRealIndex = () => (trackIndex - 1 + realSlides.length) % realSlides.length;
+
+  const updateDots = () => {
+    const realIndex = getRealIndex();
+    dots.forEach((dot, index) => {
+      dot.classList.toggle('is-active', index === realIndex);
+    });
+  };
+
+  const updateSlideClasses = () => {
+    slides.forEach((slide, index) => {
+      slide.classList.toggle('is-active', index === trackIndex);
+    });
+  };
+
+  const moveTrack = (animate = true) => {
+    track.style.transition = animate ? 'transform 1.25s cubic-bezier(0.25, 0.74, 0.28, 0.99)' : 'none';
+    track.style.transform = `translate3d(-${trackIndex * 100}%, 0, 0)`;
+  };
+
+  const goToTrackIndex = (index, animate = true) => {
+    trackIndex = index;
+    updateSlideClasses();
+    updateDots();
+    moveTrack(animate);
+  };
+
+  const goToRealSlide = (index) => {
+    goToTrackIndex(index + 1);
+  };
+
+  const stopAutoSlide = () => {
+    if (!autoTimer) return;
+    clearInterval(autoTimer);
+    autoTimer = null;
+  };
+
+  const startAutoSlide = () => {
+    stopAutoSlide();
+    autoTimer = setInterval(() => goToTrackIndex(trackIndex + 1), 1500);
+  };
+
+  previousButton?.addEventListener('click', (event) => {
+    event.stopPropagation();
+    goToTrackIndex(trackIndex - 1);
+    startAutoSlide();
+  });
+
+  nextButton?.addEventListener('click', (event) => {
+    event.stopPropagation();
+    goToTrackIndex(trackIndex + 1);
+    startAutoSlide();
+  });
+
+  dots.forEach((dot, index) => {
+    dot.addEventListener('click', (event) => {
+      event.stopPropagation();
+      goToRealSlide(index);
+      startAutoSlide();
+    });
+  });
+
+  carousel.addEventListener('pointerdown', (event) => {
+    if (event.target.closest('button')) return;
+    isDragging = true;
+    startX = event.clientX;
+    dragDelta = 0;
+    carousel.classList.add('is-dragging');
+    stopAutoSlide();
+    carousel.setPointerCapture?.(event.pointerId);
+  });
+
+  carousel.addEventListener('pointermove', (event) => {
+    if (!isDragging) return;
+    dragDelta = event.clientX - startX;
+    track.style.transition = 'none';
+    track.style.transform = `translate3d(calc(-${trackIndex * 100}% + ${dragDelta}px), 0, 0)`;
+  });
+
+  const finishDrag = () => {
+    if (!isDragging) return;
+    isDragging = false;
+    carousel.classList.remove('is-dragging');
+
+    if (Math.abs(dragDelta) > 60) {
+      goToTrackIndex(trackIndex + (dragDelta < 0 ? 1 : -1));
+    } else {
+      goToTrackIndex(trackIndex);
+    }
+
+    startAutoSlide();
+  };
+
+  track.addEventListener('transitionend', () => {
+    if (trackIndex === 0) {
+      goToTrackIndex(realSlides.length, false);
+    }
+
+    if (trackIndex === realSlides.length + 1) {
+      goToTrackIndex(1, false);
+    }
+  });
+
+  carousel.addEventListener('pointerup', finishDrag);
+  carousel.addEventListener('pointercancel', finishDrag);
+  carousel.addEventListener('mouseleave', finishDrag);
+  carousel.addEventListener('mouseenter', stopAutoSlide);
+  carousel.addEventListener('mouseleave', startAutoSlide);
+  carousel.addEventListener('focusin', stopAutoSlide);
+  carousel.addEventListener('focusout', startAutoSlide);
+
+  goToTrackIndex(1, false);
+  startAutoSlide();
+}
+
 
 // ── Load Categories from DB ──────────────────────────────
 async function loadCategories() {
@@ -37,7 +176,7 @@ async function loadCategories() {
       return;
     }
 
-    grid.innerHTML = categories.map(cat => `
+    const categoryCards = categories.map(cat => `
       <a href="/products?category=${encodeURIComponent(cat.name)}" class="category-card">
         <div class="category-image-wrap">
           ${cat.imageUrl
@@ -46,6 +185,8 @@ async function loadCategories() {
         </div>
         <div class="category-name">${cat.name}</div>
       </a>`).join('');
+
+    grid.innerHTML = categoryCards + categoryCards;
   } catch (err) {
     console.error('Failed to load categories:', err);
     grid.innerHTML = '';   // hide the section gracefully on error
@@ -77,27 +218,12 @@ async function loadArrivals() {
     visibleArrivalsCount = Math.min(ARRIVALS_PAGE_SIZE, allNewArrivals.length);
 
     const initialSlice = allNewArrivals.slice(0, visibleArrivalsCount);
-    grid.innerHTML = initialSlice.map(createProductCard).join('');
+    const arrivalCards = initialSlice.map(createProductCard).join('');
+    grid.innerHTML = arrivalCards + arrivalCards;
     attachCardListeners(initialSlice);
 
     if (exploreBtn) {
-      if (allNewArrivals.length > visibleArrivalsCount) {
-        exploreBtn.style.display = 'block';
-        exploreBtn.textContent = 'View All';
-        exploreBtn.onclick = () => {
-          const nextSlice = allNewArrivals.slice(visibleArrivalsCount, visibleArrivalsCount + ARRIVALS_PAGE_SIZE);
-          if (nextSlice.length > 0) {
-            grid.insertAdjacentHTML('beforeend', nextSlice.map(createProductCard).join(''));
-            attachCardListeners(nextSlice);
-            visibleArrivalsCount += nextSlice.length;
-          }
-          if (visibleArrivalsCount >= allNewArrivals.length) {
-            exploreBtn.style.display = 'none';
-          }
-        };
-      } else {
-        exploreBtn.style.display = 'none';
-      }
+      exploreBtn.style.display = 'none';
     }
   } catch (error) {
     grid.innerHTML = `
@@ -151,6 +277,7 @@ function attachCardListeners(products) {
   });
 }
 
+initHeroCarousel();
 loadCategories();
 loadArrivals();
 loadReviews();

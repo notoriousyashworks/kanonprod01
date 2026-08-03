@@ -175,13 +175,15 @@ export function initWishlistSidebar() {
 
   function openSidebar() {
     sidebar.classList.add('open');
-    overlay.classList.add('open');
+    overlay?.classList.add('open');
+    document.body.classList.add('sidebar-lock');
     renderWishlistSidebar();
   }
 
   function closeSidebar() {
     sidebar.classList.remove('open');
-    overlay.classList.remove('open');
+    overlay?.classList.remove('open');
+    document.body.classList.remove('sidebar-lock');
   }
 
   trigger.addEventListener('click', (e) => {
@@ -191,6 +193,11 @@ export function initWishlistSidebar() {
 
   closeBtn?.addEventListener('click', closeSidebar);
   overlay?.addEventListener('click', closeSidebar);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && sidebar.classList.contains('open')) {
+      closeSidebar();
+    }
+  });
 }
 
 window.toggleWishlistItem = toggleWishlistItem;

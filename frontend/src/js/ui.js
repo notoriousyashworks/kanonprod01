@@ -1,4 +1,4 @@
-/* ============================================
+﻿/* ============================================
    KicksAura UI Utilities
    ============================================ */
 import { isWishlisted, toggleWishlistItem } from './wishlist.js';
@@ -302,23 +302,43 @@ export function getNavbarHTML(activePage = 'home') {
         <div class="header__banner-marquee">
           <div class="marquee-content">
             <span class="dot">•</span>
-            <span>TRUSTED BY 500+ CUSTOMERS</span>
+            <span>500+ HAPPY CUSTOMERS</span>
             <span class="dot">•</span>
-            <span class="text-red">COD AVAILABLE (ONLY ₹ 99 ADVANCE)</span>
+            <span class="text-red">COD AVAILABLE</span>
             <span class="dot">•</span>
-            <span>PAN INDIA DELIVERY</span>
+            <span>PAN-INDIA DELIVERY</span>
             <span class="dot">•</span>
-            <span class="text-red">₹200 OFF ON PREPAID ORDER</span>
+            <span class="text-red">PREPAID ORDER OFFERS</span>
           </div>
           <div class="marquee-content" aria-hidden="true">
             <span class="dot">•</span>
-            <span>TRUSTED BY 500+ CUSTOMERS</span>
+            <span>500+ HAPPY CUSTOMERS</span>
             <span class="dot">•</span>
-            <span class="text-red">COD AVAILABLE (ONLY ₹ 99 ADVANCE)</span>
+            <span class="text-red">COD AVAILABLE</span>
             <span class="dot">•</span>
-            <span>PAN INDIA DELIVERY</span>
+            <span>PAN-INDIA DELIVERY</span>
             <span class="dot">•</span>
-            <span class="text-red">₹200 OFF ON PREPAID ORDER</span>
+            <span class="text-red">PREPAID ORDER OFFERS</span>
+          </div>
+          <div class="marquee-content" aria-hidden="true">
+            <span class="dot">•</span>
+            <span>500+ HAPPY CUSTOMERS</span>
+            <span class="dot">•</span>
+            <span class="text-red">COD AVAILABLE</span>
+            <span class="dot">•</span>
+            <span>PAN-INDIA DELIVERY</span>
+            <span class="dot">•</span>
+            <span class="text-red">PREPAID ORDER OFFERS</span>
+          </div>
+          <div class="marquee-content" aria-hidden="true">
+            <span class="dot">•</span>
+            <span>500+ HAPPY CUSTOMERS</span>
+            <span class="dot">•</span>
+            <span class="text-red">COD AVAILABLE</span>
+            <span class="dot">•</span>
+            <span>PAN-INDIA DELIVERY</span>
+            <span class="dot">•</span>
+            <span class="text-red">PREPAID ORDER OFFERS</span>
           </div>
         </div>
       </div>
