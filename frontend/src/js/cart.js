@@ -56,7 +56,7 @@ function saveCart(cart) {
 
 export function addToCart(product, variant, quantity = 1, options = {}) {
   const cart = getCart();
-  const size = variant ? variant.size : 'One Size';
+  const size = variant?.size || '';
   const liveVideoCall = Boolean(options.liveVideoCall);
   
   const existingIndex = cart.findIndex(
@@ -84,7 +84,7 @@ export function addToCart(product, variant, quantity = 1, options = {}) {
       productName: product.name,
       productBrand: product.brand,
       productImage: product.imageUrls?.[0] || '',
-      size: variant ? variant.size : 'One Size',
+      size,
       price: product.discountedPrice || product.basePrice,
       basePrice: product.basePrice,
       quantity: Math.min(10, initialQty),

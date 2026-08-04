@@ -26,16 +26,16 @@ public class CustomerReviewService {
 
     @Transactional
     public CustomerReviewDto createReview(CustomerReviewDto request) {
+        if (request.getImageUrl() == null || request.getImageUrl().isBlank()) {
+            throw new IllegalArgumentException("Please upload a review image before saving.");
+        }
+
         CustomerReview review = CustomerReview.builder()
-                .imageUrl(request.getImageUrl())
+                .imageUrl(request.getImageUrl().trim())
+                .productId("homepage-review")
+                .userId("admin-upload")
                 .build();
-        System.out.println("[STEP 5 - Service] Mapped CustomerReview entity imageUrl: " + review.getImageUrl());
-        System.out.println("[STEP 6 - Entity] CustomerReview entity field imageUrl mapped to customer_reviews table column image_url. Value: " + review.getImageUrl());
         CustomerReview saved = reviewRepository.save(review);
-        System.out.println("[STEP 7 - Repository] reviewRepository.save() completed for ID: " + saved.getId() + " with imageUrl: " + saved.getImageUrl());
-        reviewRepository.flush();
-        CustomerReview verifiedFromDb = reviewRepository.findById(saved.getId()).orElse(saved);
-        System.out.println("[STEP 8 - PostgreSQL] Verified reading from DB right after save. customer_reviews table contains image_url: " + verifiedFromDb.getImageUrl());
         return mapToDto(saved);
     }
 

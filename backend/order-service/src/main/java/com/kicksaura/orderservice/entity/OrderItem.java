@@ -20,7 +20,7 @@ public class OrderItem {
     @Column(name = "product_id", nullable = false)
     private String productId;
 
-    @Column(name = "variant_id", nullable = false)
+    @Column(name = "variant_id")
     private String variantId;
 
     @Column(nullable = false)

@@ -30,6 +30,11 @@ const detailView = document.getElementById('order-detail-view');
 
 let currentOrders = [];
 
+function hasDisplaySize(size) {
+  const value = String(size ?? '').trim();
+  return value && value.toLowerCase() !== 'one size' && value.toLowerCase() !== 'n/a';
+}
+
 const statusMap = {
   'ORDER_PLACED': 'Order Placed',
   'ORDER_CONFIRMED': 'Order Confirmed',
@@ -66,11 +71,11 @@ async function fetchAndEnrichOrders() {
           ...item,
           productName: product?.name || item.productName || 'Product',
           productImage: product?.imageUrls?.[0] || item.productImage || item.imageUrl || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=2370',
-          size: variant?.size || item.size || 'N/A',
+          size: variant?.size || item.size || '',
           price: item.purchasePrice || item.price || 0
         };
       } catch (e) {
-        return { ...item, productName: item.productName || 'Product', productImage: item.productImage || item.imageUrl || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=2370', size: item.size || 'N/A', price: item.purchasePrice || item.price || 0 };
+        return { ...item, productName: item.productName || 'Product', productImage: item.productImage || item.imageUrl || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=2370', size: item.size || '', price: item.purchasePrice || item.price || 0 };
       }
     }));
     return { ...order, items, total: order.totalAmount, placedAt: order.createdAt, orderId: order.orderNumber };
@@ -140,6 +145,10 @@ function renderOrdersList() {
   listView.innerHTML = `
     <div class="orders-page-head">
       <div>
+        <a href="/" class="account-back-btn">
+          <span aria-hidden="true">←</span>
+          Back
+        </a>
         <h1>My Orders</h1>
         <p>Track your purchases, payments, and delivery updates in one place.</p>
       </div>
@@ -199,7 +208,7 @@ function renderOrderDetail(order, indexFallback) {
         </div>
         <div class="od-item-info">
           <h4>${item.productName || 'Product'}</h4>
-          <p>${item.size || 'N/A'}</p>
+          ${hasDisplaySize(item.size) ? `<p>${item.size}</p>` : ''}
         </div>
         <div class="od-item-price">₹${itemTotal}</div>
       </div>
@@ -431,7 +440,10 @@ function renderOrderDetail(order, indexFallback) {
   detailView.innerHTML = `
     <div class="od-header">
       <div class="od-header-left">
-        <button id="od-back-btn" class="od-back-btn">←</button>
+        <button id="od-back-btn" class="od-back-btn" type="button">
+          <span aria-hidden="true">←</span>
+          Back
+        </button>
         <div>
           <h2 class="od-title">Order #${orderNum}</h2>
           <p class="od-date">Confirmed ${formatDate(order.placedAt, false)}</p>
@@ -503,11 +515,7 @@ function renderOrderDetail(order, indexFallback) {
   `;
 
   document.getElementById('od-back-btn').addEventListener('click', () => {
-    if (history.state && history.state.view === 'orderDetail') {
-      history.back();
-    } else {
-      renderOrdersList();
-    }
+    window.location.href = '/';
   });
 }
 

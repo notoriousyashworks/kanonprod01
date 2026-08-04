@@ -1070,3 +1070,103 @@
 .ka-loader__text { font-family: 'Inter', sans-serif; font-size: 13.5px; font-weight: 500; color: #b0b0b0; letter-spacing: 0.6px; animation: ka-pulse 1.6s ease-in-out infinite; text-transform: none; }
 @keyframes ka-spin { to { transform: rotate(360deg); } }
 @keyframes ka-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+/* Compact live purchase popup on checkout pages */
+.live-toast-banner {
+  position: fixed !important;
+  left: 22px !important;
+  bottom: 22px !important;
+  width: min(300px, calc(100vw - 32px)) !important;
+  max-width: 300px !important;
+  min-height: 88px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 10px 12px !important;
+  background: #f1f9cc;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.14);
+  z-index: 10000;
+  overflow: visible !important;
+  transform: translateY(150%);
+  opacity: 0;
+  transition: transform 0.35s ease, opacity 0.35s ease;
+  cursor: pointer;
+}
+
+.live-toast-banner.show {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.live-toast-banner__close {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 24px;
+  height: 24px;
+  border: 1px solid #e5e7eb;
+  border-radius: 50%;
+  background: #fff;
+  color: #666;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.16);
+  cursor: pointer;
+}
+
+.live-toast-banner__img-wrap {
+  width: 56px !important;
+  height: 56px !important;
+  flex: 0 0 56px !important;
+  overflow: hidden;
+  border-radius: 7px;
+  background: #fff;
+}
+
+.live-toast-banner__img {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 56px !important;
+  max-height: 56px !important;
+  display: block !important;
+  object-fit: contain !important;
+}
+
+.live-toast-banner__content {
+  min-width: 0;
+  display: flex !important;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.live-toast-banner__text {
+  color: #111;
+  font-size: 12px !important;
+  line-height: 1.35;
+}
+
+.live-toast-banner__product-link {
+  max-width: 190px;
+  display: -webkit-box;
+  overflow: hidden;
+  color: #111;
+  font-weight: 700;
+  text-decoration: underline;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+}
+
+.live-toast-banner__price {
+  align-self: flex-start;
+  padding: 3px 6px;
+  border-radius: 4px;
+  background: #111;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.live-toast-banner__time {
+  color: #777;
+  font-size: 10px !important;
+}

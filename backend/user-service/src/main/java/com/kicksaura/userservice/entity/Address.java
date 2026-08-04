@@ -18,6 +18,10 @@ public class Address {
     @Builder.Default
     private String uuid = UUID.randomUUID().toString();
 
+    private String firstName;
+
+    private String lastName;
+
     private String houseNumberOrAddress;
     
     private String landmark;

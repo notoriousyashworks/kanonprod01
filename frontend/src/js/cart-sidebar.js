@@ -7,6 +7,11 @@ import { shippingPolicyContent } from './policy-content.js';
 
 const fmtPrice = (p) => '₹' + Number(p).toLocaleString('en-IN');
 
+function hasDisplaySize(size) {
+  const value = String(size ?? '').trim();
+  return value && value.toLowerCase() !== 'one size' && value.toLowerCase() !== 'n/a';
+}
+
 // ─── Render ───────────────────────────────────────────────────────────────────
 // ─── Render ───────────────────────────────────────────────────────────────────
 export function renderCartSidebar() {
@@ -59,6 +64,9 @@ export function renderCartSidebar() {
       ? `<span style="text-decoration: line-through; color: #888; font-size: 13px; margin-right: 6px;">${origPriceFmt}</span><span style="font-weight: 700; color: #111;">${unitPriceFmt}</span>`
       : `<span style="font-weight: 700; color: #111;">${unitPriceFmt}</span>`;
 
+    const sizeMeta = hasDisplaySize(item.size)
+      ? `<br/><span style="color: #666; font-size: 12.5px;">Size: ${item.size}</span>`
+      : '';
     const videoCallLabel = item.liveVideoCall
       ? `<p class="modern-item-video-meta" style="margin-top: 4px; font-size: 11px; color: #16a34a; display: flex; align-items: center; gap: 4px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Video call before dispatch</p>`
       : '';
@@ -76,7 +84,7 @@ export function renderCartSidebar() {
           <a href="/product-details?id=${item.productId}" style="text-decoration: none;">
             <p class="modern-item-name" style="margin-top: 0; font-weight: 600; font-size: 15px; color: #111;">${item.productName || 'Product'}</p>
           </a>
-          <p class="modern-item-unit-meta" style="margin-bottom: 6px;">${priceRowHTML}<br/><span style="color: #666; font-size: 12.5px;">Size: ${item.size}</span></p>
+          <p class="modern-item-unit-meta" style="margin-bottom: 6px;">${priceRowHTML}${sizeMeta}</p>
           ${videoCallLabel}
           
           <div class="modern-item-controls">

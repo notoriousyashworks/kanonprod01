@@ -1454,23 +1454,26 @@ button {
    Purchase Notification Popup
    ============================================ */
 .live-toast-banner {
-  position: fixed;
-  bottom: 24px;
-  left: 24px;
+  position: fixed !important;
+  bottom: 22px !important;
+  left: 22px !important;
+  width: min(300px, calc(100vw - 32px)) !important;
+  min-height: 88px !important;
   background: #f1f9cc;
   border-radius: 12px;
-  padding: 12px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
+  padding: 10px 12px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
   z-index: 10000;
-  max-width: 320px;
+  max-width: 300px !important;
   transform: translateY(150%);
   opacity: 0;
   transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   cursor: pointer;
   border: 1px solid rgba(0, 0, 0, 0.05);
+  overflow: visible !important;
 }
 
 .live-toast-banner.show {
@@ -1507,9 +1510,9 @@ button {
 }
 
 .live-toast-banner__img-wrap {
-  width: 54px;
-  height: 54px;
-  flex-shrink: 0;
+  width: 56px !important;
+  height: 56px !important;
+  flex: 0 0 56px !important;
   border-radius: 6px;
   overflow: hidden;
   background: white;
@@ -1522,27 +1525,32 @@ button {
     right: 16px;
     bottom: 16px;
     max-width: none;
-    margin-left: 16px;
+    margin-left: 0;
   }
 }
 
 .live-toast-banner__img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 56px !important;
+  max-height: 56px !important;
+  object-fit: contain !important;
+  display: block !important;
 }
 
 .live-toast-banner__content {
   flex: 1;
-  display: flex;
+  min-width: 0;
+  display: flex !important;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
 }
 
 .live-toast-banner__text {
-  font-size: 12px;
-  line-height: 1.4;
+  font-size: 12px !important;
+  line-height: 1.35;
   color: #111;
+  overflow: hidden;
 }
 
 .live-toast-banner__text strong {
@@ -1557,6 +1565,7 @@ button {
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  max-width: 190px;
 }
 
 .live-toast-banner__price {
@@ -1570,7 +1579,7 @@ button {
 }
 
 .live-toast-banner__time {
-  font-size: 10px;
+  font-size: 10px !important;
   color: #777;
   margin-top: 2px;
 }
@@ -2316,5 +2325,202 @@ body.sidebar-lock {
 
   .footer__socials {
     gap: 14px;
+  }
+}
+
+/* Header proportion tune: larger brand/actions with a shorter, calmer search. */
+.header__top-inner {
+  min-height: 70px !important;
+  width: calc(100% - 56px) !important;
+  margin-left: 28px !important;
+  margin-right: 28px !important;
+  display: grid !important;
+  align-items: center !important;
+  grid-template-columns: auto minmax(320px, 0.62fr) auto;
+  column-gap: clamp(28px, 4vw, 72px);
+}
+
+.header__logo-img {
+  height: 58px !important;
+  border-radius: 8px;
+}
+
+.header__search {
+  width: min(100%, 840px);
+  max-width: 840px !important;
+  justify-self: center;
+  height: 52px !important;
+  margin-left: clamp(6px, 1.2vw, 24px) !important;
+  margin-right: 0 !important;
+  display: flex;
+  align-items: center;
+  border-radius: 999px;
+}
+
+.header__search input {
+  height: 100% !important;
+  font-size: 15px;
+  padding-left: 52px;
+  border-radius: 999px;
+}
+
+.header__search-icon-left {
+  left: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.header__search-icon-left svg {
+  width: 20px;
+  height: 20px;
+}
+
+.animated-placeholder-text {
+  font-size: 15px;
+}
+
+.header__icons {
+  gap: 18px !important;
+  min-width: 170px;
+  justify-content: flex-end;
+}
+
+.icon-btn,
+.nav-icon,
+.profile-icon-btn {
+  width: 44px !important;
+  height: 44px !important;
+}
+
+.icon-btn svg,
+.nav-icon svg,
+.profile-icon-btn svg {
+  width: 25px !important;
+  height: 25px !important;
+}
+
+.cart-badge,
+.nav-badge,
+.navbar__cart-count {
+  min-width: 18px;
+  height: 18px;
+  font-size: 11px;
+  line-height: 18px;
+}
+
+@media (max-width: 1100px) {
+  .header__top-inner {
+    grid-template-columns: auto minmax(240px, 1fr) auto;
+    column-gap: 18px;
+    width: calc(100% - 32px) !important;
+    margin-left: 16px !important;
+    margin-right: 16px !important;
+  }
+
+  .header__search {
+    max-width: 700px !important;
+    height: 48px !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .header__top-inner {
+    display: flex !important;
+    min-height: 54px !important;
+  }
+
+  .header__logo-img {
+    height: 40px !important;
+  }
+
+  .header__search {
+    height: 36px !important;
+    max-width: none !important;
+  }
+
+  .header__icons {
+    min-width: 0;
+    gap: 6px !important;
+  }
+
+  .icon-btn,
+  .nav-icon,
+  .profile-icon-btn {
+    width: 34px !important;
+    height: 34px !important;
+  }
+
+  .icon-btn svg,
+  .nav-icon svg,
+  .profile-icon-btn svg {
+    width: 21px !important;
+    height: 21px !important;
+  }
+}
+
+/* Top navigation polish: fewer links, stronger first-glance presence. */
+.header__nav {
+  min-height: 54px !important;
+  border-top: 1px solid #ececec;
+  border-bottom: 1px solid #d9d9d9;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.045);
+}
+
+.header__nav-inner {
+  min-height: 54px !important;
+  width: calc(100% - 56px) !important;
+  margin-left: 28px !important;
+  margin-right: 28px !important;
+  display: grid !important;
+  grid-template-columns: repeat(6, minmax(130px, 1fr));
+  align-items: center;
+  gap: 10px !important;
+}
+
+.nav-link {
+  min-height: 54px !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  padding: 0 14px !important;
+  font-size: 15px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0 !important;
+  color: #1f2937 !important;
+  white-space: nowrap;
+}
+
+.nav-link:hover,
+.nav-link--active {
+  color: #e50914 !important;
+  background: linear-gradient(180deg, rgba(229, 9, 20, 0.06), rgba(229, 9, 20, 0));
+}
+
+.nav-link--active::after {
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: 42px !important;
+  height: 3px !important;
+  border-radius: 999px;
+}
+
+@media (max-width: 1100px) {
+  .header__nav {
+    overflow-x: auto;
+  }
+
+  .header__nav-inner {
+    width: max-content !important;
+    min-width: 100%;
+    margin-left: 16px !important;
+    margin-right: 16px !important;
+    grid-template-columns: repeat(6, max-content);
+    justify-content: center;
+    gap: 18px !important;
+  }
+
+  .nav-link {
+    font-size: 14px !important;
+    padding: 0 10px !important;
   }
 }

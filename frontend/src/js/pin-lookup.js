@@ -5,6 +5,34 @@
 const pinCache = new Map();
 const LOCAL_PIN_PREFIX = 'kicksaura_pin_cache_v2_';
 
+const DELHI_PIN_FALLBACKS = {
+  '110030': { city: 'Mehrauli', state: 'Delhi' },
+  '110074': { city: 'New Delhi', state: 'Delhi' }
+};
+
+function getPinFallback(pin) {
+  if (DELHI_PIN_FALLBACKS[pin]) {
+    return {
+      success: true,
+      ...DELHI_PIN_FALLBACKS[pin],
+      postOffices: [],
+      fallback: true
+    };
+  }
+
+  if (pin.startsWith('110')) {
+    return {
+      success: true,
+      city: 'New Delhi',
+      state: 'Delhi',
+      postOffices: [],
+      fallback: true
+    };
+  }
+
+  return null;
+}
+
 /**
  * Fetches City (District) and State details for a valid 6-digit Indian PIN code.
  * Races multiple public APIs and checks localStorage + memory cache for ultra-fast response.
@@ -20,9 +48,12 @@ export async function lookupPinCode(pin) {
     };
   }
 
+  const fallback = getPinFallback(pin);
+
   // 1. Check in-memory cache
   if (pinCache.has(pin)) {
-    return pinCache.get(pin);
+    const cached = pinCache.get(pin);
+    return cached?.success || !fallback ? cached : fallback;
   }
 
   // 2. Check localStorage cache for instantaneous 0ms response across page reloads
@@ -31,8 +62,9 @@ export async function lookupPinCode(pin) {
     if (cachedRaw) {
       const parsed = JSON.parse(cachedRaw);
       if (parsed && typeof parsed.success === 'boolean') {
-        pinCache.set(pin, parsed);
-        return parsed;
+        const resolved = parsed.success || !fallback ? parsed : fallback;
+        pinCache.set(pin, resolved);
+        return resolved;
       }
     }
   } catch (e) {
@@ -87,6 +119,12 @@ export async function lookupPinCode(pin) {
       return result;
     }
   } catch (aggregateError) {
+    if (fallback) {
+      pinCache.set(pin, fallback);
+      try { localStorage.setItem(LOCAL_PIN_PREFIX + pin, JSON.stringify(fallback)); } catch (e) {}
+      return fallback;
+    }
+
     // If both failed/rejected, return the error
     const errorResult = {
       success: false,

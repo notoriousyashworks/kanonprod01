@@ -26,6 +26,8 @@ initSearch();
    ============================================================ */
 const PRICE_MIN_DEFAULT = 0;
 const PRICE_MAX_DEFAULT = 35000;
+const PRODUCTS_BATCH_SIZE = 16;
+let visibleProductsCount = PRODUCTS_BATCH_SIZE;
 
 const state = {
   searchQuery: '',
@@ -71,6 +73,7 @@ function pushStateToURL() {
 // Restore state when user navigates back/forward
 window.addEventListener('popstate', () => {
   readStateFromURL();
+  visibleProductsCount = PRODUCTS_BATCH_SIZE;
   syncSidebarCheckboxes();
   syncPriceSlider();
   loadAndRender();
@@ -493,6 +496,28 @@ async function getTrendingProducts() {
 
 let isLoading = false;
 
+function renderProductsWithPagination(grid, products) {
+  const visibleProducts = products.slice(0, visibleProductsCount);
+  const hasMore = products.length > visibleProducts.length;
+
+  grid.innerHTML = `
+    ${visibleProducts.map(createProductCard).join('')}
+    ${hasMore ? `
+      <div class="products-view-more">
+        <button class="products-view-more-btn" type="button">
+          View More
+          <span>${Math.min(PRODUCTS_BATCH_SIZE, products.length - visibleProducts.length)} more</span>
+        </button>
+      </div>
+    ` : ''}
+  `;
+
+  grid.querySelector('.products-view-more-btn')?.addEventListener('click', () => {
+    visibleProductsCount += PRODUCTS_BATCH_SIZE;
+    renderProductsWithPagination(grid, products);
+  });
+}
+
 async function loadAndRender() {
   if (isLoading) return;
   isLoading = true;
@@ -561,7 +586,7 @@ async function loadAndRender() {
         </div>
       `;
     } else {
-      grid.innerHTML = products.map(createProductCard).join('');
+      renderProductsWithPagination(grid, products);
     }
 
   } catch (err) {
@@ -584,6 +609,7 @@ async function loadAndRender() {
 let triggerDebounce;
 function triggerLoad() {
   clearTimeout(triggerDebounce);
+  visibleProductsCount = PRODUCTS_BATCH_SIZE;
   triggerDebounce = setTimeout(loadAndRender, 0);
 }
 

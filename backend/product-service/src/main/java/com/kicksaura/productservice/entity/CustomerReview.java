@@ -21,10 +21,10 @@ public class CustomerReview {
     @Column(name = "image_url", nullable = false, length = 1000)
     private String imageUrl;
 
-    @Column(name = "product_id", nullable = false)
+    @Column(name = "product_id")
     private String productId;
 
-    @Column(name = "user_id", nullable = false)
+    @Column(name = "user_id")
     private String userId;
 
     @Column(name = "created_at", nullable = false, updatable = false)

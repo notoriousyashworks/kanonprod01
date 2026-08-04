@@ -32,15 +32,22 @@ public class OrderServiceApplication {
 	CommandLineRunner fixForeignKeys(JdbcTemplate jdbcTemplate) {
 		return args -> {
 			try {
+				jdbcTemplate.execute("ALTER TABLE IF EXISTS prod.order_items ALTER COLUMN variant_id DROP NOT NULL");
+				log.info("Ensured order_items.variant_id can be null for no-size products");
+			} catch (Exception e) {
+				log.warn("Could not relax order_items.variant_id nullability: {}", e.getMessage());
+			}
+
+			try {
 				String constraintName = jdbcTemplate.queryForObject(
 						"SELECT constraint_name FROM information_schema.key_column_usage " +
-						"WHERE table_name = 'order_items' AND column_name = 'order_id' LIMIT 1", String.class);
+						"WHERE table_schema = 'prod' AND table_name = 'order_items' AND column_name = 'order_id' LIMIT 1", String.class);
 				
 				if (constraintName != null) {
 					log.info("Found foreign key constraint on order_items: {}", constraintName);
 					try {
-						jdbcTemplate.execute("ALTER TABLE order_items DROP CONSTRAINT " + constraintName);
-						jdbcTemplate.execute("ALTER TABLE order_items ADD CONSTRAINT fk_order_items_order_id FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE");
+						jdbcTemplate.execute("ALTER TABLE prod.order_items DROP CONSTRAINT " + constraintName);
+						jdbcTemplate.execute("ALTER TABLE prod.order_items ADD CONSTRAINT fk_order_items_order_id FOREIGN KEY (order_id) REFERENCES prod.orders(id) ON DELETE CASCADE");
 						log.info("Successfully updated order_items foreign key to ON DELETE CASCADE");
 					} catch (Exception e) {
 						log.warn("Could not update foreign key: {}", e.getMessage());

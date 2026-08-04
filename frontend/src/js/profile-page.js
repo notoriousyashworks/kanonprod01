@@ -3,12 +3,85 @@
    ============================================ */
 import { getNavbarHTML, showToast, initSearch } from './ui.js';
 import { updateCartBadge } from './cart.js';
-import { getProfile, saveProfile, initProfileDropdown } from './profile.js';
-import { lookupPinCode } from './pin-lookup.js';
+import { getProfile, saveProfile, initProfileDropdown } from './profile.js?v=1.3';
+import { lookupPinCode } from './pin-lookup.js?v=1.1';
 import { initWishlistSidebar, updateWishlistBadge } from './wishlist.js';
 import { initCartSidebar } from './cart-sidebar.js';
 import { initLoginModalTrigger } from './login-modal.js';
 import { getAuthUser } from './auth.js';
+
+const MAX_SAVED_ADDRESSES = 3;
+const ADDRESS_LIMIT_MESSAGE = 'You can save a maximum of 3 addresses. Please delete one address before adding a new one.';
+let editingAddressIndex = -1;
+
+function normalizeLocation(value) {
+  return (value || '')
+    .toString()
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9 ]/g, ' ')
+    .replace(/\b(nct|national capital territory|district|division)\b/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function isDelhiLocation(city, state) {
+  return isDelhiValue(state) || isDelhiValue(city);
+}
+
+function isDelhiValue(value) {
+  const normalized = normalizeLocation(value);
+  return normalized === 'delhi' || normalized === 'new delhi' || normalized.includes(' delhi');
+}
+
+function locationMatches(inputCity, inputState, pinCity, pinState) {
+  const city = normalizeLocation(inputCity);
+  const state = normalizeLocation(inputState);
+  const verifiedCity = normalizeLocation(pinCity);
+  const verifiedState = normalizeLocation(pinState);
+  if (isDelhiLocation(city, state) && isDelhiLocation(verifiedCity, verifiedState)) return true;
+  const stateMatches = state === verifiedState || (isDelhiValue(state) && isDelhiValue(verifiedState));
+  const cityMatches = city === verifiedCity || city.includes(verifiedCity) || verifiedCity.includes(city);
+  return stateMatches && cityMatches;
+}
+
+function getCurrentAddresses() {
+  const authP = getAuthUser() || {};
+  const guestP = getProfile() || {};
+  const addresses = authP.addresses?.length ? authP.addresses : guestP.addresses || [];
+  return Array.isArray(addresses) ? addresses.slice(0, MAX_SAVED_ADDRESSES) : [];
+}
+
+function fillAddressForm(addr = {}) {
+  const firstNameInput = document.getElementById('pf-address-first-name');
+  const lastNameInput = document.getElementById('pf-address-last-name');
+  const addressInput = document.getElementById('pf-address');
+  const landmarkInput = document.getElementById('pf-landmark');
+  const cityInput = document.getElementById('pf-city');
+  const stateInput = document.getElementById('pf-state');
+  const pinInput = document.getElementById('pf-pin');
+
+  if (firstNameInput) firstNameInput.value = addr.firstName || '';
+  if (lastNameInput) lastNameInput.value = addr.lastName || '';
+  if (addressInput) addressInput.value = addr.houseNumberOrAddress || addr.address || '';
+  if (landmarkInput) landmarkInput.value = addr.landmark || '';
+  if (cityInput) cityInput.value = addr.city || '';
+  if (stateInput) stateInput.value = addr.state || '';
+  if (pinInput) pinInput.value = addr.pinCode || '';
+}
+
+function openAddressEditor(index = -1) {
+  const addresses = getCurrentAddresses();
+  if (index < 0 && addresses.length >= MAX_SAVED_ADDRESSES) {
+    alert(ADDRESS_LIMIT_MESSAGE);
+    return;
+  }
+
+  editingAddressIndex = index;
+  fillAddressForm(index >= 0 ? addresses[index] : {});
+  addressEditForm?.classList.add('visible');
+  if (saveAddressBtn) saveAddressBtn.textContent = index >= 0 ? 'Update address' : 'Save address';
+}
 
 // Redirect if not logged in
 if (!getAuthUser()) {
@@ -38,8 +111,8 @@ function renderProfile() {
   const p = { 
     ...guestP,
     ...authP,
-    firstName: authP.firstName || guestP.firstName || '',
-    lastName: authP.lastName || guestP.lastName || '',
+    firstName: guestP.firstName !== undefined ? guestP.firstName : authP.firstName || '',
+    lastName: guestP.lastName !== undefined ? guestP.lastName : authP.lastName || '',
     phone: authP.phoneNumber || guestP.phone || '',
     addresses: authP.addresses?.length ? authP.addresses : guestP.addresses || []
   };
@@ -89,7 +162,17 @@ function renderAddress(p) {
   const existingItems = addrList.querySelectorAll('.address-item');
   existingItems.forEach(item => item.remove());
 
-  const addresses = (p && Array.isArray(p.addresses)) ? p.addresses : [];
+  const rawAddresses = (p && Array.isArray(p.addresses)) ? p.addresses : [];
+  const addresses = rawAddresses.slice(0, MAX_SAVED_ADDRESSES);
+  if (rawAddresses.length > MAX_SAVED_ADDRESSES) {
+    saveProfile({ addresses });
+  }
+  const addAddressControl = document.getElementById('add-address-btn');
+  if (addAddressControl) {
+    addAddressControl.disabled = false;
+    addAddressControl.textContent = '+ Add New';
+    addAddressControl.title = addresses.length >= MAX_SAVED_ADDRESSES ? ADDRESS_LIMIT_MESSAGE : '';
+  }
 
   if (addresses.length > 0) {
     if (addrEmpty) addrEmpty.style.display = 'none';
@@ -97,17 +180,33 @@ function renderAddress(p) {
     addresses.forEach((addr, idx) => {
       const addrEl = document.createElement('div');
       addrEl.className = 'address-item';
+      addrEl.dataset.index = String(idx);
       addrEl.style.padding = '14px 20px';
       addrEl.style.borderTop = '1px solid #f5f5f5';
+      addrEl.style.cursor = 'pointer';
+      addrEl.tabIndex = 0;
+      addrEl.setAttribute('role', 'button');
+      addrEl.setAttribute('aria-label', 'Edit saved address');
       const displayAddress = addr.houseNumberOrAddress || addr.address || '';
+      const hasAddressName = addr.firstName !== undefined || addr.lastName !== undefined;
+      const recipientName = [
+        hasAddressName ? addr.firstName : p.firstName,
+        hasAddressName ? addr.lastName : p.lastName
+      ]
+        .filter(Boolean)
+        .join(' ')
+        .trim();
       const isDefault = idx === 0;
       
       addrEl.innerHTML = `
         <div style="display:flex; justify-content:space-between; align-items:flex-start;">
           <div>
-            <div style="font-weight:600; font-size:14px; margin-bottom:4px; display:flex; align-items:center; gap:8px;">
-              ${displayAddress}
+            <div style="font-weight:700; font-size:14px; margin-bottom:8px; display:flex; align-items:center; gap:8px;">
+              ${recipientName || 'Recipient'}
               ${isDefault ? '<span style="background:#f1f9cc; color:#2d6a4f; font-size:11px; padding:2px 8px; border-radius:12px; font-weight:700;">Default</span>' : ''}
+            </div>
+            <div style="font-weight:600; font-size:14px; margin-bottom:4px;">
+              ${displayAddress}
             </div>
             <div style="color:#666; font-size:13px;">${[addr.city, addr.state, addr.pinCode].filter(Boolean).join(', ')}</div>
           </div>
@@ -118,6 +217,19 @@ function renderAddress(p) {
         </div>
       `;
       addrList.appendChild(addrEl);
+    });
+
+    addrList.querySelectorAll('.address-item').forEach((item) => {
+      item.addEventListener('click', (e) => {
+        if (e.target.closest('button')) return;
+        openAddressEditor(parseInt(item.dataset.index || '0', 10));
+      });
+      item.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          openAddressEditor(parseInt(item.dataset.index || '0', 10));
+        }
+      });
     });
 
     // Attach make default listeners
@@ -191,53 +303,70 @@ const cancelAddressBtn = document.getElementById('cancel-address-btn');
 
 if (addAddressBtn) {
   addAddressBtn.addEventListener('click', () => {
-    const p = getProfile();
-    const addresses = (p && Array.isArray(p.addresses)) ? p.addresses : [];
-    if (addresses.length >= 3) {
-      alert('You can save a maximum of 3 addresses. Please delete one to add a new address.');
-      return;
-    }
-    addressEditForm.classList.add('visible');
-    // Clear fields
-    document.getElementById('pf-address').value = '';
-    document.getElementById('pf-landmark').value = '';
-    document.getElementById('pf-city').value = '';
-    document.getElementById('pf-state').value = '';
-    document.getElementById('pf-pin').value = '';
+    openAddressEditor(-1);
   });
 }
 
 if (cancelAddressBtn) {
   cancelAddressBtn.addEventListener('click', () => {
+    editingAddressIndex = -1;
     addressEditForm.classList.remove('visible');
+    if (saveAddressBtn) saveAddressBtn.textContent = 'Save address';
   });
 }
 
 if (saveAddressBtn) {
-  saveAddressBtn.addEventListener('click', () => {
+  saveAddressBtn.addEventListener('click', async () => {
+    const firstName = document.getElementById('pf-address-first-name')?.value.trim() || '';
+    const lastName  = document.getElementById('pf-address-last-name')?.value.trim() || '';
     const address  = document.getElementById('pf-address')?.value.trim() || '';
     const landmark = document.getElementById('pf-landmark')?.value.trim() || '';
     const city     = document.getElementById('pf-city')?.value.trim() || '';
     const state    = document.getElementById('pf-state')?.value.trim() || '';
     const pinCode  = document.getElementById('pf-pin')?.value.replace(/\D/g, '').slice(0, 6) || '';
     
-    if (!address || !city || !state || !pinCode) {
+    if (!firstName || !address || !city || !state || !pinCode) {
       alert('Please fill out all required fields.');
       return;
     }
 
-    const p = getProfile();
-    const addresses = (p && Array.isArray(p.addresses)) ? p.addresses : [];
-    if (addresses.length >= 3) {
-      alert('You can save a maximum of 3 addresses. Please delete one to add a new address.');
+    const addresses = getCurrentAddresses();
+    if (editingAddressIndex < 0 && addresses.length >= MAX_SAVED_ADDRESSES) {
+      alert(ADDRESS_LIMIT_MESSAGE);
       return;
     }
 
-    addresses.push({ houseNumberOrAddress: address, landmark, city, state, pinCode });
+    const pinRes = await lookupPinCode(pinCode);
+    if (!pinRes?.success) {
+      alert(pinRes?.error || 'Invalid PIN code. Please enter a valid 6-digit Indian PIN code.');
+      return;
+    }
+    if (!locationMatches(city, state, pinRes.city, pinRes.state)) {
+      alert(`PIN code ${pinCode} belongs to ${pinRes.city}, ${pinRes.state}. Please use a matching city and state.`);
+      return;
+    }
+
+    const wasEditing = editingAddressIndex >= 0;
+    const nextAddress = {
+      firstName,
+      lastName,
+      houseNumberOrAddress: address,
+      landmark,
+      city: pinRes.city,
+      state: pinRes.state,
+      pinCode
+    };
+    if (editingAddressIndex >= 0) {
+      addresses[editingAddressIndex] = nextAddress;
+    } else {
+      addresses.push(nextAddress);
+    }
     saveProfile({ addresses });
     renderProfile();
+    editingAddressIndex = -1;
     addressEditForm.classList.remove('visible');
-    showToast('Address saved successfully', 'success');
+    if (saveAddressBtn) saveAddressBtn.textContent = 'Save address';
+    showToast(wasEditing ? 'Address updated successfully' : 'Address saved successfully', 'success');
   });
 }
 
@@ -286,11 +415,11 @@ if (pfPinInput) {
       
       if (res.success) {
         pfLastLookedUpPin = cleaned;
-        if (pfCityInput && !pfCityInput.value.trim()) {
+        if (pfCityInput) {
           pfCityInput.value = res.city || '';
           pfCityInput.dataset.autofilled = 'true';
         }
-        if (pfStateInput && !pfStateInput.value.trim()) {
+        if (pfStateInput) {
           pfStateInput.value = res.state || '';
           pfStateInput.dataset.autofilled = 'true';
         }

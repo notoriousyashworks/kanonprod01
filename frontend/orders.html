@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/src/styles/global.css?v=3.3" />
+  <link rel="stylesheet" href="/src/styles/global.css?v=3.9" />
   <style>
     body { background: #f9f9f9; font-family: 'Inter', sans-serif; }
 
@@ -785,6 +785,41 @@
         width: 100%;
       }
     }
+
+    /* Account page back button/title consistency */
+    .account-back-btn,
+    .od-back-btn {
+      display: inline-flex !important;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      min-height: 36px;
+      padding: 0 14px !important;
+      margin: 0 0 12px !important;
+      border: 1px solid #e5e7eb !important;
+      border-radius: 10px;
+      background: #ffffff !important;
+      color: #334155 !important;
+      text-decoration: none;
+      font-size: 13px !important;
+      font-weight: 800 !important;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: color 0.18s ease, border-color 0.18s ease, background 0.18s ease, transform 0.18s ease;
+    }
+
+    .account-back-btn:hover,
+    .od-back-btn:hover {
+      color: #dc2626 !important;
+      border-color: rgba(220,38,38,0.35) !important;
+      background: #fff5f5 !important;
+      transform: translateX(-1px);
+    }
+
+    .od-header-left .od-back-btn {
+      flex: 0 0 auto;
+      margin-top: 0 !important;
+    }
   </style>
 </head>
 <body>
@@ -840,6 +875,6 @@
     </main>
   </div>
 
-  <script type="module" src="/src/js/orders-page.js?v=1.1"></script>
+  <script type="module" src="/src/js/orders-page.js?v=1.3"></script>
 </body>
 </html>
