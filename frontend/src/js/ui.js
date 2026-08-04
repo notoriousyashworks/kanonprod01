@@ -290,9 +290,8 @@ export function getNavbarHTML(activePage = 'home') {
           <a href="/" class="nav-link ${activePage === 'home' ? 'nav-link--active' : ''}">Home</a>
           <a href="/#shop-category" class="nav-link ${activePage === 'products' ? 'nav-link--active' : ''}">Categories</a>
           <a href="/#new-arrivals" class="nav-link">New Arrivals</a>
-          <a href="/about-us" class="nav-link ${activePage === 'about' ? 'nav-link--active' : ''}">About Us</a>
           <a href="/#customer-reviews" class="nav-link">Customer Reviews</a>
-          <a href="/shipping-policy" class="nav-link ${activePage === 'shipping' ? 'nav-link--active' : ''}">Shipping & Delivery Policy</a>
+          <a href="/shipping-policy" class="nav-link ${activePage === 'shipping' || activePage === 'policy' ? 'nav-link--active' : ''}">Shipping Policy</a>
           <a href="https://wa.me/916239379751?text=Hey!" target="_blank" rel="noopener" class="nav-link">Contact on WhatsApp</a>
         </div>
       </nav>

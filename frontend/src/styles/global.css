@@ -3,7 +3,6 @@
    Matches provided screenshots exactly
    ============================================ */
 @import './login-modal.css?v=2.1';
-@import './responsive.css?v=2.1';
 
 /* ============================================
    Global: KicksAura Branded Loader
@@ -324,8 +323,8 @@ button {
   font-size: 14px;
   /* Slightly smaller text to fit tight space */
   font-weight: 500;
-  color: #5c6b7b;
-  /* Blue-grey color */
+  color: #000000;
+  /* Black color */
   position: relative;
   transition: color 0.2s;
 }
