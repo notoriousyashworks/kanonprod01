@@ -20,145 +20,6 @@ initProfileDropdown();
 initSearch();
 initLoginModalTrigger();
 
-function initHeroCarousel() {
-  const carousel = document.getElementById('hero-carousel');
-  const track = carousel?.querySelector('.hero-carousel-track');
-  const realSlides = Array.from(carousel?.querySelectorAll('.hero-slide') || []);
-  const dots = Array.from(carousel?.querySelectorAll('.hero-carousel-dot') || []);
-  const previousButton = carousel?.querySelector('.hero-carousel-arrow--prev');
-  const nextButton = carousel?.querySelector('.hero-carousel-arrow--next');
-
-  if (!carousel || !track || realSlides.length < 2) return;
-
-  const firstClone = realSlides[0].cloneNode(true);
-  const lastClone = realSlides[realSlides.length - 1].cloneNode(true);
-  firstClone.classList.add('hero-slide--clone');
-  lastClone.classList.add('hero-slide--clone');
-  track.appendChild(firstClone);
-  track.insertBefore(lastClone, realSlides[0]);
-
-  const slides = Array.from(track.querySelectorAll('.hero-slide'));
-  let trackIndex = 1;
-  let autoTimer = null;
-  let startX = 0;
-  let dragDelta = 0;
-  let isDragging = false;
-
-  const getRealIndex = () => (trackIndex - 1 + realSlides.length) % realSlides.length;
-
-  const updateDots = () => {
-    const realIndex = getRealIndex();
-    dots.forEach((dot, index) => {
-      dot.classList.toggle('is-active', index === realIndex);
-    });
-  };
-
-  const updateSlideClasses = () => {
-    slides.forEach((slide, index) => {
-      slide.classList.toggle('is-active', index === trackIndex);
-    });
-  };
-
-  const moveTrack = (animate = true) => {
-    track.style.transition = animate ? 'transform 1.25s cubic-bezier(0.25, 0.74, 0.28, 0.99)' : 'none';
-    track.style.transform = `translate3d(-${trackIndex * 100}%, 0, 0)`;
-  };
-
-  const goToTrackIndex = (index, animate = true) => {
-    trackIndex = index;
-    updateSlideClasses();
-    updateDots();
-    moveTrack(animate);
-  };
-
-  const goToRealSlide = (index) => {
-    goToTrackIndex(index + 1);
-  };
-
-  const stopAutoSlide = () => {
-    if (!autoTimer) return;
-    clearInterval(autoTimer);
-    autoTimer = null;
-  };
-
-  const startAutoSlide = () => {
-    stopAutoSlide();
-    autoTimer = setInterval(() => goToTrackIndex(trackIndex + 1), 1500);
-  };
-
-  previousButton?.addEventListener('click', (event) => {
-    event.stopPropagation();
-    goToTrackIndex(trackIndex - 1);
-    startAutoSlide();
-  });
-
-  nextButton?.addEventListener('click', (event) => {
-    event.stopPropagation();
-    goToTrackIndex(trackIndex + 1);
-    startAutoSlide();
-  });
-
-  dots.forEach((dot, index) => {
-    dot.addEventListener('click', (event) => {
-      event.stopPropagation();
-      goToRealSlide(index);
-      startAutoSlide();
-    });
-  });
-
-  carousel.addEventListener('pointerdown', (event) => {
-    if (event.target.closest('button')) return;
-    isDragging = true;
-    startX = event.clientX;
-    dragDelta = 0;
-    carousel.classList.add('is-dragging');
-    stopAutoSlide();
-    carousel.setPointerCapture?.(event.pointerId);
-  });
-
-  carousel.addEventListener('pointermove', (event) => {
-    if (!isDragging) return;
-    dragDelta = event.clientX - startX;
-    track.style.transition = 'none';
-    track.style.transform = `translate3d(calc(-${trackIndex * 100}% + ${dragDelta}px), 0, 0)`;
-  });
-
-  const finishDrag = () => {
-    if (!isDragging) return;
-    isDragging = false;
-    carousel.classList.remove('is-dragging');
-
-    if (Math.abs(dragDelta) > 60) {
-      goToTrackIndex(trackIndex + (dragDelta < 0 ? 1 : -1));
-    } else {
-      goToTrackIndex(trackIndex);
-    }
-
-    startAutoSlide();
-  };
-
-  track.addEventListener('transitionend', () => {
-    if (trackIndex === 0) {
-      goToTrackIndex(realSlides.length, false);
-    }
-
-    if (trackIndex === realSlides.length + 1) {
-      goToTrackIndex(1, false);
-    }
-  });
-
-  carousel.addEventListener('pointerup', finishDrag);
-  carousel.addEventListener('pointercancel', finishDrag);
-  carousel.addEventListener('mouseleave', finishDrag);
-  carousel.addEventListener('mouseenter', stopAutoSlide);
-  carousel.addEventListener('mouseleave', startAutoSlide);
-  carousel.addEventListener('focusin', stopAutoSlide);
-  carousel.addEventListener('focusout', startAutoSlide);
-
-  goToTrackIndex(1, false);
-  startAutoSlide();
-}
-
 
 // ── Load Categories from DB ──────────────────────────────
 async function loadCategories() {
@@ -176,7 +37,7 @@ async function loadCategories() {
       return;
     }
 
-    const categoryCards = categories.map(cat => `
+    grid.innerHTML = categories.map(cat => `
       <a href="/products?category=${encodeURIComponent(cat.name)}" class="category-card">
         <div class="category-image-wrap">
           ${cat.imageUrl
@@ -185,8 +46,6 @@ async function loadCategories() {
         </div>
         <div class="category-name">${cat.name}</div>
       </a>`).join('');
-
-    grid.innerHTML = categoryCards;
   } catch (err) {
     console.error('Failed to load categories:', err);
     grid.innerHTML = '';   // hide the section gracefully on error
@@ -218,13 +77,32 @@ async function loadArrivals() {
     visibleArrivalsCount = Math.min(ARRIVALS_PAGE_SIZE, allNewArrivals.length);
 
     const initialSlice = allNewArrivals.slice(0, visibleArrivalsCount);
-    const arrivalCards = initialSlice.map(createProductCard).join('');
-    grid.innerHTML = arrivalCards + arrivalCards;
+    grid.innerHTML = initialSlice.map(createProductCard).join('');
     attachCardListeners(initialSlice);
+<<<<<<< Updated upstream
+=======
     initArrivalArrows(grid);
+    initHeroProductWidget(allNewArrivals);
+>>>>>>> Stashed changes
 
     if (exploreBtn) {
-      exploreBtn.style.display = 'none';
+      if (allNewArrivals.length > visibleArrivalsCount) {
+        exploreBtn.style.display = 'block';
+        exploreBtn.textContent = 'View All';
+        exploreBtn.onclick = () => {
+          const nextSlice = allNewArrivals.slice(visibleArrivalsCount, visibleArrivalsCount + ARRIVALS_PAGE_SIZE);
+          if (nextSlice.length > 0) {
+            grid.insertAdjacentHTML('beforeend', nextSlice.map(createProductCard).join(''));
+            attachCardListeners(nextSlice);
+            visibleArrivalsCount += nextSlice.length;
+          }
+          if (visibleArrivalsCount >= allNewArrivals.length) {
+            exploreBtn.style.display = 'none';
+          }
+        };
+      } else {
+        exploreBtn.style.display = 'none';
+      }
     }
   } catch (error) {
     grid.innerHTML = `
@@ -236,55 +114,6 @@ async function loadArrivals() {
     `;
     if (exploreBtn) exploreBtn.style.display = 'none';
   }
-}
-
-function initArrivalArrows(grid) {
-  const carousel = grid.closest('.new-arrivals-carousel');
-  const previousButton = carousel?.querySelector('.arrival-arrow--prev');
-  const nextButton = carousel?.querySelector('.arrival-arrow--next');
-  if (!carousel || !previousButton || !nextButton) return;
-
-  let manualOffset = 0;
-  let hasManualOffset = false;
-
-  const getStep = () => {
-    const firstCard = grid.querySelector('.product-card-link');
-    const gap = parseFloat(getComputedStyle(grid).columnGap || getComputedStyle(grid).gap || 24) || 24;
-    return firstCard ? firstCard.getBoundingClientRect().width + gap : 304;
-  };
-
-  const getAnimatedOffset = (loopWidth) => {
-    const transform = getComputedStyle(grid).transform;
-    if (!transform || transform === 'none') return 0;
-
-    const values = transform.match(/matrix.*\((.+)\)/)?.[1]?.split(',').map(Number);
-    const translateX = values?.length === 16 ? values[12] : values?.[4];
-    if (!Number.isFinite(translateX)) return 0;
-
-    return ((-translateX % loopWidth) + loopWidth) % loopWidth;
-  };
-
-  const freezeAtCurrentPosition = () => {
-    const step = getStep();
-    const loopWidth = Math.max(grid.scrollWidth / 2, step);
-    if (!hasManualOffset) {
-      manualOffset = getAnimatedOffset(loopWidth);
-      hasManualOffset = true;
-    }
-    grid.classList.add('product-grid--manual');
-    grid.style.transform = `translate3d(-${manualOffset}px, 0, 0)`;
-  };
-
-  const move = (direction) => {
-    freezeAtCurrentPosition();
-    const step = getStep();
-    const loopWidth = Math.max(grid.scrollWidth / 2, step);
-    manualOffset = (manualOffset + direction * step + loopWidth) % loopWidth;
-    grid.style.transform = `translate3d(-${manualOffset}px, 0, 0)`;
-  };
-
-  previousButton.onclick = () => move(-1);
-  nextButton.onclick = () => move(1);
 }
 
 function attachCardListeners(products) {
@@ -327,35 +156,41 @@ function attachCardListeners(products) {
   });
 }
 
-initHeroCarousel();
 loadCategories();
 loadArrivals();
 loadReviews();
 
 async function loadReviews() {
   const container = document.querySelector('.reviews-carousel');
-  const track = container?.querySelector('.reviews-track');
-  if (!container || !track) return;
+  if (!container) return;
   
   try {
     const reviews = await getCustomerReviews();
     if (!reviews || reviews.length === 0) {
-      track.innerHTML = '<p class="reviews-empty">No reviews yet.</p>';
-      container.classList.add('reviews-carousel--empty');
+      container.innerHTML = '<p style="text-align:center;width:100%;color:#888;">No reviews yet.</p>';
       return;
     }
-
-    container.classList.remove('reviews-carousel--empty');
-    const displayReviews = reviews.slice(0, 12);
-    const cards = displayReviews.map(r => `
-      <img class="review-card" src="${formatCloudinaryUrl(r.imageUrl)}" alt="Customer Review" loading="lazy">
+    
+    // Create arrows
+    const prevBtn = `<button class="carousel-btn carousel-btn--prev">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>`;
+    const nextBtn = `<button class="carousel-btn carousel-btn--next">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+    </button>`;
+    
+    const reviewCards = reviews.map(r => `
+      <img class="review-card" src="${formatCloudinaryUrl(r.imageUrl)}" alt="Customer Review" style="object-fit:cover;border-radius:12px;">
     `).join('');
-    track.innerHTML = cards + cards;
-    initReviewArrows(track);
+    
+    container.innerHTML = prevBtn + reviewCards + nextBtn;
+    
   } catch(e) {
     console.error('Failed to load reviews:', e);
   }
 }
+<<<<<<< Updated upstream
+=======
 
 function initReviewArrows(track) {
   const carousel = track.closest('.reviews-carousel');
@@ -405,3 +240,59 @@ function initReviewArrows(track) {
   previousButton.onclick = () => move(-1);
   nextButton.onclick = () => move(1);
 }
+
+// ── Hero Product Widget ────────────────────────────────────
+function initHeroProductWidget(products) {
+  const widget = document.getElementById('hero-product-widget');
+  const track = document.getElementById('hero-widget-track');
+  const prevBtn = document.querySelector('.hero-widget-arrow--prev');
+  const nextBtn = document.querySelector('.hero-widget-arrow--next');
+
+  if (!widget || !track || !products || products.length === 0) return;
+
+  const displayProducts = products.slice(0, 5); // Take top 5
+  track.innerHTML = displayProducts.map(createProductCard).join('');
+  attachCardListeners(displayProducts);
+
+  widget.style.display = ''; // Clear inline 'none' so CSS takes over
+
+  let currentIndex = 0;
+  let autoSlideInterval;
+  const totalSlides = displayProducts.length;
+
+  const updateSlide = () => {
+    track.style.transform = `translateX(-${currentIndex * 100}%)`;
+  };
+
+  const nextSlide = () => {
+    currentIndex = (currentIndex + 1) % totalSlides;
+    updateSlide();
+  };
+
+  const prevSlide = () => {
+    currentIndex = (currentIndex - 1 + totalSlides) % totalSlides;
+    updateSlide();
+  };
+
+  const resetInterval = () => {
+    clearInterval(autoSlideInterval);
+    autoSlideInterval = setInterval(nextSlide, 3000);
+  };
+
+  if (nextBtn) {
+    nextBtn.addEventListener('click', () => {
+      nextSlide();
+      resetInterval();
+    });
+  }
+
+  if (prevBtn) {
+    prevBtn.addEventListener('click', () => {
+      prevSlide();
+      resetInterval();
+    });
+  }
+
+  resetInterval(); // Start auto sliding
+}
+>>>>>>> Stashed changes

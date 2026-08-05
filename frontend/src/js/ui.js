@@ -1,4 +1,4 @@
-﻿/* ============================================
+/* ============================================
    KicksAura UI Utilities
    ============================================ */
 import { isWishlisted, toggleWishlistItem } from './wishlist.js';
@@ -290,8 +290,9 @@ export function getNavbarHTML(activePage = 'home') {
           <a href="/" class="nav-link ${activePage === 'home' ? 'nav-link--active' : ''}">Home</a>
           <a href="/#shop-category" class="nav-link ${activePage === 'products' ? 'nav-link--active' : ''}">Categories</a>
           <a href="/#new-arrivals" class="nav-link">New Arrivals</a>
+          <a href="/about-us" class="nav-link ${activePage === 'about' ? 'nav-link--active' : ''}">About Us</a>
           <a href="/#customer-reviews" class="nav-link">Customer Reviews</a>
-          <a href="/shipping-policy" class="nav-link ${activePage === 'shipping' ? 'nav-link--active' : ''}">Shipping Policy</a>
+          <a href="/shipping-policy" class="nav-link ${activePage === 'shipping' ? 'nav-link--active' : ''}">Shipping & Delivery Policy</a>
           <a href="https://wa.me/916239379751?text=Hey!" target="_blank" rel="noopener" class="nav-link">Contact on WhatsApp</a>
         </div>
       </nav>
@@ -301,43 +302,23 @@ export function getNavbarHTML(activePage = 'home') {
         <div class="header__banner-marquee">
           <div class="marquee-content">
             <span class="dot">•</span>
-            <span>500+ HAPPY CUSTOMERS</span>
+            <span>TRUSTED BY 1000+ CUSTOMERS</span>
             <span class="dot">•</span>
-            <span class="text-red">COD AVAILABLE</span>
+            <span class="text-red">COD AVAILABLE (ONLY ₹ 99 ADVANCE)</span>
             <span class="dot">•</span>
-            <span>PAN-INDIA DELIVERY</span>
+            <span>PAN INDIA DELIVERY</span>
             <span class="dot">•</span>
-            <span class="text-red">PREPAID ORDER OFFERS</span>
+            <span class="text-red">₹200 OFF ON PREPAID ORDER</span>
           </div>
           <div class="marquee-content" aria-hidden="true">
             <span class="dot">•</span>
-            <span>500+ HAPPY CUSTOMERS</span>
+            <span>TRUSTED BY 1000+ CUSTOMERS</span>
             <span class="dot">•</span>
-            <span class="text-red">COD AVAILABLE</span>
+            <span class="text-red">COD AVAILABLE (ONLY ₹ 99 ADVANCE)</span>
             <span class="dot">•</span>
-            <span>PAN-INDIA DELIVERY</span>
+            <span>PAN INDIA DELIVERY</span>
             <span class="dot">•</span>
-            <span class="text-red">PREPAID ORDER OFFERS</span>
-          </div>
-          <div class="marquee-content" aria-hidden="true">
-            <span class="dot">•</span>
-            <span>500+ HAPPY CUSTOMERS</span>
-            <span class="dot">•</span>
-            <span class="text-red">COD AVAILABLE</span>
-            <span class="dot">•</span>
-            <span>PAN-INDIA DELIVERY</span>
-            <span class="dot">•</span>
-            <span class="text-red">PREPAID ORDER OFFERS</span>
-          </div>
-          <div class="marquee-content" aria-hidden="true">
-            <span class="dot">•</span>
-            <span>500+ HAPPY CUSTOMERS</span>
-            <span class="dot">•</span>
-            <span class="text-red">COD AVAILABLE</span>
-            <span class="dot">•</span>
-            <span>PAN-INDIA DELIVERY</span>
-            <span class="dot">•</span>
-            <span class="text-red">PREPAID ORDER OFFERS</span>
+            <span class="text-red">₹200 OFF ON PREPAID ORDER</span>
           </div>
         </div>
       </div>

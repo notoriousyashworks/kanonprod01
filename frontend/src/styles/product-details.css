@@ -263,7 +263,7 @@
 
 .pd-orig-price {
   font-size: 15.5px;
-  color: #3b82f6;
+  color: #ef4444;
   text-decoration: line-through;
   margin-bottom: 2px;
   font-weight: 500;
@@ -277,7 +277,7 @@
 }
 
 .pd-curr-price--sale {
-  color: #ef4444;
+  color: #111111;
 }
 
 .pd-shipping-link {
