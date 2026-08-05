@@ -100,13 +100,41 @@ export function removeAddress(index) {
 // ─── Order History ─────────────────────────────────────────────────────────────
 
 export async function getOrders() {
-  // Prefer authenticated userId (uuid), fall back to guest userId from checkout
   const authUser = getAuthUser();
   const profile  = getProfile();
-  const userId   = authUser?.uuid || profile?.userId;
-  if (!userId) return [];
+  
+  const authUserId = authUser?.uuid;
+  const profileUserId = profile?.userId;
+  
+  const userIdsToFetch = new Set();
+  if (authUserId) userIdsToFetch.add(authUserId);
+  if (profileUserId) userIdsToFetch.add(profileUserId);
+  
+  if (userIdsToFetch.size === 0) return [];
+  
   try {
-    return await getUserOrders(userId);
+    const allOrders = [];
+    for (const id of userIdsToFetch) {
+      const orders = await getUserOrders(id);
+      if (Array.isArray(orders)) {
+        allOrders.push(...orders);
+      }
+    }
+    
+    // Sort combined orders by createdAt descending
+    allOrders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    
+    // Deduplicate by order ID just in case
+    const uniqueOrders = [];
+    const seen = new Set();
+    for (const order of allOrders) {
+      if (!seen.has(order.id)) {
+        seen.add(order.id);
+        uniqueOrders.push(order);
+      }
+    }
+    
+    return uniqueOrders;
   } catch (error) {
     console.error('Failed to fetch orders:', error);
     return [];

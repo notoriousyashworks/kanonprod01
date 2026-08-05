@@ -167,6 +167,12 @@ button {
   justify-content: space-between;
 }
 
+.header__logo {
+  flex: 1;
+  display: flex;
+  justify-content: flex-start;
+}
+
 .header__logo img,
 .header__logo-img {
   height: 48px;
@@ -178,11 +184,13 @@ button {
 }
 
 .header__search {
-  flex: 1;
-  max-width: 800px;
-  /* Increased from 500px to make it wider */
+  flex: 2;
+  width: 100%;
+  max-width: 900px;
   position: relative;
-  margin: 0 32px;
+  margin: 0 20px;
+  display: flex;
+  align-items: center;
 }
 
 .header__search input {
@@ -190,7 +198,7 @@ button {
   padding: 12px 16px 12px 48px;
   /* Padding left for the new icon position */
   border: none;
-  border-radius: 12px;
+  border-radius: 8px;
   background: #f5f5f5;
   /* Light gray background like the screenshot */
   font-size: 15px;
@@ -267,9 +275,11 @@ button {
 }
 
 .header__icons {
+  flex: 1;
   display: flex;
   gap: 20px;
   align-items: center;
+  justify-content: flex-end;
 }
 
 .icon-btn,
@@ -2336,8 +2346,8 @@ body.sidebar-lock {
   margin-right: 28px !important;
   display: grid !important;
   align-items: center !important;
-  grid-template-columns: auto minmax(320px, 0.62fr) auto;
-  column-gap: clamp(28px, 4vw, 72px);
+  grid-template-columns: auto minmax(420px, 0.78fr) auto;
+  column-gap: clamp(20px, 3vw, 56px);
 }
 
 .header__logo-img {
@@ -2346,22 +2356,22 @@ body.sidebar-lock {
 }
 
 .header__search {
-  width: min(100%, 840px);
-  max-width: 840px !important;
+  width: min(100%, 920px);
+  max-width: 920px !important;
   justify-self: center;
-  height: 52px !important;
-  margin-left: clamp(6px, 1.2vw, 24px) !important;
-  margin-right: 0 !important;
+  height: 44px !important;
+  margin-left: clamp(12px, 2vw, 32px) !important;
+  margin-right: clamp(12px, 2vw, 32px) !important;
   display: flex;
   align-items: center;
-  border-radius: 999px;
+  border-radius: 8px;
 }
 
 .header__search input {
   height: 100% !important;
   font-size: 15px;
-  padding-left: 52px;
-  border-radius: 999px;
+  padding-left: 48px;
+  border-radius: 8px;
 }
 
 .header__search-icon-left {
@@ -2483,7 +2493,7 @@ body.sidebar-lock {
   align-items: center;
   justify-content: center;
   padding: 0 14px !important;
-  font-size: 15px !important;
+  font-size: 17px !important;
   font-weight: 800 !important;
   letter-spacing: 0 !important;
   color: #1f2937 !important;

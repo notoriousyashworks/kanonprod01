@@ -1,7 +1,7 @@
 /* ============================================
    Orders Page Logic
    ============================================ */
-import { getNavbarHTML, formatCloudinaryUrl, initSearch } from './ui.js';
+import { getNavbarHTML, formatCloudinaryUrl, initSearch, initMobileMenu } from './ui.js';
 import { updateCartBadge } from './cart.js';
 import { getOrders, initProfileDropdown } from './profile.js';
 import { getProductById } from './api.js';
@@ -17,6 +17,7 @@ if (!getAuthUser()) {
 
 // Render navbar
 document.getElementById('navbar-container').innerHTML = getNavbarHTML();
+initMobileMenu();
 updateCartBadge();
 initProfileDropdown();
 initWishlistSidebar();

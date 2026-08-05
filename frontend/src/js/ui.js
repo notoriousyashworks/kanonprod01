@@ -1,4 +1,4 @@
-﻿/* ============================================
+/* ============================================
    KicksAura UI Utilities
    ============================================ */
 import { isWishlisted, toggleWishlistItem } from './wishlist.js';
@@ -280,6 +280,14 @@ export function getNavbarHTML(activePage = 'home') {
                 </div>
               </div>
             </div>
+            <!-- Hamburger: mobile only -->
+            <button class="icon-btn mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu" aria-expanded="false">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+                <line x1="3" y1="6" x2="21" y2="6"/>
+                <line x1="3" y1="12" x2="21" y2="12"/>
+                <line x1="3" y1="18" x2="21" y2="18"/>
+              </svg>
+            </button>
           </div>
         </div>
       </div>
@@ -295,6 +303,48 @@ export function getNavbarHTML(activePage = 'home') {
           <a href="https://wa.me/916239379751?text=Hey!" target="_blank" rel="noopener" class="nav-link">Contact on WhatsApp</a>
         </div>
       </nav>
+
+      <!-- Mobile Nav Drawer -->
+      <div class="mobile-nav-overlay" id="mobile-nav-overlay" aria-hidden="true"></div>
+      <div class="mobile-nav-drawer" id="mobile-nav-drawer" role="dialog" aria-modal="true" aria-label="Navigation menu">
+        <div class="mobile-nav-drawer__header">
+          <img src="/logos/headlogo.png" alt="KICKS AURA" class="mobile-nav-drawer__logo" />
+          <button class="mobile-nav-drawer__close" id="mobile-nav-close" aria-label="Close menu">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+        <nav class="mobile-nav-drawer__nav">
+          <a href="/" class="mobile-nav-link ${activePage === 'home' ? 'mobile-nav-link--active' : ''}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            Home
+          </a>
+          <a href="/#shop-category" class="mobile-nav-link ${activePage === 'products' ? 'mobile-nav-link--active' : ''}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            Categories
+          </a>
+          <a href="/#new-arrivals" class="mobile-nav-link">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+            New Arrivals
+          </a>
+          <a href="/#customer-reviews" class="mobile-nav-link">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            Customer Reviews
+          </a>
+          <a href="/shipping-policy" class="mobile-nav-link ${activePage === 'shipping' ? 'mobile-nav-link--active' : ''}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+            Shipping Policy
+          </a>
+          <a href="https://wa.me/916239379751?text=Hey!" target="_blank" rel="noopener" class="mobile-nav-link mobile-nav-link--whatsapp">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+            Contact on WhatsApp
+          </a>
+        </nav>
+        <div class="mobile-nav-drawer__footer">
+          <span>© 2025 Kicks Aura. All rights reserved.</span>
+        </div>
+      </div>
 
       <!-- Banner (Marquee) -->
       <div class="header__banner">
@@ -533,6 +583,35 @@ export async function initPurchaseNotifications() {
   } catch (e) {
     console.error('Error initPurchaseNotifications:', e);
   }
+}
+
+// Mobile hamburger menu
+export function initMobileMenu() {
+  const btn = document.getElementById('mobile-menu-btn');
+  const drawer = document.getElementById('mobile-nav-drawer');
+  const overlay = document.getElementById('mobile-nav-overlay');
+  const closeBtn = document.getElementById('mobile-nav-close');
+  if (!btn || !drawer || !overlay) return;
+
+  const open = () => {
+    drawer.classList.add('is-open');
+    overlay.classList.add('is-open');
+    btn.setAttribute('aria-expanded', 'true');
+    document.body.style.overflow = 'hidden';
+  };
+  const close = () => {
+    drawer.classList.remove('is-open');
+    overlay.classList.remove('is-open');
+    btn.setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = '';
+  };
+
+  btn.addEventListener('click', open);
+  if (closeBtn) closeBtn.addEventListener('click', close);
+  overlay.addEventListener('click', close);
+  drawer.querySelectorAll('.mobile-nav-link').forEach(link => {
+    link.addEventListener('click', close);
+  });
 }
 
 // Automatically initialize when DOM is ready

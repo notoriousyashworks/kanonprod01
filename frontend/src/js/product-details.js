@@ -2,7 +2,7 @@
    Product Details Page
    ============================================ */
 import { getProductById } from './api.js';
-import { getNavbarHTML, getFooterHTML, showToast, formatCloudinaryUrl, initSearch } from './ui.js';
+import { getNavbarHTML, getFooterHTML, showToast, formatCloudinaryUrl, initSearch, initMobileMenu } from './ui.js';
 import { addToCart, updateCartBadge } from './cart.js';
 import { initWishlistSidebar, updateWishlistBadge, isWishlisted, toggleWishlistItem } from './wishlist.js';
 import { initCartSidebar, openShippingPolicyModal } from './cart-sidebar.js';
@@ -12,6 +12,7 @@ import { initLoginModalTrigger } from './login-modal.js';
 // Render navbar & footer
 document.getElementById('navbar-container').innerHTML = getNavbarHTML('product');
 document.getElementById('footer-container').innerHTML = getFooterHTML();
+initMobileMenu();
 updateCartBadge();
 initWishlistSidebar();
 initCartSidebar();

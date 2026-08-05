@@ -104,7 +104,7 @@ export async function getOrder(orderId) {
 }
 
 export async function getUserOrders(userId) {
-  return request(`/orders/user/${userId}`);
+  return request(`/orders/user/${userId}?t=${Date.now()}`);
 }
 
 // === Reviews ===

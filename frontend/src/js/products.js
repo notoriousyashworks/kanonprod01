@@ -3,7 +3,7 @@
    ============================================ */
 import { filterProducts, getCategories, getBrands, getAllProducts } from './api.js';
 import { updateCartBadge } from './cart.js';
-import { getNavbarHTML, getFooterHTML, createProductCard, showToast, initSearch } from './ui.js';
+import { getNavbarHTML, getFooterHTML, createProductCard, showToast, initSearch, initMobileMenu } from './ui.js';
 import { initWishlistSidebar, updateWishlistBadge } from './wishlist.js';
 import { initCartSidebar } from './cart-sidebar.js';
 import { initProfileDropdown } from './profile.js';
@@ -12,6 +12,7 @@ import { initLoginModalTrigger } from './login-modal.js';
 // ── Bootstrap UI ──────────────────────────────────────────
 document.getElementById('navbar-container').innerHTML = getNavbarHTML('products');
 document.getElementById('footer-container').innerHTML = getFooterHTML();
+initMobileMenu();
 updateCartBadge();
 initWishlistSidebar();
 initCartSidebar();

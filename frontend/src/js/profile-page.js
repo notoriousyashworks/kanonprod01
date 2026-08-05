@@ -1,7 +1,7 @@
 /* ============================================
    Profile Page Logic
    ============================================ */
-import { getNavbarHTML, showToast, initSearch } from './ui.js';
+import { getNavbarHTML, showToast, initSearch, initMobileMenu } from './ui.js';
 import { updateCartBadge } from './cart.js';
 import { getProfile, saveProfile, initProfileDropdown } from './profile.js?v=1.3';
 import { lookupPinCode } from './pin-lookup.js?v=1.1';
@@ -90,6 +90,7 @@ if (!getAuthUser()) {
 
 // Render navbar
 document.getElementById('navbar-container').innerHTML = getNavbarHTML();
+initMobileMenu();
 updateCartBadge();
 initProfileDropdown();
 initWishlistSidebar();

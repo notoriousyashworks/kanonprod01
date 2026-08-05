@@ -3,7 +3,7 @@
    ============================================ */
 import { getAllProducts, getCategories, getCustomerReviews } from './api.js';
 import { addToCart, updateCartBadge } from './cart.js';
-import { getNavbarHTML, getFooterHTML, createProductCard, showToast, formatCloudinaryUrl, initSearch } from './ui.js';
+import { getNavbarHTML, getFooterHTML, createProductCard, showToast, formatCloudinaryUrl, initSearch, initMobileMenu } from './ui.js';
 import { initWishlistSidebar, updateWishlistBadge } from './wishlist.js';
 import { initCartSidebar } from './cart-sidebar.js';
 import { initProfileDropdown } from './profile.js';
@@ -12,6 +12,7 @@ import { initLoginModalTrigger } from './login-modal.js';
 // Render navbar & footer
 document.getElementById('navbar-container').innerHTML = getNavbarHTML('home');
 document.getElementById('footer-container').innerHTML = getFooterHTML();
+initMobileMenu();
 updateCartBadge();
 initWishlistSidebar();
 initCartSidebar();
@@ -400,8 +401,22 @@ function initReviewArrows(track) {
     track.style.transform = `translate3d(-${manualOffset}px, 0, 0)`;
   };
 
-  previousButton.addEventListener('pointerenter', freezeAtCurrentPosition);
-  nextButton.addEventListener('pointerenter', freezeAtCurrentPosition);
   previousButton.onclick = () => move(-1);
   nextButton.onclick = () => move(1);
+
+  carousel.addEventListener('pointerleave', () => {
+    if (hasManualOffset) {
+      const step = getStep();
+      const loopWidth = Math.max(track.scrollWidth / 2, step);
+      const duration = parseFloat(getComputedStyle(track).animationDuration) || 26;
+      
+      const timeOffset = (manualOffset / loopWidth) * duration;
+      
+      track.style.animationDelay = `-${timeOffset}s`;
+      track.style.transform = '';
+      track.classList.remove('reviews-track--manual');
+      
+      hasManualOffset = false;
+    }
+  });
 }
