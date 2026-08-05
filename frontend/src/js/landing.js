@@ -79,6 +79,11 @@ async function loadArrivals() {
     const initialSlice = allNewArrivals.slice(0, visibleArrivalsCount);
     grid.innerHTML = initialSlice.map(createProductCard).join('');
     attachCardListeners(initialSlice);
+<<<<<<< Updated upstream
+=======
+    initArrivalArrows(grid);
+    initHeroProductWidget(allNewArrivals);
+>>>>>>> Stashed changes
 
     if (exploreBtn) {
       if (allNewArrivals.length > visibleArrivalsCount) {
@@ -184,3 +189,110 @@ async function loadReviews() {
     console.error('Failed to load reviews:', e);
   }
 }
+<<<<<<< Updated upstream
+=======
+
+function initReviewArrows(track) {
+  const carousel = track.closest('.reviews-carousel');
+  const previousButton = carousel?.querySelector('.review-arrow--prev');
+  const nextButton = carousel?.querySelector('.review-arrow--next');
+  if (!carousel || !previousButton || !nextButton) return;
+
+  let manualOffset = 0;
+  let hasManualOffset = false;
+
+  const getStep = () => {
+    const firstCard = track.querySelector('.review-card');
+    const gap = parseFloat(getComputedStyle(track).columnGap || getComputedStyle(track).gap || 24) || 24;
+    return firstCard ? firstCard.getBoundingClientRect().width + gap : 304;
+  };
+
+  const getAnimatedOffset = (loopWidth) => {
+    const transform = getComputedStyle(track).transform;
+    if (!transform || transform === 'none') return 0;
+    const values = transform.match(/matrix.*\((.+)\)/)?.[1]?.split(',').map(Number);
+    const translateX = values?.length === 16 ? values[12] : values?.[4];
+    if (!Number.isFinite(translateX)) return 0;
+    return ((-translateX % loopWidth) + loopWidth) % loopWidth;
+  };
+
+  const freezeAtCurrentPosition = () => {
+    const step = getStep();
+    const loopWidth = Math.max(track.scrollWidth / 2, step);
+    if (!hasManualOffset) {
+      manualOffset = getAnimatedOffset(loopWidth);
+      hasManualOffset = true;
+    }
+    track.classList.add('reviews-track--manual');
+    track.style.transform = `translate3d(-${manualOffset}px, 0, 0)`;
+  };
+
+  const move = (direction) => {
+    freezeAtCurrentPosition();
+    const step = getStep();
+    const loopWidth = Math.max(track.scrollWidth / 2, step);
+    manualOffset = (manualOffset + direction * step + loopWidth) % loopWidth;
+    track.style.transform = `translate3d(-${manualOffset}px, 0, 0)`;
+  };
+
+  previousButton.addEventListener('pointerenter', freezeAtCurrentPosition);
+  nextButton.addEventListener('pointerenter', freezeAtCurrentPosition);
+  previousButton.onclick = () => move(-1);
+  nextButton.onclick = () => move(1);
+}
+
+// ── Hero Product Widget ────────────────────────────────────
+function initHeroProductWidget(products) {
+  const widget = document.getElementById('hero-product-widget');
+  const track = document.getElementById('hero-widget-track');
+  const prevBtn = document.querySelector('.hero-widget-arrow--prev');
+  const nextBtn = document.querySelector('.hero-widget-arrow--next');
+
+  if (!widget || !track || !products || products.length === 0) return;
+
+  const displayProducts = products.slice(0, 5); // Take top 5
+  track.innerHTML = displayProducts.map(createProductCard).join('');
+  attachCardListeners(displayProducts);
+
+  widget.style.display = ''; // Clear inline 'none' so CSS takes over
+
+  let currentIndex = 0;
+  let autoSlideInterval;
+  const totalSlides = displayProducts.length;
+
+  const updateSlide = () => {
+    track.style.transform = `translateX(-${currentIndex * 100}%)`;
+  };
+
+  const nextSlide = () => {
+    currentIndex = (currentIndex + 1) % totalSlides;
+    updateSlide();
+  };
+
+  const prevSlide = () => {
+    currentIndex = (currentIndex - 1 + totalSlides) % totalSlides;
+    updateSlide();
+  };
+
+  const resetInterval = () => {
+    clearInterval(autoSlideInterval);
+    autoSlideInterval = setInterval(nextSlide, 3000);
+  };
+
+  if (nextBtn) {
+    nextBtn.addEventListener('click', () => {
+      nextSlide();
+      resetInterval();
+    });
+  }
+
+  if (prevBtn) {
+    prevBtn.addEventListener('click', () => {
+      prevSlide();
+      resetInterval();
+    });
+  }
+
+  resetInterval(); // Start auto sliding
+}
+>>>>>>> Stashed changes

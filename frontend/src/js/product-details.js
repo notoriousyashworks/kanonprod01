@@ -182,8 +182,10 @@ function renderProduct(product) {
       
       <div class="pd-pricing-section">
         ${originalPrice && discountPct > 0 ? `<div class="pd-discount-badge">${discountPct}% off</div>` : ''}
-        ${originalPrice && discountPct > 0 ? `<div class="pd-orig-price">${fmtPrice(originalPrice)}</div>` : ''}
-        <div class="pd-curr-price ${originalPrice && discountPct > 0 ? 'pd-curr-price--sale' : ''}">${fmtPrice(currentPrice)}</div>
+        <div style="display: flex; align-items: baseline; gap: 12px;">
+          ${originalPrice && discountPct > 0 ? `<div class="pd-orig-price">${fmtPrice(originalPrice)}</div>` : ''}
+          <div class="pd-curr-price ${originalPrice && discountPct > 0 ? 'pd-curr-price--sale' : ''}">${fmtPrice(currentPrice)}</div>
+        </div>
       </div>
       
       <p class="pd-shipping-link"><a href="/shipping-policy" class="pd-open-shipping-modal" style="color: #2563eb; text-decoration: underline; cursor: pointer;">Shipping</a> calculated at checkout.</p>

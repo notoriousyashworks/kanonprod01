@@ -319,3 +319,621 @@
     gap: 8px;
   }
 }
+<<<<<<< Updated upstream
+=======
+
+/* ============================================
+   Homepage polish overrides
+   ============================================ */
+.hero-banner {
+  padding: 18px 0 4px;
+}
+
+.hero-banner .container {
+  text-align: center;
+  width: 100%;
+  max-width: none;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.hero-banner-wrapper {
+  width: min(calc(100vw - 24px), 1680px) !important;
+  max-width: 1680px !important;
+  display: flex !important;
+  margin-left: auto;
+  margin-right: auto;
+  border-radius: 14px;
+}
+
+.new-arrivals {
+  padding: 36px 0 72px;
+  overflow: hidden;
+}
+
+.why-kicksaura,
+.shop-category,
+.customer-reviews {
+  padding: 44px 0 72px;
+}
+
+.why-kicksaura .container {
+  width: min(100% - 56px, 1380px);
+  max-width: 1380px;
+}
+
+.product-grid {
+  align-items: start;
+}
+
+.product-grid:empty,
+.category-grid:empty,
+.reviews-carousel:empty {
+  display: none;
+}
+
+.category-grid {
+  display: flex;
+  flex-wrap: nowrap;
+  width: max-content;
+  justify-content: flex-start;
+}
+
+.category-grid:hover {
+  animation-play-state: paused;
+}
+
+@keyframes categoryMarquee {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.category-card,
+.feature-card {
+  border-radius: 10px;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.category-card:hover,
+.feature-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+}
+
+.category-card:hover .category-image-wrap img {
+  transform: scale(1.06);
+}
+
+.hero-banner-wrapper {
+  transition: transform 0.28s ease, box-shadow 0.28s ease;
+}
+
+.hero-banner-wrapper:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.18);
+}
+
+.feature-icon {
+  transition: transform 0.22s ease, background-color 0.22s ease;
+}
+
+.feature-card:hover .feature-icon {
+  transform: rotate(-4deg) scale(1.08);
+  background-color: #ffe1e1;
+}
+
+.new-arrivals,
+.why-kicksaura,
+.shop-category,
+.customer-reviews {
+  animation: sectionFadeUp 0.55s ease both;
+}
+
+@keyframes sectionFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (min-width: 1200px) {
+  .product-grid {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 300px));
+  }
+}
+
+@media (max-width: 767px) {
+  .hero-banner {
+    padding-top: 10px;
+  }
+
+  .new-arrivals,
+  .why-kicksaura,
+  .shop-category,
+  .customer-reviews {
+    padding: 28px 0 48px;
+  }
+
+  .category-card {
+    flex-basis: 240px;
+    width: 240px;
+    max-width: 240px;
+  }
+}
+
+/* Final carousel overrides: keep category and arrivals in one moving row. */
+.shop-category,
+.new-arrivals {
+  overflow: hidden !important;
+}
+
+.shop-category .container,
+.new-arrivals .container {
+  width: 100%;
+  max-width: none;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.category-grid,
+.product-grid {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  grid-template-columns: none !important;
+  justify-content: flex-start !important;
+  align-items: stretch !important;
+  width: max-content !important;
+  max-width: none !important;
+  gap: 24px !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  will-change: transform;
+}
+
+.category-grid {
+  animation: categoryMarquee 34s linear infinite !important;
+}
+
+.product-grid {
+  animation: arrivalsMarquee 38s linear infinite !important;
+}
+
+.new-arrivals-carousel {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+}
+
+.arrival-arrow {
+  position: absolute;
+  top: 42%;
+  z-index: 30;
+  width: 46px;
+  height: 46px;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.96);
+  color: #111827;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 34px;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.16);
+  transition: transform 0.18s ease, background 0.18s ease, color 0.18s ease;
+}
+
+.arrival-arrow:hover {
+  transform: translateY(-1px);
+  background: #111827;
+  color: #ffffff;
+}
+
+.arrival-arrow--prev {
+  left: 22px;
+}
+
+.arrival-arrow--next {
+  right: 22px;
+}
+
+.product-grid--manual {
+  animation: none !important;
+  transition: none !important;
+  will-change: transform;
+}
+
+.new-arrivals-carousel:has(.arrival-arrow:hover) .product-grid {
+  animation-play-state: paused !important;
+}
+
+.category-grid:hover,
+.product-grid:hover {
+  animation-play-state: paused !important;
+}
+
+.category-card {
+  flex: 0 0 300px !important;
+  width: 300px !important;
+  max-width: 300px !important;
+}
+
+.new-arrivals .product-card-link {
+  flex: 0 0 280px !important;
+  width: 280px !important;
+  max-width: 280px !important;
+}
+
+@keyframes arrivalsMarquee {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .category-grid {
+    animation: categoryMarquee 34s linear infinite !important;
+  }
+
+  .product-grid {
+    animation: arrivalsMarquee 38s linear infinite !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .category-grid,
+  .product-grid {
+    gap: 16px !important;
+  }
+
+  .category-card {
+    flex-basis: 250px !important;
+    width: 250px !important;
+    max-width: 250px !important;
+  }
+
+  .new-arrivals .product-card-link {
+    flex-basis: 240px !important;
+    width: 240px !important;
+    max-width: 240px !important;
+  }
+
+  .arrival-arrow {
+    width: 38px;
+    height: 38px;
+    font-size: 28px;
+  }
+
+  .arrival-arrow--prev {
+    left: 10px;
+  }
+
+  .arrival-arrow--next {
+    right: 10px;
+  }
+}
+
+/* Keep every landing section underline centered under its heading. */
+.why-kicksaura .section-title::after,
+.shop-category .section-title::after,
+.new-arrivals .section-title::after,
+.customer-reviews .section-title::after {
+  left: 50% !important;
+  transform: translateX(-50%);
+}
+
+/* Shop By Category final layout: stable two-row showroom grid. */
+.shop-category {
+  overflow: visible !important;
+  padding: 58px 0 64px !important;
+}
+
+.shop-category .container {
+  width: min(100% - 96px, 1480px) !important;
+  max-width: 1480px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+.shop-category .section-title {
+  margin-bottom: 30px !important;
+}
+
+.shop-category .category-grid {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  width: 100% !important;
+  max-width: none !important;
+  gap: 28px !important;
+  margin: 0 auto !important;
+  animation: none !important;
+  transform: none !important;
+  will-change: auto !important;
+}
+
+.shop-category .category-grid:hover {
+  animation-play-state: running !important;
+}
+
+.shop-category .category-card {
+  flex: none !important;
+  width: 100% !important;
+  max-width: none !important;
+  min-height: 342px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #ffffff;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.shop-category .category-image-wrap {
+  height: 276px !important;
+  background: #f8f8f8;
+}
+
+.shop-category .category-image-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.shop-category .category-name {
+  min-height: 66px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px !important;
+  font-weight: 800 !important;
+  text-transform: capitalize;
+}
+
+@media (max-width: 1100px) {
+  .shop-category .container {
+    width: min(100% - 48px, 100%) !important;
+  }
+
+  .shop-category .category-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 22px !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .shop-category {
+    padding: 42px 0 48px !important;
+  }
+
+  .shop-category .container {
+    width: min(100% - 28px, 100%) !important;
+  }
+
+  .shop-category .category-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 14px !important;
+  }
+
+  .shop-category .category-card {
+    min-height: 220px;
+  }
+
+  .shop-category .category-image-wrap {
+    height: 164px !important;
+  }
+
+  .shop-category .category-name {
+    min-height: 56px;
+    padding: 12px 8px;
+    font-size: 15px !important;
+  }
+}
+
+/* Customer Reviews final layout: full-width moving row like New Arrivals. */
+.customer-reviews {
+  overflow: hidden !important;
+  padding: 46px 0 64px !important;
+  background: #f4f4f4 !important;
+}
+
+.customer-reviews .container {
+  width: 100% !important;
+  max-width: none !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+.customer-reviews .section-title {
+  margin-bottom: 30px !important;
+}
+
+.customer-reviews .reviews-carousel {
+  width: 100% !important;
+  max-width: none !important;
+  overflow: hidden !important;
+  padding: 2px 0 16px !important;
+}
+
+.customer-reviews .reviews-track {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  justify-content: flex-start !important;
+  align-items: stretch !important;
+  width: max-content !important;
+  max-width: none !important;
+  gap: 24px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  animation: reviewsMarquee 26s linear infinite !important;
+}
+
+.customer-reviews .reviews-track--manual {
+  animation: none !important;
+  transition: none !important;
+}
+
+.customer-reviews .reviews-carousel:hover .reviews-track,
+.customer-reviews .reviews-carousel:has(.review-arrow:hover) .reviews-track {
+  animation-play-state: paused !important;
+}
+
+.customer-reviews .review-card {
+  flex: 0 0 310px !important;
+  width: 310px !important;
+  max-width: 310px !important;
+  height: 390px !important;
+  object-fit: cover !important;
+  object-position: center !important;
+}
+
+.customer-reviews .review-arrow--prev {
+  left: 24px !important;
+}
+
+.customer-reviews .review-arrow--next {
+  right: 24px !important;
+}
+
+@media (max-width: 767px) {
+  .customer-reviews {
+    padding: 38px 0 48px !important;
+  }
+
+  .customer-reviews .reviews-track {
+    gap: 16px !important;
+    animation-duration: 22s !important;
+  }
+
+  .customer-reviews .review-card {
+    flex-basis: 240px !important;
+    width: 240px !important;
+    max-width: 240px !important;
+    height: 310px !important;
+  }
+
+  .customer-reviews .review-arrow {
+    width: 38px;
+    height: 38px;
+  }
+
+  .customer-reviews .review-arrow--prev {
+    left: 10px !important;
+  }
+
+  .customer-reviews .review-arrow--next {
+    right: 10px !important;
+  }
+}
+
+/* ── Hero Product Widget (Right Side Banner) ── */
+.hero-product-widget {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  right: 5rem;
+  width: 340px;
+  background: transparent;
+  border: none;
+  padding: 1rem;
+  z-index: 20;
+  box-shadow: none;
+  overflow: hidden;
+  text-align: left;
+}
+
+.hero-widget-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.hero-widget-title {
+  font-family: var(--font-heading);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-primary);
+  font-weight: 700;
+  text-shadow: none;
+}
+
+.hero-widget-controls {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.hero-widget-arrow {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-white);
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: all var(--transition-fast);
+}
+
+.hero-widget-arrow:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.1);
+}
+
+.hero-widget-track-container {
+  overflow: hidden;
+  position: relative;
+  border-radius: var(--radius-md);
+  width: 100%;
+}
+
+.hero-widget-track {
+  display: flex;
+  transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+  width: 100%;
+}
+
+.hero-widget-track .product-card-link {
+  flex: 0 0 100%;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  display: block;
+  text-decoration: none;
+}
+
+.hero-widget-track .product-card-link .product-card {
+  background: var(--color-white);
+  border-radius: var(--radius-md);
+  margin: 0;
+  height: 100%;
+}
+
+.hero-widget-track .pc-image-wrap {
+  height: 260px !important;
+}
+
+.hero-widget-track .product-card-link:hover .product-card {
+  transform: none;
+}
+>>>>>>> Stashed changes

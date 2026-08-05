@@ -136,10 +136,21 @@ img, video, iframe, embed, object {
   max-width: 1000px;
 }
 
+@media (max-width: 1024px) {
+  .hero-product-widget {
+    right: 2%;
+    transform: translateY(-50%) scale(0.7);
+    transform-origin: right center;
+  }
+}
+
 @media (max-width: 768px) {
   .hero-banner-wrapper {
     width: 96%;
     margin-top: 12px;
+  }
+  .hero-product-widget {
+    display: none !important;
   }
 }
 

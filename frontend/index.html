@@ -65,6 +65,7 @@
         background: #000;
         box-shadow: 0 4px 12px rgba(0,0,0,0.2);
       }
+<<<<<<< Updated upstream
       .hero-banner-wrapper::before {
         content: "";
         position: absolute;
@@ -80,20 +81,268 @@
           transform: rotate(360deg);
         }
       }
+=======
+
+>>>>>>> Stashed changes
       .hero-banner-wrapper img {
         position: relative;
         width: 100%;
-        height: auto;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
         display: block;
         border-radius: 11px; /* Slightly smaller than wrapper to fit perfectly */
         z-index: 1;
         background: #000; /* Prevent transparency bleeding */
       }
+<<<<<<< Updated upstream
+=======
+      .hero-carousel {
+        position: relative;
+        z-index: 1;
+        width: 100%;
+        overflow: hidden;
+        border-radius: 11px;
+        background: #000;
+        cursor: grab;
+        box-sizing: border-box;
+        aspect-ratio: 1280 / 520; /* Decreased vertical size */
+        min-height: clamp(400px, 50vh, 520px);
+        max-height: 520px;
+        touch-action: pan-y;
+        user-select: none;
+      }
+      .hero-carousel.is-dragging {
+        cursor: grabbing;
+      }
+      .hero-carousel-track {
+        display: flex;
+        width: 100%;
+        height: 100%;
+        transition: transform 1.05s cubic-bezier(0.25, 0.74, 0.28, 0.99);
+        will-change: transform;
+      }
+      .hero-slide {
+        position: relative;
+        flex: 0 0 100%;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        border-radius: 11px;
+      }
+      .hero-slide::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: -2px;
+        width: 4px;
+        height: 100%;
+        z-index: 2;
+        background: rgba(255,255,255,0.18);
+        box-shadow: 0 0 18px rgba(255,255,255,0.3);
+      }
+      .hero-slide img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+        pointer-events: none;
+      }
+      .hero-slide--poster img {
+        object-fit: cover;
+        object-position: center;
+        background: radial-gradient(circle at 50% 50%, #161616 0%, #050505 68%);
+      }
+      .hero-slide--glasses img {
+        object-fit: cover;
+        object-position: center;
+        background: #d9d1d1;
+      }
+      .hero-slide.is-active {
+        z-index: 1;
+      }
+      .hero-carousel::after {
+        content: "";
+        position: absolute;
+        inset: auto 0 0 0;
+        height: 34%;
+        z-index: 4;
+        pointer-events: none;
+        background: linear-gradient(to top, rgba(0,0,0,0.55), rgba(0,0,0,0));
+      }
+      .hero-carousel-dots {
+        position: absolute;
+        right: 22px;
+        bottom: 18px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        z-index: 5;
+        max-width: min(52%, 520px);
+        overflow: visible;
+        padding: 5px;
+      }
+      .hero-carousel-dot {
+        width: 92px;
+        height: 52px;
+        border: 2px solid rgba(255,255,255,0.62);
+        border-radius: 8px;
+        background: rgba(0,0,0,0.58);
+        cursor: pointer;
+        padding: 2px;
+        overflow: hidden;
+        opacity: 0.68;
+        position: relative;
+        box-shadow: 0 6px 18px rgba(0,0,0,0.34);
+        transition: transform 0.22s ease, opacity 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
+      }
+      .hero-carousel-dot::before {
+        content: "";
+        position: absolute;
+        inset: -1px;
+        z-index: 2;
+        border: 1px solid rgba(0,0,0,0.45);
+        border-radius: inherit;
+        pointer-events: none;
+      }
+      .hero-carousel-dot:hover {
+        opacity: 0.92;
+        transform: scale(1.03);
+        border-color: rgba(255,255,255,0.9);
+      }
+      .hero-carousel-dot.is-active {
+        opacity: 1;
+        transform: scale(1.05);
+        border-color: #ffffff;
+        box-shadow: 0 0 0 2px rgba(255,255,255,0.95), 0 10px 26px rgba(0,0,0,0.42);
+      }
+      .hero-carousel-dot:hover::before {
+        border-color: rgba(0,0,0,0.42);
+      }
+      .hero-carousel-dot.is-active::before {
+        border: 1px solid rgba(0,0,0,0.52);
+        box-shadow: inset 0 0 0 1px rgba(255,255,255,0.2);
+      }
+      .hero-carousel-dot::after {
+        content: "";
+        position: absolute;
+        left: 4px;
+        right: 4px;
+        bottom: 5px;
+        height: 3px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.26);
+        transform: scaleX(0);
+        transform-origin: left;
+        z-index: 3;
+      }
+      .hero-carousel-dot.is-active::after {
+        background: linear-gradient(90deg, #ffffff, #ef3340);
+        animation: heroThumbProgress 1.5s linear infinite;
+      }
+      .hero-carousel-dot img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+        background: #000;
+        border-radius: 5px;
+        display: block;
+      }
+      @keyframes heroThumbProgress {
+        from {
+          transform: scaleX(0);
+        }
+        to {
+          transform: scaleX(1);
+        }
+      }
+      .hero-carousel-arrow {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 3;
+        width: 42px;
+        height: 42px;
+        border: 1px solid rgba(255,255,255,0.3);
+        border-radius: 50%;
+        background: rgba(0,0,0,0.42);
+        color: #fff;
+        font-size: 30px;
+        line-height: 1;
+        display: grid;
+        place-items: center;
+        cursor: pointer;
+        opacity: 0.9;
+        transition: opacity 0.2s ease, background-color 0.2s ease;
+      }
+      .hero-carousel-arrow:hover {
+        opacity: 1;
+        background: rgba(0,0,0,0.68);
+      }
+      .hero-carousel-arrow--prev {
+        left: 20px;
+      }
+      .hero-carousel-arrow--next {
+        right: 20px;
+      }
+      @media (max-width: 767px) {
+        .hero-banner-wrapper {
+          width: min(calc(100vw - 24px), 100%);
+          margin-top: 14px;
+        }
+
+        .hero-carousel {
+          aspect-ratio: 16 / 9;
+          min-height: auto;
+          max-height: none;
+        }
+        .hero-carousel-arrow {
+          display: none;
+        }
+        .hero-carousel-dots {
+          right: 10px;
+          bottom: 10px;
+          max-width: 64%;
+          gap: 6px;
+        }
+        .hero-carousel-dot {
+          width: 54px;
+          height: 32px;
+        }
+      }
+>>>>>>> Stashed changes
     </style>
     <section class="hero-banner">
       <div class="container" style="padding: 0; text-align: center;">
         <div class="hero-banner-wrapper">
+<<<<<<< Updated upstream
           <img src="/images/HeroBannerMain.png" alt="Hero Banner">
+=======
+          <div class="hero-carousel" id="hero-carousel" aria-roledescription="carousel" aria-label="Featured offers">
+            <div class="hero-carousel-track">
+              <div class="hero-slide hero-slide--poster is-active" aria-label="Luxury brands offer 1 of 1">
+                <img src="/images/banner_y.png" alt="Luxury brands in every thread at Kicks Aura">
+              </div>
+            </div>
+          </div>
+          
+          <!-- Hero Product Widget -->
+          <div class="hero-product-widget" id="hero-product-widget" style="display: none;">
+            <div class="hero-widget-header">
+              <span class="hero-widget-title">Trending</span>
+              <div class="hero-widget-controls">
+                <button class="hero-widget-arrow hero-widget-arrow--prev" type="button" aria-label="Previous product">&lsaquo;</button>
+                <button class="hero-widget-arrow hero-widget-arrow--next" type="button" aria-label="Next product">&rsaquo;</button>
+              </div>
+            </div>
+            <div class="hero-widget-track-container">
+              <div class="hero-widget-track" id="hero-widget-track">
+                <!-- Dynamically populated product cards -->
+              </div>
+            </div>
+          </div>
+>>>>>>> Stashed changes
         </div>
       </div>
     </section>
