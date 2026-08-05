@@ -7,6 +7,16 @@ import { openLoginModal } from './login-modal.js?v=1.6';
 
 const PROFILE_KEY = 'kicksaura_profile';
 const ORDERS_KEY  = 'kicksaura_orders';
+const MAX_SAVED_ADDRESSES = 3;
+const ADDRESS_LIMIT_MESSAGE = 'Max address limit reached. Delete one address first to add a new address.';
+
+function normalizeAddresses(addresses) {
+  return Array.isArray(addresses) ? addresses.slice(0, MAX_SAVED_ADDRESSES) : [];
+}
+
+function cleanOptional(value) {
+  return value == null ? '' : String(value).trim();
+}
 
 // ─── Profile (name + phone) ────────────────────────────────────────────────────
 
@@ -16,31 +26,43 @@ export function getProfile() {
 }
 
 export function saveProfile(data) {
+  if (Array.isArray(data.addresses) && data.addresses.length > MAX_SAVED_ADDRESSES) {
+    throw new Error(ADDRESS_LIMIT_MESSAGE);
+  }
+
   const existing = getProfile() || {};
-  localStorage.setItem(PROFILE_KEY, JSON.stringify({ ...existing, ...data }));
+  const normalizedData = {
+    ...data,
+    ...(data.firstName !== undefined ? { firstName: cleanOptional(data.firstName) } : {}),
+    ...(data.lastName !== undefined ? { lastName: cleanOptional(data.lastName) } : {}),
+    ...(data.addresses !== undefined ? { addresses: normalizeAddresses(data.addresses) } : {})
+  };
+  localStorage.setItem(PROFILE_KEY, JSON.stringify({ ...existing, ...normalizedData }));
   
   const authUser = getAuthUser();
   if (authUser) {
     // Update localStorage immediately for instant UI feedback
-    if (data.firstName !== undefined) authUser.firstName = data.firstName;
-    if (data.lastName  !== undefined) authUser.lastName  = data.lastName;
-    if (data.phone     !== undefined) authUser.phoneNumber = data.phone;
-    if (data.addresses !== undefined) authUser.addresses = data.addresses;
+    if (normalizedData.firstName !== undefined) authUser.firstName = normalizedData.firstName;
+    if (normalizedData.lastName  !== undefined) authUser.lastName  = normalizedData.lastName;
+    if (normalizedData.phone     !== undefined) authUser.phoneNumber = normalizedData.phone;
+    if (normalizedData.addresses !== undefined) authUser.addresses = normalizedData.addresses;
     setAuthUser(authUser);
     
     // Persist to backend DB — update authUser with confirmed backend values
-    if (data.firstName !== undefined || data.lastName !== undefined || data.addresses !== undefined) {
+    if (normalizedData.firstName !== undefined || normalizedData.lastName !== undefined || normalizedData.addresses !== undefined) {
       updateProfileInBackend({
-        firstName: data.firstName ?? authUser.firstName,
-        lastName:  data.lastName  ?? authUser.lastName  ?? '',
-        addresses: data.addresses ?? authUser.addresses ?? []
+        firstName: normalizedData.firstName !== undefined ? normalizedData.firstName : authUser.firstName,
+        lastName:  normalizedData.lastName !== undefined ? normalizedData.lastName : authUser.lastName ?? '',
+        addresses: normalizeAddresses(normalizedData.addresses ?? authUser.addresses ?? [])
       }).then(updated => {
         // Sync confirmed values from DB back to localStorage
         if (updated) {
           const current = getAuthUser() || {};
-          current.firstName = updated.firstName;
-          current.lastName  = updated.lastName;
-          current.addresses = updated.addresses || current.addresses;
+          current.firstName = normalizedData.firstName !== undefined ? normalizedData.firstName : updated.firstName;
+          current.lastName  = normalizedData.lastName !== undefined ? normalizedData.lastName : updated.lastName;
+          current.addresses = normalizedData.addresses !== undefined
+            ? normalizedData.addresses
+            : normalizeAddresses(updated.addresses || current.addresses);
           setAuthUser(current);
           window.dispatchEvent(new CustomEvent('auth-changed'));
         }
@@ -52,14 +74,17 @@ export function saveProfile(data) {
 export function getAddresses() {
   const authUser = getAuthUser();
   if (authUser && Array.isArray(authUser.addresses)) {
-    return authUser.addresses;
+    return normalizeAddresses(authUser.addresses);
   }
   const profile = getProfile();
-  return (profile && Array.isArray(profile.addresses)) ? profile.addresses : [];
+  return normalizeAddresses(profile?.addresses);
 }
 
 export function saveAddress(addressObj) {
   const addresses = getAddresses();
+  if (addresses.length >= MAX_SAVED_ADDRESSES) {
+    throw new Error('You can save a maximum of 3 addresses. Please delete one to add a new address.');
+  }
   addresses.push(addressObj);
   saveProfile({ addresses });
 }
@@ -112,11 +137,11 @@ function updateDropdownState() {
 
   // Set display name
   if (nameEl) {
-    if (authUser?.firstName || authUser?.phoneNumber) {
+    if (profile?.firstName) {
+      nameEl.textContent = formatName([profile.firstName, profile.lastName].filter(Boolean).join(' ').trim());
+    } else if (authUser?.firstName || authUser?.phoneNumber) {
       const displayName = [authUser.firstName, authUser.lastName].filter(Boolean).join(' ').trim();
       nameEl.textContent = formatName(displayName) || `+91 ${authUser.phoneNumber}`;
-    } else if (profile?.firstName) {
-      nameEl.textContent = formatName([profile.firstName, profile.lastName].filter(Boolean).join(' ').trim());
     } else if (profile?.phone) {
       nameEl.textContent = `+91 ${profile.phone}`;
     } else {

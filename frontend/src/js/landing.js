@@ -20,6 +20,145 @@ initProfileDropdown();
 initSearch();
 initLoginModalTrigger();
 
+function initHeroCarousel() {
+  const carousel = document.getElementById('hero-carousel');
+  const track = carousel?.querySelector('.hero-carousel-track');
+  const realSlides = Array.from(carousel?.querySelectorAll('.hero-slide') || []);
+  const dots = Array.from(carousel?.querySelectorAll('.hero-carousel-dot') || []);
+  const previousButton = carousel?.querySelector('.hero-carousel-arrow--prev');
+  const nextButton = carousel?.querySelector('.hero-carousel-arrow--next');
+
+  if (!carousel || !track || realSlides.length < 2) return;
+
+  const firstClone = realSlides[0].cloneNode(true);
+  const lastClone = realSlides[realSlides.length - 1].cloneNode(true);
+  firstClone.classList.add('hero-slide--clone');
+  lastClone.classList.add('hero-slide--clone');
+  track.appendChild(firstClone);
+  track.insertBefore(lastClone, realSlides[0]);
+
+  const slides = Array.from(track.querySelectorAll('.hero-slide'));
+  let trackIndex = 1;
+  let autoTimer = null;
+  let startX = 0;
+  let dragDelta = 0;
+  let isDragging = false;
+
+  const getRealIndex = () => (trackIndex - 1 + realSlides.length) % realSlides.length;
+
+  const updateDots = () => {
+    const realIndex = getRealIndex();
+    dots.forEach((dot, index) => {
+      dot.classList.toggle('is-active', index === realIndex);
+    });
+  };
+
+  const updateSlideClasses = () => {
+    slides.forEach((slide, index) => {
+      slide.classList.toggle('is-active', index === trackIndex);
+    });
+  };
+
+  const moveTrack = (animate = true) => {
+    track.style.transition = animate ? 'transform 1.25s cubic-bezier(0.25, 0.74, 0.28, 0.99)' : 'none';
+    track.style.transform = `translate3d(-${trackIndex * 100}%, 0, 0)`;
+  };
+
+  const goToTrackIndex = (index, animate = true) => {
+    trackIndex = index;
+    updateSlideClasses();
+    updateDots();
+    moveTrack(animate);
+  };
+
+  const goToRealSlide = (index) => {
+    goToTrackIndex(index + 1);
+  };
+
+  const stopAutoSlide = () => {
+    if (!autoTimer) return;
+    clearInterval(autoTimer);
+    autoTimer = null;
+  };
+
+  const startAutoSlide = () => {
+    stopAutoSlide();
+    autoTimer = setInterval(() => goToTrackIndex(trackIndex + 1), 1500);
+  };
+
+  previousButton?.addEventListener('click', (event) => {
+    event.stopPropagation();
+    goToTrackIndex(trackIndex - 1);
+    startAutoSlide();
+  });
+
+  nextButton?.addEventListener('click', (event) => {
+    event.stopPropagation();
+    goToTrackIndex(trackIndex + 1);
+    startAutoSlide();
+  });
+
+  dots.forEach((dot, index) => {
+    dot.addEventListener('click', (event) => {
+      event.stopPropagation();
+      goToRealSlide(index);
+      startAutoSlide();
+    });
+  });
+
+  carousel.addEventListener('pointerdown', (event) => {
+    if (event.target.closest('button')) return;
+    isDragging = true;
+    startX = event.clientX;
+    dragDelta = 0;
+    carousel.classList.add('is-dragging');
+    stopAutoSlide();
+    carousel.setPointerCapture?.(event.pointerId);
+  });
+
+  carousel.addEventListener('pointermove', (event) => {
+    if (!isDragging) return;
+    dragDelta = event.clientX - startX;
+    track.style.transition = 'none';
+    track.style.transform = `translate3d(calc(-${trackIndex * 100}% + ${dragDelta}px), 0, 0)`;
+  });
+
+  const finishDrag = () => {
+    if (!isDragging) return;
+    isDragging = false;
+    carousel.classList.remove('is-dragging');
+
+    if (Math.abs(dragDelta) > 60) {
+      goToTrackIndex(trackIndex + (dragDelta < 0 ? 1 : -1));
+    } else {
+      goToTrackIndex(trackIndex);
+    }
+
+    startAutoSlide();
+  };
+
+  track.addEventListener('transitionend', () => {
+    if (trackIndex === 0) {
+      goToTrackIndex(realSlides.length, false);
+    }
+
+    if (trackIndex === realSlides.length + 1) {
+      goToTrackIndex(1, false);
+    }
+  });
+
+  carousel.addEventListener('pointerup', finishDrag);
+  carousel.addEventListener('pointercancel', finishDrag);
+  carousel.addEventListener('mouseleave', finishDrag);
+  carousel.addEventListener('mouseenter', stopAutoSlide);
+  carousel.addEventListener('mouseleave', startAutoSlide);
+  carousel.addEventListener('focusin', stopAutoSlide);
+  carousel.addEventListener('focusout', startAutoSlide);
+
+  goToTrackIndex(1, false);
+  startAutoSlide();
+}
+
 
 // ── Load Categories from DB ──────────────────────────────
 async function loadCategories() {
@@ -37,7 +176,7 @@ async function loadCategories() {
       return;
     }
 
-    grid.innerHTML = categories.map(cat => `
+    const categoryCards = categories.map(cat => `
       <a href="/products?category=${encodeURIComponent(cat.name)}" class="category-card">
         <div class="category-image-wrap">
           ${cat.imageUrl
@@ -46,6 +185,8 @@ async function loadCategories() {
         </div>
         <div class="category-name">${cat.name}</div>
       </a>`).join('');
+
+    grid.innerHTML = categoryCards;
   } catch (err) {
     console.error('Failed to load categories:', err);
     grid.innerHTML = '';   // hide the section gracefully on error
@@ -77,27 +218,13 @@ async function loadArrivals() {
     visibleArrivalsCount = Math.min(ARRIVALS_PAGE_SIZE, allNewArrivals.length);
 
     const initialSlice = allNewArrivals.slice(0, visibleArrivalsCount);
-    grid.innerHTML = initialSlice.map(createProductCard).join('');
+    const arrivalCards = initialSlice.map(createProductCard).join('');
+    grid.innerHTML = arrivalCards + arrivalCards;
     attachCardListeners(initialSlice);
+    initArrivalArrows(grid);
 
     if (exploreBtn) {
-      if (allNewArrivals.length > visibleArrivalsCount) {
-        exploreBtn.style.display = 'block';
-        exploreBtn.textContent = 'View All';
-        exploreBtn.onclick = () => {
-          const nextSlice = allNewArrivals.slice(visibleArrivalsCount, visibleArrivalsCount + ARRIVALS_PAGE_SIZE);
-          if (nextSlice.length > 0) {
-            grid.insertAdjacentHTML('beforeend', nextSlice.map(createProductCard).join(''));
-            attachCardListeners(nextSlice);
-            visibleArrivalsCount += nextSlice.length;
-          }
-          if (visibleArrivalsCount >= allNewArrivals.length) {
-            exploreBtn.style.display = 'none';
-          }
-        };
-      } else {
-        exploreBtn.style.display = 'none';
-      }
+      exploreBtn.style.display = 'none';
     }
   } catch (error) {
     grid.innerHTML = `
@@ -109,6 +236,55 @@ async function loadArrivals() {
     `;
     if (exploreBtn) exploreBtn.style.display = 'none';
   }
+}
+
+function initArrivalArrows(grid) {
+  const carousel = grid.closest('.new-arrivals-carousel');
+  const previousButton = carousel?.querySelector('.arrival-arrow--prev');
+  const nextButton = carousel?.querySelector('.arrival-arrow--next');
+  if (!carousel || !previousButton || !nextButton) return;
+
+  let manualOffset = 0;
+  let hasManualOffset = false;
+
+  const getStep = () => {
+    const firstCard = grid.querySelector('.product-card-link');
+    const gap = parseFloat(getComputedStyle(grid).columnGap || getComputedStyle(grid).gap || 24) || 24;
+    return firstCard ? firstCard.getBoundingClientRect().width + gap : 304;
+  };
+
+  const getAnimatedOffset = (loopWidth) => {
+    const transform = getComputedStyle(grid).transform;
+    if (!transform || transform === 'none') return 0;
+
+    const values = transform.match(/matrix.*\((.+)\)/)?.[1]?.split(',').map(Number);
+    const translateX = values?.length === 16 ? values[12] : values?.[4];
+    if (!Number.isFinite(translateX)) return 0;
+
+    return ((-translateX % loopWidth) + loopWidth) % loopWidth;
+  };
+
+  const freezeAtCurrentPosition = () => {
+    const step = getStep();
+    const loopWidth = Math.max(grid.scrollWidth / 2, step);
+    if (!hasManualOffset) {
+      manualOffset = getAnimatedOffset(loopWidth);
+      hasManualOffset = true;
+    }
+    grid.classList.add('product-grid--manual');
+    grid.style.transform = `translate3d(-${manualOffset}px, 0, 0)`;
+  };
+
+  const move = (direction) => {
+    freezeAtCurrentPosition();
+    const step = getStep();
+    const loopWidth = Math.max(grid.scrollWidth / 2, step);
+    manualOffset = (manualOffset + direction * step + loopWidth) % loopWidth;
+    grid.style.transform = `translate3d(-${manualOffset}px, 0, 0)`;
+  };
+
+  previousButton.onclick = () => move(-1);
+  nextButton.onclick = () => move(1);
 }
 
 function attachCardListeners(products) {
@@ -151,36 +327,81 @@ function attachCardListeners(products) {
   });
 }
 
+initHeroCarousel();
 loadCategories();
 loadArrivals();
 loadReviews();
 
 async function loadReviews() {
   const container = document.querySelector('.reviews-carousel');
-  if (!container) return;
+  const track = container?.querySelector('.reviews-track');
+  if (!container || !track) return;
   
   try {
     const reviews = await getCustomerReviews();
     if (!reviews || reviews.length === 0) {
-      container.innerHTML = '<p style="text-align:center;width:100%;color:#888;">No reviews yet.</p>';
+      track.innerHTML = '<p class="reviews-empty">No reviews yet.</p>';
+      container.classList.add('reviews-carousel--empty');
       return;
     }
-    
-    // Create arrows
-    const prevBtn = `<button class="carousel-btn carousel-btn--prev">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
-    </button>`;
-    const nextBtn = `<button class="carousel-btn carousel-btn--next">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
-    </button>`;
-    
-    const reviewCards = reviews.map(r => `
-      <img class="review-card" src="${formatCloudinaryUrl(r.imageUrl)}" alt="Customer Review" style="object-fit:cover;border-radius:12px;">
+
+    container.classList.remove('reviews-carousel--empty');
+    const displayReviews = reviews.slice(0, 12);
+    const cards = displayReviews.map(r => `
+      <img class="review-card" src="${formatCloudinaryUrl(r.imageUrl)}" alt="Customer Review" loading="lazy">
     `).join('');
-    
-    container.innerHTML = prevBtn + reviewCards + nextBtn;
-    
+    track.innerHTML = cards + cards;
+    initReviewArrows(track);
   } catch(e) {
     console.error('Failed to load reviews:', e);
   }
+}
+
+function initReviewArrows(track) {
+  const carousel = track.closest('.reviews-carousel');
+  const previousButton = carousel?.querySelector('.review-arrow--prev');
+  const nextButton = carousel?.querySelector('.review-arrow--next');
+  if (!carousel || !previousButton || !nextButton) return;
+
+  let manualOffset = 0;
+  let hasManualOffset = false;
+
+  const getStep = () => {
+    const firstCard = track.querySelector('.review-card');
+    const gap = parseFloat(getComputedStyle(track).columnGap || getComputedStyle(track).gap || 24) || 24;
+    return firstCard ? firstCard.getBoundingClientRect().width + gap : 304;
+  };
+
+  const getAnimatedOffset = (loopWidth) => {
+    const transform = getComputedStyle(track).transform;
+    if (!transform || transform === 'none') return 0;
+    const values = transform.match(/matrix.*\((.+)\)/)?.[1]?.split(',').map(Number);
+    const translateX = values?.length === 16 ? values[12] : values?.[4];
+    if (!Number.isFinite(translateX)) return 0;
+    return ((-translateX % loopWidth) + loopWidth) % loopWidth;
+  };
+
+  const freezeAtCurrentPosition = () => {
+    const step = getStep();
+    const loopWidth = Math.max(track.scrollWidth / 2, step);
+    if (!hasManualOffset) {
+      manualOffset = getAnimatedOffset(loopWidth);
+      hasManualOffset = true;
+    }
+    track.classList.add('reviews-track--manual');
+    track.style.transform = `translate3d(-${manualOffset}px, 0, 0)`;
+  };
+
+  const move = (direction) => {
+    freezeAtCurrentPosition();
+    const step = getStep();
+    const loopWidth = Math.max(track.scrollWidth / 2, step);
+    manualOffset = (manualOffset + direction * step + loopWidth) % loopWidth;
+    track.style.transform = `translate3d(-${manualOffset}px, 0, 0)`;
+  };
+
+  previousButton.addEventListener('pointerenter', freezeAtCurrentPosition);
+  nextButton.addEventListener('pointerenter', freezeAtCurrentPosition);
+  previousButton.onclick = () => move(-1);
+  nextButton.onclick = () => move(1);
 }
