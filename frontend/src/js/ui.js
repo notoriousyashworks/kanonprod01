@@ -231,6 +231,15 @@ export function getNavbarHTML(activePage = 'home') {
       <!-- Top Bar: Logo, Search, Icons -->
       <div class="header__top">
         <div class="container header__top-inner">
+          <!-- Hamburger: mobile only (moved to extreme left) -->
+          <button class="icon-btn mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu" aria-expanded="false">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+              <line x1="3" y1="6" x2="21" y2="6"/>
+              <line x1="3" y1="12" x2="21" y2="12"/>
+              <line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
+          </button>
+          
           <a href="/" class="header__logo">
             <img src="/logos/headlogo.png" alt="KICKS AURA" class="header__logo-img" />
           </a>
@@ -280,21 +289,14 @@ export function getNavbarHTML(activePage = 'home') {
                 </div>
               </div>
             </div>
-            <!-- Hamburger: mobile only -->
-            <button class="icon-btn mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu" aria-expanded="false">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
-                <line x1="3" y1="6" x2="21" y2="6"/>
-                <line x1="3" y1="12" x2="21" y2="12"/>
-                <line x1="3" y1="18" x2="21" y2="18"/>
-              </svg>
-            </button>
+            </div>
           </div>
         </div>
       </div>
       
       <!-- Nav Links -->
       <nav class="header__nav">
-        <div class="container header__nav-inner">
+        <div class="header__nav-inner">
           <a href="/" class="nav-link ${activePage === 'home' ? 'nav-link--active' : ''}">Home</a>
           <a href="/#shop-category" class="nav-link ${activePage === 'products' ? 'nav-link--active' : ''}">Categories</a>
           <a href="/#new-arrivals" class="nav-link">New Arrivals</a>
@@ -307,8 +309,7 @@ export function getNavbarHTML(activePage = 'home') {
       <!-- Mobile Nav Drawer -->
       <div class="mobile-nav-overlay" id="mobile-nav-overlay" aria-hidden="true"></div>
       <div class="mobile-nav-drawer" id="mobile-nav-drawer" role="dialog" aria-modal="true" aria-label="Navigation menu">
-        <div class="mobile-nav-drawer__header">
-          <img src="/logos/headlogo.png" alt="KICKS AURA" class="mobile-nav-drawer__logo" />
+        <div class="mobile-nav-drawer__header" style="justify-content: flex-end;">
           <button class="mobile-nav-drawer__close" id="mobile-nav-close" aria-label="Close menu">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
               <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
@@ -317,27 +318,21 @@ export function getNavbarHTML(activePage = 'home') {
         </div>
         <nav class="mobile-nav-drawer__nav">
           <a href="/" class="mobile-nav-link ${activePage === 'home' ? 'mobile-nav-link--active' : ''}">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
             Home
           </a>
           <a href="/#shop-category" class="mobile-nav-link ${activePage === 'products' ? 'mobile-nav-link--active' : ''}">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
             Categories
           </a>
           <a href="/#new-arrivals" class="mobile-nav-link">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
             New Arrivals
           </a>
           <a href="/#customer-reviews" class="mobile-nav-link">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
             Customer Reviews
           </a>
           <a href="/shipping-policy" class="mobile-nav-link ${activePage === 'shipping' ? 'mobile-nav-link--active' : ''}">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
             Shipping Policy
           </a>
           <a href="https://wa.me/916239379751?text=Hey!" target="_blank" rel="noopener" class="mobile-nav-link mobile-nav-link--whatsapp">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
             Contact on WhatsApp
           </a>
         </nav>
@@ -351,43 +346,43 @@ export function getNavbarHTML(activePage = 'home') {
         <div class="header__banner-marquee">
           <div class="marquee-content">
             <span class="dot">•</span>
-            <span>500+ HAPPY CUSTOMERS</span>
-            <span class="dot">•</span>
-            <span class="text-red">COD AVAILABLE</span>
-            <span class="dot">•</span>
             <span>PAN-INDIA DELIVERY</span>
             <span class="dot">•</span>
-            <span class="text-red">PREPAID ORDER OFFERS</span>
+            <span class="text-blue">PREPAID ORDERS (₹ 200 Off)</span>
+            <span class="dot">•</span>
+            <span>COD AVAILABLE (only ₹ 99 Advance)</span>
+            <span class="dot">•</span>
+            <span class="text-blue">1000+ HAPPY CUSTOMERS</span>
           </div>
           <div class="marquee-content" aria-hidden="true">
             <span class="dot">•</span>
-            <span>500+ HAPPY CUSTOMERS</span>
-            <span class="dot">•</span>
-            <span class="text-red">COD AVAILABLE</span>
-            <span class="dot">•</span>
             <span>PAN-INDIA DELIVERY</span>
             <span class="dot">•</span>
-            <span class="text-red">PREPAID ORDER OFFERS</span>
+            <span class="text-blue">PREPAID ORDERS (₹ 200 Off)</span>
+            <span class="dot">•</span>
+            <span>COD AVAILABLE (only ₹ 99 Advance)</span>
+            <span class="dot">•</span>
+            <span class="text-blue">1000+ HAPPY CUSTOMERS</span>
           </div>
           <div class="marquee-content" aria-hidden="true">
             <span class="dot">•</span>
-            <span>500+ HAPPY CUSTOMERS</span>
-            <span class="dot">•</span>
-            <span class="text-red">COD AVAILABLE</span>
-            <span class="dot">•</span>
             <span>PAN-INDIA DELIVERY</span>
             <span class="dot">•</span>
-            <span class="text-red">PREPAID ORDER OFFERS</span>
+            <span class="text-blue">PREPAID ORDERS (₹ 200 Off)</span>
+            <span class="dot">•</span>
+            <span>COD AVAILABLE (only ₹ 99 Advance)</span>
+            <span class="dot">•</span>
+            <span class="text-blue">1000+ HAPPY CUSTOMERS</span>
           </div>
           <div class="marquee-content" aria-hidden="true">
             <span class="dot">•</span>
-            <span>500+ HAPPY CUSTOMERS</span>
-            <span class="dot">•</span>
-            <span class="text-red">COD AVAILABLE</span>
-            <span class="dot">•</span>
             <span>PAN-INDIA DELIVERY</span>
             <span class="dot">•</span>
-            <span class="text-red">PREPAID ORDER OFFERS</span>
+            <span class="text-blue">PREPAID ORDERS (₹ 200 Off)</span>
+            <span class="dot">•</span>
+            <span>COD AVAILABLE (only ₹ 99 Advance)</span>
+            <span class="dot">•</span>
+            <span class="text-blue">1000+ HAPPY CUSTOMERS</span>
           </div>
         </div>
       </div>

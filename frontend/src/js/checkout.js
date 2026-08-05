@@ -113,25 +113,7 @@ async function validatePinAgainstAddress({ pinCode, city, state }) {
   if (!/^\d{6}$/.test(pin)) {
     return { success: false, error: 'PIN code must be exactly 6 digits.' };
   }
-
-  const pinRes = await lookupPinCode(pin);
-  if (!pinRes || !pinRes.success) {
-    return {
-      success: false,
-      error: pinRes?.error || `PIN code ${pin} is invalid. Please enter a valid Indian PIN code.`
-    };
-  }
-
-  if (!locationMatches(city, state, pinRes.city, pinRes.state)) {
-    return {
-      success: false,
-      verifiedCity: pinRes.city,
-      verifiedState: pinRes.state,
-      error: `PIN code ${pin} belongs to ${pinRes.city}, ${pinRes.state}. Please select a matching city and state before placing the order.`
-    };
-  }
-
-  return { success: true, city: pinRes.city, state: pinRes.state, pinCode: pin };
+  return { success: true, city, state, pinCode: pin };
 }
 
 // ─── Render Cart Items in Summary ────────────────────────────────────────────
@@ -345,90 +327,7 @@ if (pinInput) {
     if (e.target.value !== cleaned) {
       e.target.value = cleaned;
     }
-
-    if (pinDebounceTimer) clearTimeout(pinDebounceTimer);
-
-    // 2. If PIN is not exactly 6 digits
-    if (cleaned.length !== 6) {
-      if (pinSpinner) pinSpinner.classList.remove('active');
-      if (pinStatus) {
-        pinStatus.className = 'pin-status';
-        pinStatus.textContent = '';
-      }
-      // If user modified/deleted PIN after a successful lookup, clear auto-filled City & State
-      if (lastLookedUpPin && cleaned !== lastLookedUpPin) {
-        if (cityInput && cityInput.dataset.autofilled === 'true') {
-          cityInput.value = '';
-          delete cityInput.dataset.autofilled;
-        }
-        if (stateInput && stateInput.dataset.autofilled === 'true') {
-          stateInput.value = '';
-          delete stateInput.dataset.autofilled;
-        }
-        lastLookedUpPin = '';
-      }
-      return;
-    }
-
-    // Exactly 6 digits entered! Debounce slightly before triggering API
-    if (cleaned === lastLookedUpPin) return;
-
-    pinDebounceTimer = setTimeout(async () => {
-      if (pinSpinner) pinSpinner.classList.add('active');
-      if (pinStatus) {
-        pinStatus.className = 'pin-status';
-        pinStatus.textContent = '';
-      }
-
-      const res = await lookupPinCode(cleaned);
-      if (pinSpinner) pinSpinner.classList.remove('active');
-
-      // Check if user changed PIN while fetch was in progress
-      if (pinInput.value !== cleaned) return;
-
-      if (res.success) {
-        lastLookedUpPin = cleaned;
-        if (cityInput) {
-          cityInput.value = res.city || '';
-          cityInput.dataset.autofilled = 'true';
-        }
-        if (stateInput) {
-          stateInput.value = res.state || '';
-          stateInput.dataset.autofilled = 'true';
-        }
-        if (pinStatus) {
-          pinStatus.textContent = `📍 ${res.city}, ${res.state}`;
-          pinStatus.className = 'pin-status success';
-        }
-      } else {
-        lastLookedUpPin = '';
-        if (cityInput && cityInput.dataset.autofilled === 'true') {
-          cityInput.value = '';
-          delete cityInput.dataset.autofilled;
-        }
-        if (stateInput && stateInput.dataset.autofilled === 'true') {
-          stateInput.value = '';
-          delete stateInput.dataset.autofilled;
-        }
-        if (pinStatus) {
-          pinStatus.textContent = res.error;
-          pinStatus.className = 'pin-status error';
-        }
-      }
-    }, 100);
   });
-
-  // Preserve manual edits by removing autofilled flag when user manually types city or state
-  if (cityInput) {
-    cityInput.addEventListener('input', () => {
-      delete cityInput.dataset.autofilled;
-    });
-  }
-  if (stateInput) {
-    stateInput.addEventListener('input', () => {
-      delete stateInput.dataset.autofilled;
-    });
-  }
 }
 
 // ─── Contact Phone Sanitization ──────────────────────────────────────────────
@@ -625,64 +524,10 @@ const newCityInput = document.getElementById('new-city');
 const newStateInput = document.getElementById('new-state');
 const newPinSpinner = document.getElementById('new-pin-spinner');
 
-let newLastLookedUpPin = '';
-let newPinDebounceTimer = null;
-
 if (newPinInput) {
   newPinInput.addEventListener('input', (e) => {
     const cleaned = e.target.value.replace(/\D/g, '').slice(0, 6);
     if (e.target.value !== cleaned) e.target.value = cleaned;
-
-    if (newPinDebounceTimer) clearTimeout(newPinDebounceTimer);
-
-    if (cleaned.length !== 6) {
-      if (newPinSpinner) newPinSpinner.classList.remove('active');
-      if (newLastLookedUpPin && cleaned !== newLastLookedUpPin) {
-        if (newCityInput && newCityInput.dataset.autofilled === 'true') {
-          newCityInput.value = '';
-          delete newCityInput.dataset.autofilled;
-        }
-        if (newStateInput && newStateInput.dataset.autofilled === 'true') {
-          newStateInput.value = '';
-          delete newStateInput.dataset.autofilled;
-        }
-        newLastLookedUpPin = '';
-      }
-      return;
-    }
-
-    if (cleaned === newLastLookedUpPin) return;
-
-    newPinDebounceTimer = setTimeout(async () => {
-      if (newPinSpinner) newPinSpinner.classList.add('active');
-
-      const res = await lookupPinCode(cleaned);
-      if (newPinSpinner) newPinSpinner.classList.remove('active');
-
-      if (newPinInput.value !== cleaned) return;
-
-      if (res.success) {
-        newLastLookedUpPin = cleaned;
-        if (newCityInput) {
-          newCityInput.value = res.city || '';
-          newCityInput.dataset.autofilled = 'true';
-        }
-        if (newStateInput) {
-          newStateInput.value = res.state || '';
-          newStateInput.dataset.autofilled = 'true';
-        }
-      } else {
-        newLastLookedUpPin = '';
-        if (newCityInput && newCityInput.dataset.autofilled === 'true') {
-          newCityInput.value = '';
-          delete newCityInput.dataset.autofilled;
-        }
-        if (newStateInput && newStateInput.dataset.autofilled === 'true') {
-          newStateInput.value = '';
-          delete newStateInput.dataset.autofilled;
-        }
-      }
-    }, 400);
   });
 }
 
@@ -738,12 +583,6 @@ if (addAddressSave) {
     if (pin.length !== 6 || !/^\d{6}$/.test(pin)) {
       showErrorAndFocus('new-pinCode', 'new-pinCodeError', 'Must be exactly 6 digits.'); return;
     }
-
-    const modalPinCheck = await validatePinAgainstAddress({ pinCode: pin, city: cty, state: st });
-    if (!modalPinCheck.success) {
-      showErrorAndFocus('new-pinCode', 'new-pinCodeError', modalPinCheck.error);
-      return;
-    }
     
     if (checkoutUser) {
       const addresses = getLimitedCheckoutAddresses();
@@ -757,9 +596,9 @@ if (addAddressSave) {
         lastName: lName,
         houseNumberOrAddress: addr,
         landmark: lmark,
-        city: modalPinCheck.city,
-        state: modalPinCheck.state,
-        pinCode: modalPinCheck.pinCode
+        city: cty,
+        state: st,
+        pinCode: pin
       };
 
       if (editingAddressIndex >= 0) {
@@ -870,91 +709,10 @@ if (placeOrderBtn) {
     if (!pinCode) { showMainErrorAndFocus('pinCode', 'pinCodeError'); return; }
     if (!/^\d{6}$/.test(pinCode)) { showMainErrorAndFocus('pinCode', 'pinCodeError', 'Must be exactly 6 digits.'); return; }
 
-    const origText = placeOrderBtn.querySelector('.btn-main-text')?.textContent || 'Complete order';
-    if (placeOrderBtn.querySelector('.btn-main-text')) {
-      placeOrderBtn.querySelector('.btn-main-text').textContent = 'VERIFYING PIN...';
-    }
-    placeOrderBtn.disabled = true;
-
-    let verifiedPin;
-    try {
-      verifiedPin = await validatePinAgainstAddress({ pinCode, city, state });
-    } catch (err) {
-      placeOrderBtn.disabled = false;
-      if (placeOrderBtn.querySelector('.btn-main-text')) {
-        placeOrderBtn.querySelector('.btn-main-text').textContent = origText;
-      }
-      alert('Could not verify PIN code. Please check your network and try again.');
-      return;
-    }
-
-    placeOrderBtn.disabled = false;
-    if (placeOrderBtn.querySelector('.btn-main-text')) {
-      placeOrderBtn.querySelector('.btn-main-text').textContent = origText;
-    }
-
-    if (!verifiedPin.success) {
-      if (!isUsingSavedAddress && pinStatus) {
-        pinStatus.textContent = verifiedPin.error;
-        pinStatus.className = 'pin-status error';
-      }
-      showMainErrorAndFocus('pinCode', 'pinCodeError', verifiedPin.error);
-      return;
-    }
-
-    lastLookedUpPin = verifiedPin.pinCode;
-    city = verifiedPin.city || city;
-    state = verifiedPin.state || state;
-    pinCode = verifiedPin.pinCode || pinCode;
-    if (!isUsingSavedAddress) {
+    // Final PIN assignment
+    if (isUsingSavedAddress) {
       if (cityInput) cityInput.value = city;
       if (stateInput) stateInput.value = state;
-      if (pinStatus) {
-        pinStatus.textContent = `${city}, ${state}`;
-        pinStatus.className = 'pin-status success';
-      }
-    }
-
-    // Ensure PIN code is fully verified and valid BEFORE placing order (only for manual entry)
-    if (!isUsingSavedAddress && (lastLookedUpPin !== pinCode || (pinSpinner && pinSpinner.classList.contains('active')) || (pinStatus && pinStatus.classList.contains('error')))) {
-      const origText = placeOrderBtn.querySelector('.btn-main-text')?.textContent || 'Complete order';
-      if (placeOrderBtn.querySelector('.btn-main-text')) {
-        placeOrderBtn.querySelector('.btn-main-text').textContent = 'VERIFYING PIN…';
-      }
-      placeOrderBtn.disabled = true;
-
-      try {
-        const pinRes = await lookupPinCode(pinCode);
-        placeOrderBtn.disabled = false;
-        if (placeOrderBtn.querySelector('.btn-main-text')) {
-          placeOrderBtn.querySelector('.btn-main-text').textContent = origText;
-        }
-
-        if (!pinRes || !pinRes.success) {
-          if (pinStatus) {
-            pinStatus.textContent = pinRes?.error || 'Invalid PIN code. No records found.';
-            pinStatus.className = 'pin-status error';
-          }
-          alert(`Invalid PIN code (${pinCode}). Please enter a valid 6-digit Indian PIN code to continue.`);
-          return;
-        }
-
-        // PIN verified! Auto-fill city and state if missing or updated
-        lastLookedUpPin = pinCode;
-        if (cityEl && !cityEl.value.trim()) { cityEl.value = pinRes.city || ''; city = cityEl.value.trim(); }
-        if (stateEl && !stateEl.value.trim()) { stateEl.value = pinRes.state || ''; state = stateEl.value.trim(); }
-        if (pinStatus) {
-          pinStatus.textContent = `📍 ${pinRes.city}, ${pinRes.state}`;
-          pinStatus.className = 'pin-status success';
-        }
-      } catch (err) {
-        placeOrderBtn.disabled = false;
-        if (placeOrderBtn.querySelector('.btn-main-text')) {
-          placeOrderBtn.querySelector('.btn-main-text').textContent = origText;
-        }
-        alert('Could not verify PIN code. Please check your network and try again.');
-        return;
-      }
     }
 
     if (!city) { alert('Please enter your city.'); return; }

@@ -153,17 +153,9 @@ public class OrderService {
             throw new IllegalArgumentException("State is required.");
         }
 
-        PinLookupResult pinLookup = lookupPin(pin);
-        if (!locationMatches(city, state, pinLookup)) {
-            throw new IllegalArgumentException(
-                    "PIN code " + pin + " belongs to " + pinLookup.city() + ", " + pinLookup.state()
-                            + ". Please use a matching city, state, and PIN code."
-            );
-        }
-
         address.setPinCode(pin);
-        address.setCity(pinLookup.city());
-        address.setState(pinLookup.state());
+        address.setCity(city);
+        address.setState(state);
     }
 
     private PinLookupResult lookupPin(String pin) {

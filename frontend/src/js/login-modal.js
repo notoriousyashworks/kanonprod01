@@ -224,6 +224,7 @@ function injectModalDOM(context = null) {
     const policyModal = document.createElement('div');
     policyModal.id = 'policy-modal-overlay';
     policyModal.className = 'login-modal-overlay';
+    policyModal.style.zIndex = '99999'; // Force it to be above everything
     policyModal.innerHTML = `
       <div class="login-modal" style="max-width: 550px; padding: 0; text-align: left; display: flex; flex-direction: column; max-height: 85vh; border-radius: 20px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);">
         <div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); padding: 28px 32px; position: relative; flex-shrink: 0;">
@@ -250,6 +251,7 @@ function injectModalDOM(context = null) {
   // Bind Policy Links
   document.getElementById('login-about-link').addEventListener('click', (e) => {
     e.preventDefault();
+    console.log('Opening About Us policy modal...');
     document.getElementById('policy-modal-title').textContent = 'About Us';
     document.getElementById('policy-modal-content').innerHTML = aboutUsContent;
     document.getElementById('policy-modal-overlay').classList.add('open');
@@ -257,6 +259,7 @@ function injectModalDOM(context = null) {
   
   document.getElementById('login-shipping-link').addEventListener('click', (e) => {
     e.preventDefault();
+    console.log('Opening Shipping policy modal...');
     document.getElementById('policy-modal-title').textContent = 'Shipping & Delivery Policy';
     document.getElementById('policy-modal-content').innerHTML = shippingPolicyContent;
     document.getElementById('policy-modal-overlay').classList.add('open');

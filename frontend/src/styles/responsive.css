@@ -46,13 +46,14 @@ img, video, iframe, embed, object {
     position: relative;
   }
 
-  /* Row 1: logo left, icons right — centered as a group */
+  /* Row 1: Logo centered full width */
   .header__logo {
     order: 0;
-    flex: 0 0 auto !important;
+    flex: 0 0 100% !important;
     display: flex;
     align-items: center;
-    margin-right: auto !important;
+    justify-content: center;
+    margin: 0 auto 12px !important;
   }
 
   .header__logo img,
@@ -114,6 +115,8 @@ img, video, iframe, embed, object {
     cursor: pointer;
     color: #111;
     flex-shrink: 0;
+    order: 1;
+    margin-right: auto;
   }
 }
 
@@ -224,18 +227,10 @@ img, video, iframe, embed, object {
     color: #111;
   }
   .mobile-nav-link--active {
-    border-left-color: #e00;
-    color: #e00;
+    border-left-color: #315bfb;
+    color: #315bfb;
     font-weight: 600;
-    background: #fff5f5;
-  }
-  .mobile-nav-link--active svg {
-    stroke: #e00;
-  }
-  .mobile-nav-link svg {
-    flex-shrink: 0;
-    stroke: #555;
-    transition: stroke 0.15s;
+    background: rgba(49, 91, 251, 0.06);
   }
   .mobile-nav-link--whatsapp {
     color: #128c3d;

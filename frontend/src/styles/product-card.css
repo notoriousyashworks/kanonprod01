@@ -29,7 +29,7 @@
   justify-content: center;
   padding: 14px;
   border: 1px solid #eeeeee !important;
-  border-radius: 12px;
+  border-radius: 0 !important;
   overflow: hidden;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
 }
@@ -56,10 +56,10 @@
   left: 12px;
   background-color: #ef4444;
   color: #ffffff;
-  font-size: 13.5px;
+  font-size: 11.5px;
   font-weight: 700;
-  padding: 5px 14px;
-  border-radius: 8px;
+  padding: 4px 10px;
+  border-radius: 4px;
   z-index: 2;
   letter-spacing: 0;
 }
@@ -114,10 +114,10 @@
 
 .pc-price-row {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  flex-direction: row;
+  align-items: center;
   justify-content: flex-start;
-  gap: 2px;
+  gap: 8px;
 }
 
 .pc-price {
@@ -127,7 +127,7 @@
 }
 
 .pc-price--sale {
-  color: #ef4444;
+  color: #315bfb;
 }
 
 .pc-price--normal {
@@ -138,7 +138,7 @@
 .pc-original-price {
   font-size: 14px;
   font-weight: 500;
-  color: #2563eb;
+  color: #ef4444;
   text-decoration: line-through;
   line-height: 1.2;
 }

@@ -132,7 +132,6 @@ function renderOrdersList() {
           <div class="noc-extra-row">
             <span class="noc-chip noc-chip--status">${orderStatus}</span>
             <span class="noc-chip">${placedDate}</span>
-            <span class="noc-chip">${itemCount} ${itemCount === 1 ? 'item' : 'items'}</span>
           </div>
         </div>
         <div class="noc-actions">
@@ -153,7 +152,6 @@ function renderOrdersList() {
         <h1>My Orders</h1>
         <p>Track your purchases, payments, and delivery updates in one place.</p>
       </div>
-      <span class="orders-count-pill">${currentOrders.length} ${currentOrders.length === 1 ? 'order' : 'orders'}</span>
     </div>
     <div class="orders-list-stack">
       ${ordersHtml}
@@ -273,7 +271,7 @@ function renderOrderDetail(order, indexFallback) {
   const dateStr = formatDate(order.placedAt, false);
 
   let steps = [];
-  steps.push({ title: 'Order Placed', date: dateStr, status: normalizedStatus === 'PLACED' ? 'active' : 'completed', emoji: '🛒' });
+  steps.push({ title: 'Order Placed <span style="font-weight: normal;">(pls wait for confirmation by Captain! They will reach out to you on Whats app)</span>', date: dateStr, status: normalizedStatus === 'PLACED' ? 'active' : 'completed', emoji: '🛒' });
   
   if (['CONFIRMED', 'DISPATCHED', 'DELIVERED', 'RETURNED'].includes(normalizedStatus)) {
     steps.push({ title: 'Order Confirmed', date: dateStr, status: normalizedStatus === 'CONFIRMED' ? 'active' : 'completed', desc: normalizedStatus === 'CONFIRMED' ? 'Your order has been confirmed and is being dispatched' : undefined, emoji: '✅' });
@@ -516,7 +514,7 @@ function renderOrderDetail(order, indexFallback) {
   `;
 
   document.getElementById('od-back-btn').addEventListener('click', () => {
-    window.location.href = '/';
+    history.back();
   });
 }
 

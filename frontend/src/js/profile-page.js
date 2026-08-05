@@ -337,24 +337,14 @@ if (saveAddressBtn) {
       return;
     }
 
-    const pinRes = await lookupPinCode(pinCode);
-    if (!pinRes?.success) {
-      alert(pinRes?.error || 'Invalid PIN code. Please enter a valid 6-digit Indian PIN code.');
-      return;
-    }
-    if (!locationMatches(city, state, pinRes.city, pinRes.state)) {
-      alert(`PIN code ${pinCode} belongs to ${pinRes.city}, ${pinRes.state}. Please use a matching city and state.`);
-      return;
-    }
-
     const wasEditing = editingAddressIndex >= 0;
     const nextAddress = {
       firstName,
       lastName,
       houseNumberOrAddress: address,
       landmark,
-      city: pinRes.city,
-      state: pinRes.state,
+      city,
+      state,
       pinCode
     };
     if (editingAddressIndex >= 0) {
@@ -384,48 +374,6 @@ if (pfPinInput) {
   pfPinInput.addEventListener('input', (e) => {
     const cleaned = e.target.value.replace(/\D/g, '').slice(0, 6);
     if (e.target.value !== cleaned) e.target.value = cleaned;
-    
-    if (pfPinDebounceTimer) clearTimeout(pfPinDebounceTimer);
-    
-    if (cleaned.length !== 6) {
-      if (pfPinSpinner) pfPinSpinner.classList.remove('active');
-      
-      if (pfLastLookedUpPin && cleaned !== pfLastLookedUpPin) {
-        if (pfCityInput && pfCityInput.dataset.autofilled === 'true') {
-          pfCityInput.value = '';
-          delete pfCityInput.dataset.autofilled;
-        }
-        if (pfStateInput && pfStateInput.dataset.autofilled === 'true') {
-          pfStateInput.value = '';
-          delete pfStateInput.dataset.autofilled;
-        }
-        pfLastLookedUpPin = '';
-      }
-      return;
-    }
-    
-    if (cleaned === pfLastLookedUpPin) return;
-    
-    pfPinDebounceTimer = setTimeout(async () => {
-      if (pfPinSpinner) pfPinSpinner.classList.add('active');
-      
-      const res = await lookupPinCode(cleaned);
-      if (pfPinSpinner) pfPinSpinner.classList.remove('active');
-      
-      if (pfPinInput.value !== cleaned) return;
-      
-      if (res.success) {
-        pfLastLookedUpPin = cleaned;
-        if (pfCityInput) {
-          pfCityInput.value = res.city || '';
-          pfCityInput.dataset.autofilled = 'true';
-        }
-        if (pfStateInput) {
-          pfStateInput.value = res.state || '';
-          pfStateInput.dataset.autofilled = 'true';
-        }
-      }
-    }, 400);
   });
 }
 

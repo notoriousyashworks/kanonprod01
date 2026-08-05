@@ -108,25 +108,27 @@ export function renderCartSidebar() {
       </div>`;
   }).join('');
 
-  // ─── Render Footer (No Accordions, Popup Shipping Modal) ────────────────────
+  // ─── Render Footer ────────────────────────────────────────────────────────
   if (footer) {
     const totalFmt = `Rs. ${Number(total).toLocaleString('en-IN')}.00`;
+    let subtotalHtml = `<span style="font-size: 28px; font-weight: 600; color: #315bfb;">${totalFmt}</span>`;
+
     footer.innerHTML = `
-      <div class="modern-cart-summary" style="border-top: none; padding-top: 10px;">
-        <div class="modern-subtotal-row">
-          <span class="modern-subtotal-label">Subtotal:</span>
-          <span class="modern-subtotal-val">${totalFmt}</span>
+      <div class="modern-cart-summary" style="border-top: none; padding-top: 10px; text-align: left;">
+        <div class="modern-subtotal-row" style="display: block; margin-bottom: 12px;">
+          <span class="modern-subtotal-label" style="font-size: 28px; font-weight: 600; color: #000;">Subtotal: </span>
+          ${subtotalHtml}
         </div>
-        <p class="modern-subtotal-subtext">Taxes, Discounts and <span class="shipping-policy-popup-link" style="color: #2563eb; text-decoration: underline; cursor: pointer;">shipping</span> calculated at checkout</p>
+        <p class="modern-subtotal-subtext" style="color: #000; font-size: 16px;">Taxes, Discounts and <span class="shipping-policy-popup-link" style="color: #315bfb; cursor: pointer;">shipping</span> calculated at checkout</p>
         
         <button type="button" class="modern-checkout-btn" onclick="sessionStorage.setItem('checkout_intent', 'true'); window.location.href='/checkout'">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
           <span>Check Out</span>
         </button>
 
         <div class="modern-bottom-nav">
-          <a href="/products" class="modern-continue-link">← Continue Shopping</a>
-          <a href="/cart" class="modern-view-cart-link">View Cart →</a>
+          <a href="/products" class="modern-continue-link" style="color: #315bfb; font-weight: 700; text-decoration: none;">← Continue Shopping</a>
+          <a href="/cart" class="modern-view-cart-link" style="color: #315bfb; font-weight: 700; text-decoration: none;">View Cart →</a>
         </div>
       </div>`;
 
