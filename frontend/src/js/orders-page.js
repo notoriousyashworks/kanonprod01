@@ -30,6 +30,11 @@ const detailView = document.getElementById('order-detail-view');
 
 let currentOrders = [];
 
+function hasDisplaySize(size) {
+  const value = String(size ?? '').trim();
+  return value && value.toLowerCase() !== 'one size' && value.toLowerCase() !== 'n/a';
+}
+
 const statusMap = {
   'ORDER_PLACED': 'Order Placed',
   'ORDER_CONFIRMED': 'Order Confirmed',
@@ -66,11 +71,11 @@ async function fetchAndEnrichOrders() {
           ...item,
           productName: product?.name || item.productName || 'Product',
           productImage: product?.imageUrls?.[0] || item.productImage || item.imageUrl || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=2370',
-          size: variant?.size || item.size || 'N/A',
+          size: variant?.size || item.size || '',
           price: item.purchasePrice || item.price || 0
         };
       } catch (e) {
-        return { ...item, productName: item.productName || 'Product', productImage: item.productImage || item.imageUrl || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=2370', size: item.size || 'N/A', price: item.purchasePrice || item.price || 0 };
+        return { ...item, productName: item.productName || 'Product', productImage: item.productImage || item.imageUrl || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=2370', size: item.size || '', price: item.purchasePrice || item.price || 0 };
       }
     }));
     return { ...order, items, total: order.totalAmount, placedAt: order.createdAt, orderId: order.orderNumber };
@@ -98,9 +103,12 @@ function renderOrdersList() {
     return;
   }
 
-  listView.innerHTML = currentOrders.map((order, idx) => {
+  const ordersHtml = currentOrders.map((order, idx) => {
     const orderNum = order.orderId ? `${order.orderId}` : `Order ${currentOrders.length - idx}`;
     const total = (order.total || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 });
+    const orderStatus = statusMap[order.status] || statusMap[(order.status || '').toUpperCase()] || 'Order Placed';
+    const itemCount = (order.items || []).reduce((sum, item) => sum + (item.quantity || 1), 0) || 1;
+    const placedDate = formatDate(order.placedAt);
     
     // Using first item's image for the card
     const firstItem = order.items?.[0];
@@ -119,14 +127,37 @@ function renderOrdersList() {
         <div class="noc-image">${imgHtml}</div>
         <div class="noc-info">
           <h3 class="noc-status">${displayTitle}</h3>
-          <p class="noc-meta">
-            #${orderNum}
-          </p>
+          <p class="noc-meta">#${orderNum}</p>
+          <div class="noc-extra-row">
+            <span class="noc-chip noc-chip--status">${orderStatus}</span>
+            <span class="noc-chip">${placedDate}</span>
+            <span class="noc-chip">${itemCount} ${itemCount === 1 ? 'item' : 'items'}</span>
+          </div>
         </div>
-        <button style="position: absolute; bottom: 24px; right: 24px; padding: 8px 20px; font-size: 13px; font-weight: 600; color: #3b82f6; background-color: transparent; border-radius: 8px; border: 1.5px solid #3b82f6; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.backgroundColor='#eff6ff'; this.style.transform='scale(1.02)';" onmouseout="this.style.backgroundColor='transparent'; this.style.transform='scale(1)';">View Details</button>
+        <div class="noc-actions">
+          <p class="noc-total">₹${total}</p>
+          <button class="noc-details-btn" type="button">View Details</button>
+        </div>
       </div>
     `;
   }).join('');
+
+  listView.innerHTML = `
+    <div class="orders-page-head">
+      <div>
+        <a href="/" class="account-back-btn">
+          <span aria-hidden="true">←</span>
+          Back
+        </a>
+        <h1>My Orders</h1>
+        <p>Track your purchases, payments, and delivery updates in one place.</p>
+      </div>
+      <span class="orders-count-pill">${currentOrders.length} ${currentOrders.length === 1 ? 'order' : 'orders'}</span>
+    </div>
+    <div class="orders-list-stack">
+      ${ordersHtml}
+    </div>
+  `;
 
   // Attach click listeners to cards
   listView.querySelectorAll('.new-order-card').forEach(card => {
@@ -177,7 +208,7 @@ function renderOrderDetail(order, indexFallback) {
         </div>
         <div class="od-item-info">
           <h4>${item.productName || 'Product'}</h4>
-          <p>${item.size || 'N/A'}</p>
+          ${hasDisplaySize(item.size) ? `<p>${item.size}</p>` : ''}
         </div>
         <div class="od-item-price">₹${itemTotal}</div>
       </div>
@@ -409,7 +440,10 @@ function renderOrderDetail(order, indexFallback) {
   detailView.innerHTML = `
     <div class="od-header">
       <div class="od-header-left">
-        <button id="od-back-btn" class="od-back-btn">←</button>
+        <button id="od-back-btn" class="od-back-btn" type="button">
+          <span aria-hidden="true">←</span>
+          Back
+        </button>
         <div>
           <h2 class="od-title">Order #${orderNum}</h2>
           <p class="od-date">Confirmed ${formatDate(order.placedAt, false)}</p>
@@ -481,11 +515,7 @@ function renderOrderDetail(order, indexFallback) {
   `;
 
   document.getElementById('od-back-btn').addEventListener('click', () => {
-    if (history.state && history.state.view === 'orderDetail') {
-      history.back();
-    } else {
-      renderOrdersList();
-    }
+    window.location.href = '/';
   });
 }
 

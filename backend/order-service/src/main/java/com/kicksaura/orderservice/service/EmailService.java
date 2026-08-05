@@ -129,7 +129,10 @@ public class EmailService {
           .append("</tr>")
           .append("<tr style='height:12px;'></tr>")
           .append("<tr>")
-          .append(metaCell("Customer", request.getFirstName() + " " + request.getLastName()))
+          .append(metaCell("Customer", String.join(" ",
+                  java.util.stream.Stream.of(request.getFirstName(), request.getLastName())
+                          .filter(v -> v != null && !v.isBlank())
+                          .collect(java.util.stream.Collectors.toList()))))
           .append(metaCell("Phone", request.getPhoneNumber()))
           .append("</tr>")
           .append("<tr style='height:12px;'></tr>")

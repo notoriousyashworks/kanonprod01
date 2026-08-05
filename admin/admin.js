@@ -739,7 +739,7 @@ async function showProductForm(product = null) {
 
     <div class="form-section-divider"><span>Sizes & Stock</span></div>
     <p class="form-hint" style="margin: -4px 0 12px; color: #888; font-size: 12.5px;">
-      Default sizes UK 7–10.5 are pre-selected. Check/uncheck to mark availability. Set stock to 0 to show as sold out.
+      Sizes are optional. Keep them selected for shoes, or uncheck every size for products that do not need size selection.
     </p>
     <div id="size-grid-wrap" class="size-grid-wrap">
       ${varRows}
@@ -759,9 +759,7 @@ async function showProductForm(product = null) {
     }
     const f = document.getElementById('prod-form');
     const data = collectProductData(f);
-    if (!data.imageUrls || data.imageUrls.length === 0) {
-      throw new Error('Please upload an image before creating.');
-    }
+    validateProductData(f, data);
     if (isEdit) {
       const updated = await api.updateProduct(product.id, data);
       const idx = S.products.findIndex(p => p.id === product.id);
@@ -851,7 +849,7 @@ function initCategoryPicker() {
         label.textContent = selected;
         popup.classList.add('hidden');
         // clear required validation style
-        btn.classList.remove('cat-picker-btn--error');
+        btn.classList.remove('cat-picker-btn--error', 'input-error');
       });
     });
   }
@@ -878,6 +876,53 @@ function initCategoryPicker() {
 
   // initial render so existing selection is visible
   renderGrid();
+}
+
+function clearProductValidationErrors(f) {
+  f.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
+}
+
+function flagProductField(selector) {
+  const el = document.querySelector(selector);
+  if (!el) return;
+  el.classList.add('input-error');
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  if (typeof el.focus === 'function') el.focus({ preventScroll: true });
+}
+
+function validateProductData(f, data) {
+  clearProductValidationErrors(f);
+
+  if (!data.name) {
+    flagProductField('[name="name"]');
+    throw new Error('Please enter a product name.');
+  }
+
+  if (!data.brand) {
+    flagProductField('#brand-picker-btn');
+    throw new Error('Please select a brand.');
+  }
+
+  if (!data.category) {
+    flagProductField('#cat-picker-btn');
+    throw new Error('Please select a category.');
+  }
+
+  if (!data.basePrice || data.basePrice <= 0) {
+    flagProductField('[name="basePrice"]');
+    throw new Error('Please enter a valid original price.');
+  }
+
+  if (data.discountedPrice !== null && data.discountedPrice < 0) {
+    flagProductField('[name="discountedPrice"]');
+    throw new Error('Selling price cannot be negative.');
+  }
+
+  if (!data.imageUrls || data.imageUrls.length === 0) {
+    flagProductField('#img-uploader');
+    throw new Error('Please upload at least one product image.');
+  }
+
 }
 
 function collectProductData(f) {
@@ -937,7 +982,7 @@ function initBrandPicker() {
         hidden.value = selected;
         label.textContent = selected;
         popup.classList.add('hidden');
-        btn.classList.remove('cat-picker-btn--error');
+        btn.classList.remove('cat-picker-btn--error', 'input-error');
       });
     });
   }
@@ -1192,7 +1237,7 @@ function showOrderDetail(order) {
       ${itemStatuses.map(s => `<option value="${s}" ${item.status === s ? 'selected' : ''}>${s}</option>`).join('')}
     </select>`;
 
-    let sizeSelectHTML = `<td>${esc(vari?.size || '—')}</td>`;
+    let sizeSelectHTML = `<td>Not required</td>`;
     if (prod && prod.variants && prod.variants.length > 0) {
       sizeSelectHTML = `<td>
         <select class="item-variant-select" data-id="${item.id}" style="padding: 2px; font-size: 12px; border: 1px solid #ddd; border-radius: 4px; width: 60px;">
@@ -1415,7 +1460,7 @@ function showReceiptModal(order) {
           <div style="display:flex;gap:6px;align-items:center;">
             <span style="background:${isPrepaid ? '#dcfce7' : '#ffedd5'};color:${isPrepaid ? '#166534' : '#9a3412'};padding:1px 7px;border-radius:3px;font-size:10px;font-weight:600;">${isPrepaid ? 'PREPAID' : 'COD'}</span>
             <span style="font-size:11px;color:#64748b;">Qty: <b style="color:#0f172a;">${qty}</b></span>
-            <span style="font-size:11px;color:#64748b;">Size: <b style="color:#0f172a;">${esc(vari?.size || item.size || 'N/A')}</b></span>
+            ${vari?.size || item.size ? `<span style="font-size:11px;color:#64748b;">Size: <b style="color:#0f172a;">${esc(vari?.size || item.size)}</b></span>` : ''}
           </div>
         </div>
       </div>`;

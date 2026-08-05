@@ -18,7 +18,6 @@ public class OrderItemRequestDTO {
     @NotNull(message = "Product ID is required")
     private String productId;
 
-    @NotNull(message = "Variant ID is required")
     private String variantId;
 
     @Min(value = 1, message = "Quantity must be at least 1")

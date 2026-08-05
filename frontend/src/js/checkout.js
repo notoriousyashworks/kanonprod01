@@ -4,15 +4,135 @@
 import { getCartItems, getCartTotal, clearCart, removeFromCart, updateQuantity, updateCartBadge } from './cart.js';
 import { checkout, saveAddressToBackend } from './api.js';
 import { formatCloudinaryUrl } from './ui.js';
-import { lookupPinCode } from './pin-lookup.js';
-import { saveProfile } from './profile.js';
-import { isLoggedIn, getAuthUser } from './auth.js';
+import { lookupPinCode } from './pin-lookup.js?v=1.1';
+import { getProfile, saveProfile } from './profile.js?v=1.3';
+import { isLoggedIn, getAuthUser, setAuthUser } from './auth.js';
 import { openLoginModal } from './login-modal.js?v=1.7';
 import { shippingPolicyContent } from './policy-content.js';
 
 const form = document.getElementById('checkout-form');
 const placeOrderBtn = document.getElementById('place-order-btn');
 const applyBtn = document.querySelector('.btn-apply');
+const MAX_SAVED_ADDRESSES = 3;
+const ADDRESS_LIMIT_MESSAGE = 'Max address limit reached. Delete one address first to add a new address.';
+
+function hasDisplaySize(size) {
+  const value = String(size ?? '').trim();
+  return value && value.toLowerCase() !== 'one size' && value.toLowerCase() !== 'n/a';
+}
+let editingAddressIndex = -1;
+
+function cleanText(value) {
+  return (value || '').toString().trim().replace(/\s+/g, ' ');
+}
+
+function normalizeLocation(value) {
+  return cleanText(value)
+    .toLowerCase()
+    .replace(/[^a-z0-9 ]/g, ' ')
+    .replace(/\b(nct|national capital territory|district|division)\b/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function isDelhiValue(value) {
+  const normalized = normalizeLocation(value);
+  return normalized === 'delhi' || normalized === 'new delhi' || normalized.includes(' delhi');
+}
+
+function isDelhiLocation(city, state) {
+  return isDelhiValue(state) || isDelhiValue(city);
+}
+
+function locationMatches(inputCity, inputState, pinCity, pinState) {
+  const city = normalizeLocation(inputCity);
+  const state = normalizeLocation(inputState);
+  const verifiedCity = normalizeLocation(pinCity);
+  const verifiedState = normalizeLocation(pinState);
+
+  if (!city || !state || !verifiedCity || !verifiedState) return false;
+  if (isDelhiLocation(city, state) && isDelhiLocation(verifiedCity, verifiedState)) return true;
+
+  const stateMatches = state === verifiedState || (isDelhiValue(state) && isDelhiValue(verifiedState));
+  const cityMatches = city === verifiedCity || city.includes(verifiedCity) || verifiedCity.includes(city);
+  return stateMatches && cityMatches;
+}
+
+function getCheckoutName(user = checkoutUser || getAuthUser()) {
+  const profile = getProfile() || {};
+  const hasProfileName = profile.firstName !== undefined || profile.lastName !== undefined;
+  const first = cleanText(hasProfileName ? profile.firstName : user?.firstName);
+  const last = cleanText(hasProfileName ? profile.lastName : user?.lastName);
+  return [first, last].filter(Boolean).join(' ') || 'Your Profile';
+}
+
+function getAddressDisplayName(address = {}, user = checkoutUser || getAuthUser()) {
+  const profile = getProfile() || {};
+  const hasAddressName = address.firstName !== undefined || address.lastName !== undefined;
+  const hasProfileName = profile.firstName !== undefined || profile.lastName !== undefined;
+  const first = cleanText(hasAddressName ? address.firstName : (hasProfileName ? profile.firstName : user?.firstName));
+  const last = cleanText(hasAddressName ? address.lastName : (hasProfileName ? profile.lastName : user?.lastName));
+  return [first, last].filter(Boolean).join(' ') || getCheckoutName(user);
+}
+
+function normalizeSavedAddresses(addresses) {
+  return Array.isArray(addresses) ? addresses.slice(0, MAX_SAVED_ADDRESSES) : [];
+}
+
+function syncCheckoutAddresses(addresses) {
+  const normalized = normalizeSavedAddresses(addresses);
+  if (!checkoutUser) checkoutUser = getAuthUser() || {};
+  checkoutUser.addresses = normalized;
+  const authUser = getAuthUser();
+  if (authUser) {
+    authUser.addresses = normalized;
+    setAuthUser(authUser);
+  }
+  saveProfile({ addresses: normalized });
+  return normalized;
+}
+
+function getLimitedCheckoutAddresses() {
+  const rawAddresses = Array.isArray(checkoutUser?.addresses) ? checkoutUser.addresses : [];
+  const addresses = normalizeSavedAddresses(rawAddresses);
+  if (rawAddresses.length !== addresses.length) {
+    syncCheckoutAddresses(addresses);
+  } else if (checkoutUser) {
+    checkoutUser.addresses = addresses;
+  }
+  return addresses;
+}
+
+function isSameAddress(a = {}, b = {}) {
+  return cleanText(a.pinCode) === cleanText(b.pinCode)
+    && cleanText(a.houseNumberOrAddress || a.address).toLowerCase() === cleanText(b.houseNumberOrAddress || b.address).toLowerCase();
+}
+
+async function validatePinAgainstAddress({ pinCode, city, state }) {
+  const pin = cleanText(pinCode).replace(/\D/g, '').slice(0, 6);
+  if (!/^\d{6}$/.test(pin)) {
+    return { success: false, error: 'PIN code must be exactly 6 digits.' };
+  }
+
+  const pinRes = await lookupPinCode(pin);
+  if (!pinRes || !pinRes.success) {
+    return {
+      success: false,
+      error: pinRes?.error || `PIN code ${pin} is invalid. Please enter a valid Indian PIN code.`
+    };
+  }
+
+  if (!locationMatches(city, state, pinRes.city, pinRes.state)) {
+    return {
+      success: false,
+      verifiedCity: pinRes.city,
+      verifiedState: pinRes.state,
+      error: `PIN code ${pin} belongs to ${pinRes.city}, ${pinRes.state}. Please select a matching city and state before placing the order.`
+    };
+  }
+
+  return { success: true, city: pinRes.city, state: pinRes.state, pinCode: pin };
+}
 
 // ─── Render Cart Items in Summary ────────────────────────────────────────────
 function renderCartSummary() {
@@ -44,6 +164,9 @@ function renderCartSummary() {
   summaryList.innerHTML = items.map(item => {
     const imageUrl = item.productImage ? formatCloudinaryUrl(item.productImage) : '';
     const itemTotal = (item.price * item.quantity).toLocaleString('en-IN');
+    const sizeLine = hasDisplaySize(item.size)
+      ? `<p class="summary-item-size">${item.size}</p>`
+      : '';
     const videoCallLabel = item.liveVideoCall
       ? `<div style="margin-top: 4px; margin-bottom: 8px; font-size: 11px; color: #16a34a; display: flex; align-items: center; gap: 4px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Video call before dispatch</div>`
       : '';
@@ -58,7 +181,7 @@ function renderCartSummary() {
         </div>
         <div class="summary-item-details">
           <p class="summary-item-name">${item.productName}</p>
-          <p class="summary-item-size">${item.size}</p>
+          ${sizeLine}
           ${videoCallLabel}
           <div class="summary-item-controls">
             <div class="summary-qty-stepper">
@@ -207,6 +330,8 @@ paymentOptions.forEach(radio => {
 const pinInput = document.getElementById('pinCode');
 const cityInput = document.getElementById('city');
 const stateInput = document.getElementById('state');
+const cityEl = cityInput;
+const stateEl = stateInput;
 const pinSpinner = document.getElementById('pin-spinner');
 const pinStatus = document.getElementById('pin-status');
 
@@ -362,18 +487,67 @@ function showOrderConfirmation() {
 let selectedSavedAddressIndex = -1;
 let checkoutUser = null;
 
-window.addEventListener('auth-changed', (e) => {
-  const contactForm = document.getElementById('contact-form-container');
-  const contactSummary = document.getElementById('contact-summary-container');
+function renderSavedAddresses() {
   const shippingForm = document.getElementById('shipping-form-container');
   const savedAddresses = document.getElementById('saved-addresses-container');
   const savedList = document.getElementById('saved-addresses-list');
+  if (!checkoutUser || !savedList) return;
 
-  if (e.detail.loggedIn && e.detail.user) {
+  const addresses = getLimitedCheckoutAddresses();
+
+  savedList.innerHTML = '';
+
+  if (addresses.length === 0) {
+    selectedSavedAddressIndex = -1;
+    if (shippingForm) shippingForm.style.display = 'block';
+    if (savedAddresses) savedAddresses.style.display = 'none';
+    return;
+  }
+
+  if (shippingForm) shippingForm.style.display = 'none';
+  if (savedAddresses) savedAddresses.style.display = 'block';
+
+  selectedSavedAddressIndex = Math.min(Math.max(selectedSavedAddressIndex, 0), addresses.length - 1);
+
+  addresses.forEach((addr, i) => {
+    const card = document.createElement('div');
+    card.className = 'co-address-card' + (i === selectedSavedAddressIndex ? ' selected' : '');
+    card.tabIndex = 0;
+    card.setAttribute('role', 'button');
+    card.setAttribute('aria-label', 'Edit saved address');
+    card.innerHTML = `
+      <div class="co-address-name">${getAddressDisplayName(addr, checkoutUser)}</div>
+      <div class="co-address-text">${addr.houseNumberOrAddress}, ${addr.landmark ? addr.landmark + ', ' : ''}${addr.city}, ${addr.state}, ${addr.pinCode}</div>
+      ${i === 0 ? '<div class="co-address-default-badge">Default</div>' : ''}
+    `;
+    const selectAndEdit = () => {
+      document.querySelectorAll('.co-address-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      selectedSavedAddressIndex = i;
+      openAddressModal(i);
+    };
+    card.addEventListener('click', selectAndEdit);
+    card.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        selectAndEdit();
+      }
+    });
+    savedList.appendChild(card);
+  });
+}
+
+window.addEventListener('auth-changed', (e) => {
+  const contactForm = document.getElementById('contact-form-container');
+  const contactSummary = document.getElementById('contact-summary-container');
+
+  const latestUser = e.detail?.user || getAuthUser();
+
+  if ((e.detail?.loggedIn || latestUser) && latestUser) {
     // Show the checkout page
     document.querySelector('.co-wrap')?.classList.add('auth-ready');
 
-    checkoutUser = e.detail.user;
+    checkoutUser = latestUser;
     
     // Contact Section
     if (contactForm && contactSummary) {
@@ -386,31 +560,7 @@ window.addEventListener('auth-changed', (e) => {
       `;
     }
 
-    // Shipping Section
-    if (checkoutUser.addresses && checkoutUser.addresses.length > 0) {
-      if (shippingForm) shippingForm.style.display = 'none';
-      if (savedAddresses) savedAddresses.style.display = 'block';
-      
-      if (savedList) {
-        savedList.innerHTML = '';
-        checkoutUser.addresses.forEach((addr, i) => {
-          const card = document.createElement('div');
-          card.className = 'co-address-card' + (i === 0 ? ' selected' : '');
-          card.innerHTML = `
-            <div class="co-address-name">${checkoutUser.firstName} ${checkoutUser.lastName || ''}</div>
-            <div class="co-address-text">${addr.houseNumberOrAddress}, ${addr.landmark ? addr.landmark + ', ' : ''}${addr.city}, ${addr.state}, ${addr.pinCode}</div>
-            ${i === 0 ? '<div class="co-address-default-badge">Default</div>' : ''}
-          `;
-          card.addEventListener('click', () => {
-            document.querySelectorAll('.co-address-card').forEach(c => c.classList.remove('selected'));
-            card.classList.add('selected');
-            selectedSavedAddressIndex = i;
-          });
-          savedList.appendChild(card);
-        });
-        selectedSavedAddressIndex = 0; // Default select first
-      }
-    }
+    renderSavedAddresses();
   }
 });
 
@@ -421,12 +571,49 @@ const addAddressClose = document.getElementById('add-address-close');
 const addAddressCancel = document.getElementById('add-address-cancel');
 const addAddressSave = document.getElementById('add-address-save');
 
+function setModalField(id, value) {
+  const el = document.getElementById(id);
+  if (el) el.value = value || '';
+}
+
+function openAddressModal(index = -1) {
+  const addresses = getLimitedCheckoutAddresses();
+  if (index < 0 && addresses.length >= MAX_SAVED_ADDRESSES) {
+    alert(ADDRESS_LIMIT_MESSAGE);
+    return;
+  }
+
+  editingAddressIndex = index;
+  const addr = index >= 0 ? addresses[index] : {};
+  const profile = getProfile() || {};
+  const modalTitle = document.querySelector('#add-address-modal-overlay .address-modal-title');
+  if (modalTitle) modalTitle.textContent = index >= 0 ? 'Edit address' : 'Add address';
+  if (addAddressSave) addAddressSave.textContent = index >= 0 ? 'Update address' : 'Save address';
+
+  const hasAddressName = addr.firstName !== undefined || addr.lastName !== undefined;
+  setModalField('new-firstName', hasAddressName ? addr.firstName : profile.firstName || checkoutUser?.firstName || '');
+  setModalField('new-lastName', hasAddressName ? addr.lastName : profile.lastName || checkoutUser?.lastName || '');
+  setModalField('new-address', addr.houseNumberOrAddress || '');
+  setModalField('new-landmark', addr.landmark || '');
+  setModalField('new-city', addr.city || '');
+  setModalField('new-state', addr.state || '');
+  setModalField('new-pinCode', addr.pinCode || '');
+
+  if (addAddressModalOverlay) addAddressModalOverlay.style.display = 'flex';
+}
+
 if (addAddressBtn) {
   addAddressBtn.addEventListener('click', () => {
-    if (addAddressModalOverlay) addAddressModalOverlay.style.display = 'flex';
+    const addresses = getLimitedCheckoutAddresses();
+    if (addresses.length >= MAX_SAVED_ADDRESSES) {
+      alert(ADDRESS_LIMIT_MESSAGE);
+      return;
+    }
+    openAddressModal(-1);
   });
 }
 const closeAddModal = () => {
+  editingAddressIndex = -1;
   if (addAddressModalOverlay) addAddressModalOverlay.style.display = 'none';
 };
 if (addAddressClose) addAddressClose.addEventListener('click', closeAddModal);
@@ -551,23 +738,40 @@ if (addAddressSave) {
     if (pin.length !== 6 || !/^\d{6}$/.test(pin)) {
       showErrorAndFocus('new-pinCode', 'new-pinCodeError', 'Must be exactly 6 digits.'); return;
     }
+
+    const modalPinCheck = await validatePinAgainstAddress({ pinCode: pin, city: cty, state: st });
+    if (!modalPinCheck.success) {
+      showErrorAndFocus('new-pinCode', 'new-pinCodeError', modalPinCheck.error);
+      return;
+    }
     
-    // Quick mock save for the UI to update immediately
     if (checkoutUser) {
-      if (!checkoutUser.addresses) checkoutUser.addresses = [];
-      checkoutUser.addresses.push({
+      const addresses = getLimitedCheckoutAddresses();
+      if (editingAddressIndex < 0 && addresses.length >= MAX_SAVED_ADDRESSES) {
+        alert(ADDRESS_LIMIT_MESSAGE);
+        return;
+      }
+
+      const nextAddress = {
         firstName: fName,
         lastName: lName,
         houseNumberOrAddress: addr,
         landmark: lmark,
-        city: cty,
-        state: st,
-        pinCode: pin
-      });
-      // Fire auth changed to trigger re-render
-      window.dispatchEvent(new CustomEvent('auth-changed', { detail: { loggedIn: true, user: checkoutUser } }));
-      // Save it to backend actually:
-      await saveProfile({ addresses: checkoutUser.addresses });
+        city: modalPinCheck.city,
+        state: modalPinCheck.state,
+        pinCode: modalPinCheck.pinCode
+      };
+
+      if (editingAddressIndex >= 0) {
+        addresses[editingAddressIndex] = nextAddress;
+        selectedSavedAddressIndex = editingAddressIndex;
+      } else {
+        addresses.push(nextAddress);
+        selectedSavedAddressIndex = addresses.length - 1;
+      }
+
+      syncCheckoutAddresses(addresses);
+      renderSavedAddresses();
     }
     closeAddModal();
   });
@@ -591,13 +795,17 @@ if (placeOrderBtn) {
 
     // Collect form values
     let phone, fName, lName, address, landmark, city, state, pinCode;
-    const isUsingSavedAddress = (checkoutUser && checkoutUser.addresses && checkoutUser.addresses.length > 0 && selectedSavedAddressIndex >= 0);
+    const savedAddressesForOrder = getLimitedCheckoutAddresses();
+    const isUsingSavedAddress = (savedAddressesForOrder.length > 0 && selectedSavedAddressIndex >= 0);
 
     if (isUsingSavedAddress) {
+      const profile = getProfile() || {};
       phone = checkoutUser.phoneNumber;
-      fName = checkoutUser.firstName;
-      lName = checkoutUser.lastName;
-      const addr = checkoutUser.addresses[selectedSavedAddressIndex];
+      const addr = savedAddressesForOrder[selectedSavedAddressIndex];
+      const hasAddressName = addr.firstName !== undefined || addr.lastName !== undefined;
+      const hasProfileName = profile.firstName !== undefined || profile.lastName !== undefined;
+      fName = cleanText(hasAddressName ? addr.firstName : (hasProfileName ? profile.firstName : checkoutUser.firstName));
+      lName = cleanText(hasAddressName ? addr.lastName : (hasProfileName ? profile.lastName : checkoutUser.lastName));
       address = addr.houseNumberOrAddress;
       landmark = addr.landmark || '';
       city = addr.city;
@@ -662,6 +870,51 @@ if (placeOrderBtn) {
     if (!pinCode) { showMainErrorAndFocus('pinCode', 'pinCodeError'); return; }
     if (!/^\d{6}$/.test(pinCode)) { showMainErrorAndFocus('pinCode', 'pinCodeError', 'Must be exactly 6 digits.'); return; }
 
+    const origText = placeOrderBtn.querySelector('.btn-main-text')?.textContent || 'Complete order';
+    if (placeOrderBtn.querySelector('.btn-main-text')) {
+      placeOrderBtn.querySelector('.btn-main-text').textContent = 'VERIFYING PIN...';
+    }
+    placeOrderBtn.disabled = true;
+
+    let verifiedPin;
+    try {
+      verifiedPin = await validatePinAgainstAddress({ pinCode, city, state });
+    } catch (err) {
+      placeOrderBtn.disabled = false;
+      if (placeOrderBtn.querySelector('.btn-main-text')) {
+        placeOrderBtn.querySelector('.btn-main-text').textContent = origText;
+      }
+      alert('Could not verify PIN code. Please check your network and try again.');
+      return;
+    }
+
+    placeOrderBtn.disabled = false;
+    if (placeOrderBtn.querySelector('.btn-main-text')) {
+      placeOrderBtn.querySelector('.btn-main-text').textContent = origText;
+    }
+
+    if (!verifiedPin.success) {
+      if (!isUsingSavedAddress && pinStatus) {
+        pinStatus.textContent = verifiedPin.error;
+        pinStatus.className = 'pin-status error';
+      }
+      showMainErrorAndFocus('pinCode', 'pinCodeError', verifiedPin.error);
+      return;
+    }
+
+    lastLookedUpPin = verifiedPin.pinCode;
+    city = verifiedPin.city || city;
+    state = verifiedPin.state || state;
+    pinCode = verifiedPin.pinCode || pinCode;
+    if (!isUsingSavedAddress) {
+      if (cityInput) cityInput.value = city;
+      if (stateInput) stateInput.value = state;
+      if (pinStatus) {
+        pinStatus.textContent = `${city}, ${state}`;
+        pinStatus.className = 'pin-status success';
+      }
+    }
+
     // Ensure PIN code is fully verified and valid BEFORE placing order (only for manual entry)
     if (!isUsingSavedAddress && (lastLookedUpPin !== pinCode || (pinSpinner && pinSpinner.classList.contains('active')) || (pinStatus && pinStatus.classList.contains('error')))) {
       const origText = placeOrderBtn.querySelector('.btn-main-text')?.textContent || 'Complete order';
@@ -716,24 +969,24 @@ if (placeOrderBtn) {
       lastName: lName,
       paymentMethod: selectedPayment,
       shippingAddress: {
+        firstName: fName,
+        lastName: lName,
         houseNumberOrAddress: address,
         landmark: landmark,
         city: city,
         state: state,
         pinCode: pinCode,
       },
-      items: cartItems
-        .filter(item => item.variantId !== null && item.variantId !== undefined)
-        .map(item => ({
+      items: cartItems.map(item => ({
           productId: item.productId,
-          variantId: item.variantId,
+          variantId: item.variantId ?? null,
           quantity: item.quantity,
           liveVideoCall: item.liveVideoCall || false,
         })),
     };
 
     if (orderPayload.items.length === 0) {
-      alert('Some items in your cart are missing size information. Please re-add them from the product page.');
+      alert('Your cart is empty. Please add a product before placing the order.');
       return;
     }
 
@@ -745,19 +998,16 @@ if (placeOrderBtn) {
     try {
       const orderResult = await checkout(orderPayload);
       
-      // Save address to backend for logged in users
+      // Save address to backend for logged in users without ever adding a 4th saved address.
       try {
-        await saveAddressToBackend(orderPayload.shippingAddress);
-        
-        // Also update local authUser so we don't have to fetch it again
         const authUser = getAuthUser();
-        if (authUser) {
-          if (!authUser.addresses) authUser.addresses = [];
-          // Avoid duplicates (simple check by pincode and house)
-          const exists = authUser.addresses.find(a => a.pinCode === pinCode && a.houseNumberOrAddress === address);
-          if (!exists) {
-            authUser.addresses.push(orderPayload.shippingAddress);
-            localStorage.setItem('kicksaura_auth_user', JSON.stringify(authUser));
+        const existingAddresses = normalizeSavedAddresses(authUser?.addresses || checkoutUser?.addresses || []);
+        const exists = existingAddresses.some(a => isSameAddress(a, orderPayload.shippingAddress));
+        if (exists || existingAddresses.length < MAX_SAVED_ADDRESSES) {
+          await saveAddressToBackend(orderPayload.shippingAddress);
+          if (authUser && !exists) {
+            authUser.addresses = [...existingAddresses, orderPayload.shippingAddress];
+            setAuthUser(authUser);
           }
         }
       } catch (addrErr) {

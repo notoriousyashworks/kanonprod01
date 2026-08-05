@@ -149,8 +149,10 @@ function renderProduct(product) {
     `;
   }
 
+  const hasVariants = product.variants && product.variants.length > 0;
+
   // Size variant buttons
-  const variantsHTML = product.variants?.length > 0
+  const variantsHTML = hasVariants
     ? product.variants.map(v => `
         <button class="size-btn ${v.stockQuantity <= 0 ? 'size-btn--oos' : ''}"
           data-variant-id="${v.id}"
@@ -158,7 +160,18 @@ function renderProduct(product) {
           ${v.stockQuantity <= 0 ? 'disabled title="Out of stock"' : ''}>
           ${v.size}
         </button>`).join('')
-    : '<p style="color:#888; font-size:14px;">No sizes available</p>';
+    : '';
+  const sizeChooserHTML = hasVariants ? `
+      <div style="margin-bottom: 26px;">
+        <button id="size-chart-btn" style="background: none; border: none; padding: 0; color: #000; text-decoration: underline; cursor: pointer; font-size: 14.5px; font-weight: 400; font-family: inherit;">Size Chart</button>
+      </div>
+
+      <div class="size-section">
+        <p class="size-label">Select Size</p>
+        <div class="size-options" id="size-options">
+          ${variantsHTML}
+        </div>
+      </div>` : '';
 
   document.getElementById('product-container').innerHTML = `
     <!-- Left: Gallery -->
@@ -209,16 +222,7 @@ function renderProduct(product) {
           <span class="pd-stock-text pd-stock-out-text">Currently out of stock</span>
         `}
       </div>
-      <div style="margin-bottom: 26px;">
-        <button id="size-chart-btn" style="background: none; border: none; padding: 0; color: #000; text-decoration: underline; cursor: pointer; font-size: 14.5px; font-weight: 400; font-family: inherit;">Size Chart</button>
-      </div>
-
-      <div class="size-section">
-        <p class="size-label">Select Size</p>
-        <div class="size-options" id="size-options">
-          ${variantsHTML}
-        </div>
-      </div>
+      ${sizeChooserHTML}
 
       <div class="quantity-section">
         <p class="quantity-label">Quantity</p>
@@ -615,9 +619,6 @@ function renderProduct(product) {
     });
   });
 
-  // Determine if this product has size variants
-  const hasVariants = product.variants && product.variants.length > 0;
-
   // Size selection
   let selectedVariant = null;
   document.querySelectorAll('.size-btn:not([disabled])').forEach(btn => {
@@ -707,8 +708,7 @@ function renderProduct(product) {
       shakeSize();
       return;
     }
-    // For products without variants, pass a minimal variant-like object
-    const variantToAdd = hasVariants ? selectedVariant : { id: null, size: 'One Size' };
+    const variantToAdd = hasVariants ? selectedVariant : null;
     const liveVideoCall = document.getElementById('live-video-check')?.checked || false;
     addToCart(product, variantToAdd, quantity, { liveVideoCall });
     const sizeLabel = hasVariants ? ` (${variantToAdd.size})` : '';
@@ -724,7 +724,7 @@ function renderProduct(product) {
       shakeSize();
       return;
     }
-    const variantToAdd = hasVariants ? selectedVariant : { id: null, size: 'One Size' };
+    const variantToAdd = hasVariants ? selectedVariant : null;
     const liveVideoCall = document.getElementById('live-video-check')?.checked || false;
     addToCart(product, variantToAdd, quantity, { liveVideoCall });
     sessionStorage.setItem('checkout_intent', 'true');
