@@ -54,6 +54,11 @@ const api = {
     });
     if (r.status === 204) return null;
     const d = await r.json().catch(() => ({}));
+    if (r.status === 401 || r.status === 403) {
+      localStorage.removeItem('kicksaura_auth_user');
+      window.location.reload();
+      throw new Error('Session expired. Please log in again.');
+    }
     if (!r.ok) throw new Error(d.error || `Server error ${r.status}`);
     return d;
   },

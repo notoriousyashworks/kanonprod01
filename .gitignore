@@ -2,3 +2,7 @@
 *.env
 target/
 node_modules/
+
+# Mac OS files
+.DS_Store
+**/.DS_Store
