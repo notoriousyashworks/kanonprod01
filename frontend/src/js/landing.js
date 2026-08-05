@@ -79,11 +79,10 @@ async function loadArrivals() {
     const initialSlice = allNewArrivals.slice(0, visibleArrivalsCount);
     grid.innerHTML = initialSlice.map(createProductCard).join('');
     attachCardListeners(initialSlice);
-<<<<<<< Updated upstream
-=======
+
     initArrivalArrows(grid);
     initHeroProductWidget(allNewArrivals);
->>>>>>> Stashed changes
+
 
     if (exploreBtn) {
       if (allNewArrivals.length > visibleArrivalsCount) {
@@ -189,8 +188,7 @@ async function loadReviews() {
     console.error('Failed to load reviews:', e);
   }
 }
-<<<<<<< Updated upstream
-=======
+
 
 function initReviewArrows(track) {
   const carousel = track.closest('.reviews-carousel');
@@ -295,4 +293,4 @@ function initHeroProductWidget(products) {
 
   resetInterval(); // Start auto sliding
 }
->>>>>>> Stashed changes
+
