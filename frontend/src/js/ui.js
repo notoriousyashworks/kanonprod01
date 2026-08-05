@@ -302,7 +302,7 @@ export function getNavbarHTML(activePage = 'home') {
         <div class="header__banner-marquee">
           <div class="marquee-content">
             <span class="dot">•</span>
-            <span>TRUSTED BY 500+ CUSTOMERS</span>
+            <span>TRUSTED BY 1000+ CUSTOMERS</span>
             <span class="dot">•</span>
             <span class="text-red">COD AVAILABLE (ONLY ₹ 99 ADVANCE)</span>
             <span class="dot">•</span>
@@ -312,7 +312,7 @@ export function getNavbarHTML(activePage = 'home') {
           </div>
           <div class="marquee-content" aria-hidden="true">
             <span class="dot">•</span>
-            <span>TRUSTED BY 500+ CUSTOMERS</span>
+            <span>TRUSTED BY 1000+ CUSTOMERS</span>
             <span class="dot">•</span>
             <span class="text-red">COD AVAILABLE (ONLY ₹ 99 ADVANCE)</span>
             <span class="dot">•</span>
