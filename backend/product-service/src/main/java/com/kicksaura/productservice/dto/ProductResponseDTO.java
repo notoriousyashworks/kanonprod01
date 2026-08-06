@@ -29,7 +29,11 @@ public class ProductResponseDTO {
     private List<String> videoUrls;
     private boolean isVisible;
     private boolean isSaleVisible;
+    private boolean isNewArrival;
+    private boolean isTrending;
     private boolean isVideoVisible;
+    private boolean withOgBox;
+    private boolean isInStockFlag;
     private LocalDateTime createdAt;
     
     private List<VariantDTO> variants;

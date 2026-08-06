@@ -21,6 +21,16 @@ public class PublicProductController {
         return ResponseEntity.ok(productService.getAllVisibleProducts());
     }
 
+    @GetMapping("/new-arrivals")
+    public ResponseEntity<List<ProductResponseDTO>> getNewArrivals() {
+        return ResponseEntity.ok(productService.getNewArrivals());
+    }
+
+    @GetMapping("/trending")
+    public ResponseEntity<List<ProductResponseDTO>> getTrendingProducts() {
+        return ResponseEntity.ok(productService.getTrendingProducts());
+    }
+
     @GetMapping("/filter")
     public ResponseEntity<List<ProductResponseDTO>> filterProducts(
             @RequestParam(value = "categories", required = false) List<String> categories,

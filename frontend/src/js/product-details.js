@@ -69,7 +69,7 @@ function renderProduct(product) {
   const totalStock = product.variants?.length > 0
     ? product.variants.reduce((sum, v) => sum + (v.stockQuantity || 0), 0)
     : (product.stockQuantity ?? 10);
-  const isInStock = totalStock > 0;
+  const isInStock = product.inStockFlag ?? (totalStock > 0);
   const initialViewers = Math.floor(Math.random() * 3) + 6; // 6 to 8 (always > 5)
   const initialCarts = Math.floor(Math.random() * 4) + 1; // 1 to 4
 
@@ -210,17 +210,23 @@ function renderProduct(product) {
         <span class="pd-viewers-label">People are currently viewing this</span>
       </div>
 
+      ${product.withOgBox ? `
+      <div class="pd-og-box-row" style="margin-bottom: 16px; display: flex; align-items: center; gap: 10px;">
+        <div style="font-size: 22px; display: flex; align-items: center; justify-content: center;">
+          📦
+        </div>
+        <span style="font-size: 15px; font-weight: 600; color: #111;">With OG Box</span>
+      </div>
+      ` : ''}
+
+      ${isInStock ? `
       <div class="pd-stock-status-row" style="margin-bottom: 8px;">
-        ${isInStock ? `
           <div class="pd-stock-icon-circle pd-stock-in">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
           </div>
           <span class="pd-stock-text pd-stock-in-text">In stock!</span>
-        ` : `
-          <div class="pd-stock-icon-circle pd-stock-out">✕</div>
-          <span class="pd-stock-text pd-stock-out-text">Currently out of stock</span>
-        `}
       </div>
+      ` : ''}
       ${sizeChooserHTML}
 
       <div class="quantity-section">

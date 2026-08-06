@@ -46,8 +46,13 @@ public class ProductRequestDTO {
     private boolean isVisible = true;
 
     private boolean isSaleVisible;
+    private boolean isNewArrival;
+    private boolean isTrending;
 
     private boolean isVideoVisible;
+    private boolean withOgBox;
+    @Builder.Default
+    private boolean isInStockFlag = true;
 
     @Valid
     private List<VariantDTO> variants;

@@ -46,6 +46,14 @@ export async function getAllProducts() {
   return request('/products');
 }
 
+export async function getNewArrivals() {
+  return request('/products/new-arrivals');
+}
+
+export async function getTrendingProducts() {
+  return request('/products/trending');
+}
+
 export async function filterProducts(filters) {
   const queryParams = new URLSearchParams();
   if (filters.categories && filters.categories.length > 0) {

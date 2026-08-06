@@ -72,9 +72,25 @@ public class Product {
     @Builder.Default
     private boolean isSaleVisible = false;
 
+    @Column(name = "is_new_arrival", nullable = false, columnDefinition = "boolean default false")
+    @Builder.Default
+    private boolean isNewArrival = false;
+
+    @Column(name = "is_trending", nullable = false, columnDefinition = "boolean default false")
+    @Builder.Default
+    private boolean isTrending = false;
+
     @Column(name = "is_video_visible", nullable = false, columnDefinition = "boolean default false")
     @Builder.Default
     private boolean isVideoVisible = false;
+
+    @Column(name = "with_og_box", nullable = false, columnDefinition = "boolean default false")
+    @Builder.Default
+    private boolean withOgBox = false;
+
+    @Column(name = "is_in_stock_flag", nullable = false, columnDefinition = "boolean default true")
+    @Builder.Default
+    private boolean isInStockFlag = true;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default

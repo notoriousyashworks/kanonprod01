@@ -1,7 +1,7 @@
 /* ============================================
    Landing Page Logic
    ============================================ */
-import { getAllProducts, getCategories, getCustomerReviews } from './api.js';
+import { getAllProducts, getNewArrivals, getTrendingProducts, getCategories, getCustomerReviews } from './api.js';
 import { addToCart, updateCartBadge } from './cart.js';
 import { getNavbarHTML, getFooterHTML, createProductCard, showToast, formatCloudinaryUrl, initSearch, initMobileMenu } from './ui.js';
 import { initWishlistSidebar, updateWishlistBadge } from './wishlist.js';
@@ -23,6 +23,7 @@ initLoginModalTrigger();
 
 function initHeroCarousel() {
   const carousel = document.getElementById('hero-carousel');
+  initTrendingWidget();
   const track = carousel?.querySelector('.hero-carousel-track');
   const realSlides = Array.from(carousel?.querySelectorAll('.hero-slide') || []);
   const dots = Array.from(carousel?.querySelectorAll('.hero-carousel-dot') || []);
@@ -194,6 +195,75 @@ async function loadCategories() {
   }
 }
 
+// ── Trending Widget ──────────────────────────────────────
+async function initTrendingWidget() {
+  const widget = document.getElementById('hero-trending-widget');
+  const track = document.getElementById('ht-track');
+  if (!widget || !track) return;
+
+  try {
+    const trending = await getTrendingProducts();
+    if (!trending || trending.length === 0) {
+      return; // Leave it hidden if no trending products
+    }
+
+    // Build the slides HTML
+    const formatPrice = (p) => '₹' + p.toLocaleString('en-IN');
+    let slidesHTML = trending.map(p => {
+      return `
+        <div class="ht-slide">
+          ${createProductCard(p)}
+        </div>
+      `;
+    }).join('');
+
+    track.innerHTML = slidesHTML;
+    widget.style.display = 'block';
+
+    let currentIndex = 0;
+    const total = trending.length;
+    let autoPlayTimer = null;
+
+    const updateSlide = () => {
+      track.style.transform = `translateX(-${currentIndex * 100}%)`;
+    };
+
+    const nextSlide = () => {
+      currentIndex = (currentIndex + 1) % total;
+      updateSlide();
+    };
+
+    const prevSlide = () => {
+      currentIndex = (currentIndex - 1 + total) % total;
+      updateSlide();
+    };
+
+    const resetTimer = () => {
+      clearInterval(autoPlayTimer);
+      autoPlayTimer = setInterval(nextSlide, 3000);
+    };
+
+    document.getElementById('ht-next').addEventListener('click', () => {
+      nextSlide();
+      resetTimer();
+    });
+    document.getElementById('ht-prev').addEventListener('click', () => {
+      prevSlide();
+      resetTimer();
+    });
+
+    // Start auto-play
+    resetTimer();
+
+    // Pause on hover
+    widget.addEventListener('mouseenter', () => clearInterval(autoPlayTimer));
+    widget.addEventListener('mouseleave', resetTimer);
+
+  } catch (err) {
+    console.error('Failed to load trending widget:', err);
+  }
+}
+
 // ── Load New Arrivals ────────────────────────────────────
 let allNewArrivals = [];
 let visibleArrivalsCount = 0;
@@ -203,7 +273,7 @@ async function loadArrivals() {
   const grid = document.getElementById('new-arrivals-grid');
   const exploreBtn = document.getElementById('explore-all-btn');
   try {
-    const products = await getAllProducts();
+    const products = await getNewArrivals();
     if (!products || products.length === 0) {
       grid.innerHTML = `
         <div class="text-center" style="grid-column: 1/-1; padding: 60px 20px;">
@@ -277,11 +347,29 @@ function initArrivalArrows(grid) {
   };
 
   const move = (direction) => {
-    freezeAtCurrentPosition();
+    const anims = grid.getAnimations();
+    const marqueeAnim = anims.find(a => a.animationName && a.animationName.includes('Marquee'));
+    
     const step = getStep();
     const loopWidth = Math.max(grid.scrollWidth / 2, step);
-    manualOffset = (manualOffset + direction * step + loopWidth) % loopWidth;
-    grid.style.transform = `translate3d(-${manualOffset}px, 0, 0)`;
+
+    if (marqueeAnim) {
+      // If the CSS animation is running, just scrub it forward or backward
+      const duration = marqueeAnim.effect.getTiming().duration;
+      const timePerPixel = duration / loopWidth;
+      let newTime = (marqueeAnim.currentTime || 0) + (direction * step * timePerPixel);
+      
+      // Wrap around smoothly
+      if (newTime < 0) newTime = (newTime % duration) + duration;
+      if (newTime >= duration) newTime = newTime % duration;
+      
+      marqueeAnim.currentTime = newTime;
+    } else {
+      // Fallback if animation is removed/missing
+      freezeAtCurrentPosition();
+      manualOffset = (manualOffset + direction * step + loopWidth) % loopWidth;
+      grid.style.transform = `translate3d(-${manualOffset}px, 0, 0)`;
+    }
   };
 
   previousButton.onclick = () => move(-1);

@@ -580,20 +580,28 @@ function handleResendOtp() {
   clearOtpError();
   clearOtpBoxes();
 
-  // null channel = MSG91 default configuration (as per requirements)
-  window.retryOtp(
-    null,
-    (data) => {
-      if (data?.reqId) currentReqId = data.reqId;
-      startCountdown();
-    },
-    (error) => {
-      const msg = typeof error === 'string' ? error : (error?.message || 'Could not resend OTP. Please try again.');
-      showOtpError(msg);
-      btn.disabled = false;
-    },
-    currentReqId
-  );
+  try {
+    const retryFunc = window.retryOTP || window.retryOtp;
+    if (typeof retryFunc !== 'function') {
+      throw new Error('OTP service is currently unavailable.');
+    }
+
+    retryFunc(
+      '11', // '11' for SMS channel
+      (data) => {
+        if (data?.reqId) currentReqId = data.reqId;
+        startCountdown();
+      },
+      (error) => {
+        const msg = typeof error === 'string' ? error : (error?.message || 'Could not resend OTP. Please try again.');
+        showOtpError(msg);
+        btn.disabled = false;
+      }
+    );
+  } catch (err) {
+    showOtpError(err.message || 'An error occurred while resending OTP.');
+    btn.disabled = false;
+  }
 }
 
 // ─── Countdown ─────────────────────────────────────────────────────────────────

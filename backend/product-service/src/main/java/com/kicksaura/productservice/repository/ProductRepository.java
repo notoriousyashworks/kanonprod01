@@ -15,6 +15,8 @@ import org.springframework.data.repository.query.Param;
 public interface ProductRepository extends JpaRepository<Product, UUID>, JpaSpecificationExecutor<Product> {
     List<Product> findByIsVisibleTrue();
     List<Product> findByIsVisibleTrueOrderByCreatedAtDesc();
+    List<Product> findByIsNewArrivalTrueAndIsVisibleTrueOrderByCreatedAtDesc();
+    List<Product> findByIsTrendingTrueAndIsVisibleTrueOrderByCreatedAtDesc();
 
     @Query("SELECT p FROM Product p WHERE p.isVisible = true AND " +
            "(LOWER(p.searchName) LIKE LOWER(CONCAT('%', :query, '%')) OR " +

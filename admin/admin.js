@@ -740,6 +740,18 @@ async function showProductForm(product = null) {
       <label class="form-checkbox-label" style="margin-top: 8px;">
         <input type="checkbox" name="isVideoVisible" ${product?.videoVisible ? 'checked' : ''}> Video Available Badge Visible
       </label>
+      <label class="form-checkbox-label" style="margin-top: 8px;">
+        <input type="checkbox" name="isNewArrival" ${product?.newArrival ? 'checked' : ''}> New Arrival
+      </label>
+      <label class="form-checkbox-label" style="margin-top: 8px;">
+        <input type="checkbox" name="isTrending" ${product?.trending ? 'checked' : ''}> Trending
+      </label>
+      <label class="form-checkbox-label" style="margin-top: 8px;">
+        <input type="checkbox" name="withOgBox" ${product?.withOgBox ? 'checked' : ''}> With OG Box
+      </label>
+      <label class="form-checkbox-label" style="margin-top: 8px;">
+        <input type="checkbox" name="isInStockFlag" ${product ? (product.inStockFlag ? 'checked' : '') : 'checked'}> In Stock
+      </label>
     </div>
 
     <div class="form-section-divider"><span>Sizes & Stock</span></div>
@@ -951,6 +963,10 @@ function collectProductData(f) {
     visible: f.querySelector('[name="isVisible"]')?.checked ?? true,
     saleVisible: f.querySelector('[name="isSaleVisible"]')?.checked ?? false,
     videoVisible: f.querySelector('[name="isVideoVisible"]')?.checked ?? false,
+    newArrival: f.querySelector('[name="isNewArrival"]')?.checked ?? false,
+    trending: f.querySelector('[name="isTrending"]')?.checked ?? false,
+    withOgBox: f.querySelector('[name="withOgBox"]')?.checked ?? false,
+    inStockFlag: f.querySelector('[name="isInStockFlag"]')?.checked ?? true,
     variants,
   };
   console.log("[STEP 2 - Frontend] Including imageUrls in POST/PUT request payload:", payload.imageUrls);

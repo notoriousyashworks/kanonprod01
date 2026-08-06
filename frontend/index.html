@@ -129,6 +129,7 @@
       .hero-slide--poster img {
         object-fit: cover;
         object-position: 50% 40%;
+        transform: scale(1.02);
         background: radial-gradient(circle at 50% 50%, #161616 0%, #050505 68%);
       }
       .hero-slide--glasses img {
@@ -294,9 +295,23 @@
       <div class="container" style="padding: 0; text-align: center;">
         <div class="hero-banner-wrapper">
           <div class="hero-carousel" id="hero-carousel" aria-roledescription="banner" aria-label="Featured offers">
-            <div class="hero-carousel-track">
+            <div class="hero-carousel-track" onclick="window.location.href='/products'" style="cursor: pointer;">
               <div class="hero-slide hero-slide--poster is-active" aria-label="Luxury brands offer">
                 <img src="/images/bannermainf.png" alt="Luxury brands in every thread at Kicks Aura">
+              </div>
+            </div>
+
+            <!-- Trending Widget -->
+            <div id="hero-trending-widget" class="hero-trending-widget" style="display: none;">
+              <div class="ht-header">
+                <span class="ht-title">🔥 Trending Now 🔥</span>
+                <div class="ht-controls">
+                  <button id="ht-prev" aria-label="Previous trending product">&lsaquo;</button>
+                  <button id="ht-next" aria-label="Next trending product">&rsaquo;</button>
+                </div>
+              </div>
+              <div class="ht-window">
+                <div class="ht-track" id="ht-track"></div>
               </div>
             </div>
           </div>

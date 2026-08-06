@@ -48,6 +48,20 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
+    public List<ProductResponseDTO> getNewArrivals() {
+        return productRepository.findByIsNewArrivalTrueAndIsVisibleTrueOrderByCreatedAtDesc().stream()
+                .map(this::mapToResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProductResponseDTO> getTrendingProducts() {
+        return productRepository.findByIsTrendingTrueAndIsVisibleTrueOrderByCreatedAtDesc().stream()
+                .map(this::mapToResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
     public ProductResponseDTO getVisibleProductById(String id) {
         Product product = productRepository.findById(UUID.fromString(id))
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
@@ -92,7 +106,11 @@ public class ProductService {
                 .videoUrls(request.getVideoUrls() != null ? new ArrayList<>(request.getVideoUrls()) : new ArrayList<>())
                 .isVisible(request.isVisible())
                 .isSaleVisible(request.isSaleVisible())
+                .isNewArrival(request.isNewArrival())
+                .isTrending(request.isTrending())
                 .isVideoVisible(request.isVideoVisible())
+                .withOgBox(request.isWithOgBox())
+                .isInStockFlag(request.isInStockFlag())
                 .build();
 
         if (request.getVariants() != null) {
@@ -134,7 +152,11 @@ public class ProductService {
         product.setVideoUrls(request.getVideoUrls() != null ? new ArrayList<>(request.getVideoUrls()) : new ArrayList<>());
         product.setVisible(request.isVisible());
         product.setSaleVisible(request.isSaleVisible());
+        product.setNewArrival(request.isNewArrival());
+        product.setTrending(request.isTrending());
         product.setVideoVisible(request.isVideoVisible());
+        product.setWithOgBox(request.isWithOgBox());
+        product.setInStockFlag(request.isInStockFlag());
 
         // Simple variant update strategy: remove old, add new to handle additions/deletions easily.
         product.getVariants().clear();
@@ -240,7 +262,11 @@ public class ProductService {
                 .videoUrls(product.getVideoUrls())
                 .isVisible(product.isVisible())
                 .isSaleVisible(product.isSaleVisible())
+                .isNewArrival(product.isNewArrival())
+                .isTrending(product.isTrending())
                 .isVideoVisible(product.isVideoVisible())
+                .withOgBox(product.isWithOgBox())
+                .isInStockFlag(product.isInStockFlag())
                 .createdAt(product.getCreatedAt())
                 .variants(variantDTOs)
                 .build();

@@ -26,26 +26,6 @@ services:
       retries: 5
     restart: unless-stopped
 
-  redis:
-    image: redis:7-alpine
-    container_name: kicksaura-redis
-    hostname: redis
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    networks:
-      kicksaura-net:
-        aliases:
-          - redis
-          - kicksaura-cache
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    restart: unless-stopped
-
   config-server:
     build: ./backend/config-server
     container_name: kicksaura-config-server
@@ -58,7 +38,6 @@ services:
       POSTGRES_USER: kicksaura
       POSTGRES_PASSWORD: kicksaura
       POSTGRES_DB: kicksaura
-      REDIS_HOST: redis
       EUREKA_HOST: eureka-server
       TZ: Asia/Kolkata
     depends_on:
@@ -111,8 +90,6 @@ services:
       POSTGRES_USER: kicksaura
       POSTGRES_PASSWORD: kicksaura
       POSTGRES_DB: kicksaura
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
       EUREKA_HOST: eureka-server
       EUREKA_INSTANCE_HOSTNAME: user-service
       EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
@@ -122,8 +99,6 @@ services:
       TZ: Asia/Kolkata
     depends_on:
       postgres:
-        condition: service_healthy
-      redis:
         condition: service_healthy
       config-server:
         condition: service_healthy
@@ -276,7 +251,6 @@ services:
 
 volumes:
   postgres_data:
-  redis_data:
 
 networks:
   kicksaura-net:
