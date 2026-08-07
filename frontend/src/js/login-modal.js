@@ -708,7 +708,7 @@ export function openLoginModal(optionsOrRedirectUrl = null) {
           list.innerHTML = cart.map(item => {
             const img = item.productImage && item.productImage.startsWith('http') 
               ? item.productImage 
-              : item.productImage ? `https://res.cloudinary.com/dwyxdr30a/image/upload/w_200,h_200,c_fill,q_auto,f_auto/${item.productImage}` 
+              : item.productImage ? `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME_FRONTEND}/image/upload/w_200,h_200,c_fill,q_auto,f_auto/${item.productImage}` 
               : '';
             const price = (item.price * item.quantity).toLocaleString('en-IN');
             return `

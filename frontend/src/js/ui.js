@@ -2,7 +2,7 @@
    KicksAura UI Utilities
    ============================================ */
 import { isWishlisted, toggleWishlistItem } from './wishlist.js';
-import { initLoginModalTrigger } from './login-modal.js?v=1.7';
+import { initLoginModalTrigger } from './login-modal.js';
 import { getAllProducts } from './api.js';
 
 // Toast notifications
@@ -302,7 +302,7 @@ export function getNavbarHTML(activePage = 'home') {
           <a href="/#new-arrivals" class="nav-link">New Arrivals</a>
           <a href="/#customer-reviews" class="nav-link">Customer Reviews</a>
           <a href="/shipping-policy" class="nav-link ${activePage === 'shipping' ? 'nav-link--active' : ''}">Shipping Policy</a>
-          <a href="https://wa.me/916239379751?text=Hey!" target="_blank" rel="noopener" class="nav-link">Contact on WhatsApp</a>
+          <a href="https://wa.me/${import.meta.env.VITE_WHATSAPP_NUMBER}?text=Hey!" target="_blank" rel="noopener" class="nav-link">Contact on WhatsApp</a>
         </div>
       </nav>
 
@@ -332,7 +332,7 @@ export function getNavbarHTML(activePage = 'home') {
           <a href="/shipping-policy" class="mobile-nav-link ${activePage === 'shipping' ? 'mobile-nav-link--active' : ''}">
             Shipping Policy
           </a>
-          <a href="https://wa.me/916239379751?text=Hey!" target="_blank" rel="noopener" class="mobile-nav-link mobile-nav-link--whatsapp">
+          <a href="https://wa.me/${import.meta.env.VITE_WHATSAPP_NUMBER}?text=Hey!" target="_blank" rel="noopener" class="mobile-nav-link mobile-nav-link--whatsapp">
             Contact on WhatsApp
           </a>
         </nav>
@@ -429,7 +429,7 @@ export function getFooterHTML() {
           <h4>COMPANY</h4>
           <a href="/">Home</a>
           <a href="/about-us">About Us</a>
-          <a href="https://wa.me/916239379751?text=Hey!" target="_blank" rel="noopener">Contact Us</a>
+          <a href="https://wa.me/${import.meta.env.VITE_WHATSAPP_NUMBER}?text=Hey!" target="_blank" rel="noopener">Contact Us</a>
         </div>
         <div class="footer__col">
           <h4>POLICIES</h4>
@@ -441,7 +441,7 @@ export function getFooterHTML() {
         <div class="footer__col footer__brand">
           <div class="footer__logo-text">KICKS<span class="text-red">AURA</span></div>
           <div class="footer__socials">
-            <a href="https://wa.me/916239379751?text=Hey!" target="_blank" rel="noopener">
+            <a href="https://wa.me/${import.meta.env.VITE_WHATSAPP_NUMBER}?text=Hey!" target="_blank" rel="noopener">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21l1.65-3.8a9 9 0 1 1 3.4 2.9L3 21"></path><path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1"></path></svg>
             </a>
             <a href="https://www.youtube.com/@kicksauraa" target="_blank" rel="noopener">
@@ -520,7 +520,7 @@ export async function initPurchaseNotifications() {
       const imgList = product.imageUrls || [];
       const img = imgList[0] && imgList[0].startsWith('http')
         ? imgList[0]
-        : imgList[0] ? `https://res.cloudinary.com/dwyxdr30a/image/upload/w_200,h_200,c_fill,q_auto,f_auto/${imgList[0]}`
+        : imgList[0] ? `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME_FRONTEND}/image/upload/w_200,h_200,c_fill,q_auto,f_auto/${imgList[0]}`
           : '';
 
       const productPrice = product.discountedPrice || product.basePrice || 0;

@@ -6,6 +6,7 @@ import com.kicksaura.productservice.repository.ProductRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -13,6 +14,9 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 @Slf4j
 public class DataSeeder implements CommandLineRunner {
+
+    @Value("${cloudinary.cloud-name-admin}")
+    private String cloudinaryCloudName;
 
     private final ProductRepository productRepository;
     private final JdbcTemplate jdbcTemplate;
@@ -51,12 +55,12 @@ public class DataSeeder implements CommandLineRunner {
             "INSERT INTO prod.brands (id, name, slug, is_active) SELECT gen_random_uuid(), 'Crocs', 'crocs', true WHERE NOT EXISTS (SELECT 1 FROM prod.brands WHERE name = 'Crocs')",
             "INSERT INTO prod.brands (id, name, slug, is_active) SELECT gen_random_uuid(), 'On Cloud', 'on-cloud', true WHERE NOT EXISTS (SELECT 1 FROM prod.brands WHERE name = 'On Cloud')",
             "INSERT INTO prod.brands (id, name, slug, is_active) SELECT gen_random_uuid(), 'Onitsuka Tiger', 'onitsuka-tiger', true WHERE NOT EXISTS (SELECT 1 FROM prod.brands WHERE name = 'Onitsuka Tiger')",
-            "INSERT INTO prod.size_charts (id, brand_id, image_url) SELECT gen_random_uuid(), b.id, 'https://res.cloudinary.com/mlqzybno/image/upload/v1785613136/q9lfxikjoofvfndbt677.png' FROM prod.brands b WHERE b.name ILIKE 'Nike' AND NOT EXISTS (SELECT 1 FROM prod.size_charts sc WHERE sc.brand_id = b.id)",
-            "INSERT INTO prod.size_charts (id, brand_id, image_url) SELECT gen_random_uuid(), b.id, 'https://res.cloudinary.com/mlqzybno/image/upload/v1785613133/gcs2t93bitei3b71mmuh.png' FROM prod.brands b WHERE b.name ILIKE 'Adidas' AND NOT EXISTS (SELECT 1 FROM prod.size_charts sc WHERE sc.brand_id = b.id)",
-            "INSERT INTO prod.size_charts (id, brand_id, image_url) SELECT gen_random_uuid(), b.id, 'https://res.cloudinary.com/mlqzybno/image/upload/v1785613135/nrqb34b95pezcdsls22m.png' FROM prod.brands b WHERE b.name ILIKE 'New Balance' AND NOT EXISTS (SELECT 1 FROM prod.size_charts sc WHERE sc.brand_id = b.id)",
-            "INSERT INTO prod.size_charts (id, brand_id, image_url) SELECT gen_random_uuid(), b.id, 'https://res.cloudinary.com/mlqzybno/image/upload/v1785613134/jucb6bbnd296obvlp9ly.png' FROM prod.brands b WHERE b.name ILIKE 'Crocs' AND NOT EXISTS (SELECT 1 FROM prod.size_charts sc WHERE sc.brand_id = b.id)",
-            "INSERT INTO prod.size_charts (id, brand_id, image_url) SELECT gen_random_uuid(), b.id, 'https://res.cloudinary.com/mlqzybno/image/upload/v1785613137/pj3bhrrw1tfw5w2hwagh.png' FROM prod.brands b WHERE b.name ILIKE 'On Cloud' AND NOT EXISTS (SELECT 1 FROM prod.size_charts sc WHERE sc.brand_id = b.id)",
-            "INSERT INTO prod.size_charts (id, brand_id, image_url) SELECT gen_random_uuid(), b.id, 'https://res.cloudinary.com/mlqzybno/image/upload/v1785613138/egelsonpsgaazbqptkno.png' FROM prod.brands b WHERE b.name ILIKE 'Onitsuka Tiger' AND NOT EXISTS (SELECT 1 FROM prod.size_charts sc WHERE sc.brand_id = b.id)"
+            "INSERT INTO prod.size_charts (id, brand_id, image_url) SELECT gen_random_uuid(), b.id, 'https://res.cloudinary.com/" + cloudinaryCloudName + "/image/upload/v1785613136/q9lfxikjoofvfndbt677.png' FROM prod.brands b WHERE b.name ILIKE 'Nike' AND NOT EXISTS (SELECT 1 FROM prod.size_charts sc WHERE sc.brand_id = b.id)",
+            "INSERT INTO prod.size_charts (id, brand_id, image_url) SELECT gen_random_uuid(), b.id, 'https://res.cloudinary.com/" + cloudinaryCloudName + "/image/upload/v1785613133/gcs2t93bitei3b71mmuh.png' FROM prod.brands b WHERE b.name ILIKE 'Adidas' AND NOT EXISTS (SELECT 1 FROM prod.size_charts sc WHERE sc.brand_id = b.id)",
+            "INSERT INTO prod.size_charts (id, brand_id, image_url) SELECT gen_random_uuid(), b.id, 'https://res.cloudinary.com/" + cloudinaryCloudName + "/image/upload/v1785613135/nrqb34b95pezcdsls22m.png' FROM prod.brands b WHERE b.name ILIKE 'New Balance' AND NOT EXISTS (SELECT 1 FROM prod.size_charts sc WHERE sc.brand_id = b.id)",
+            "INSERT INTO prod.size_charts (id, brand_id, image_url) SELECT gen_random_uuid(), b.id, 'https://res.cloudinary.com/" + cloudinaryCloudName + "/image/upload/v1785613134/jucb6bbnd296obvlp9ly.png' FROM prod.brands b WHERE b.name ILIKE 'Crocs' AND NOT EXISTS (SELECT 1 FROM prod.size_charts sc WHERE sc.brand_id = b.id)",
+            "INSERT INTO prod.size_charts (id, brand_id, image_url) SELECT gen_random_uuid(), b.id, 'https://res.cloudinary.com/" + cloudinaryCloudName + "/image/upload/v1785613137/pj3bhrrw1tfw5w2hwagh.png' FROM prod.brands b WHERE b.name ILIKE 'On Cloud' AND NOT EXISTS (SELECT 1 FROM prod.size_charts sc WHERE sc.brand_id = b.id)",
+            "INSERT INTO prod.size_charts (id, brand_id, image_url) SELECT gen_random_uuid(), b.id, 'https://res.cloudinary.com/" + cloudinaryCloudName + "/image/upload/v1785613138/egelsonpsgaazbqptkno.png' FROM prod.brands b WHERE b.name ILIKE 'Onitsuka Tiger' AND NOT EXISTS (SELECT 1 FROM prod.size_charts sc WHERE sc.brand_id = b.id)"
         };
         for (String sql : seedSqls) {
             try {

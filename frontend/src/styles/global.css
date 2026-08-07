@@ -2,8 +2,8 @@
    KicksAura Global CSS
    Matches provided screenshots exactly
    ============================================ */
-@import './login-modal.css?v=2.1';
-@import './responsive.css?v=2.2';
+@import './login-modal.css';
+@import './responsive.css';
 
 /* ============================================
    Global: KicksAura Branded Loader

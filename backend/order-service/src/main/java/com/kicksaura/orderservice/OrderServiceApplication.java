@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import java.util.TimeZone;
 
 @SpringBootApplication
-@EnableDiscoveryClient
 @EnableFeignClients
 public class OrderServiceApplication {
 

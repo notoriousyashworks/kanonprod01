@@ -1,19 +1,30 @@
+server:
+  port: 8083
+
 spring:
   application:
     name: order-service
-  config:
-    import: "optional:configserver:http://config-server:8888"
-  cloud:
-    config:
-      uri: http://config-server:8888
-      fail-fast: true
+  datasource:
+    url: jdbc:postgresql://postgres:5432/kicksaura
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        default_schema: prod
+    show-sql: false
 
   # ── Gmail SMTP ──────────────────────────────────────────────────────────────
   mail:
     host: smtp.gmail.com
     port: 587
-    username: kicksauraa@gmail.com
-    password: "usft htwy qxfp lotx"
+    username: ${SMTP_USERNAME}
+    password: ${SMTP_PASSWORD}
     properties:
       mail:
         smtp:
@@ -28,11 +39,3 @@ notification:
   email:
     recipient: kicksauraa@gmail.com
     sender-name: KicksAura Orders
-
-server:
-  port: 8083
-
-eureka:
-  client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka/

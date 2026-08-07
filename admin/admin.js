@@ -31,8 +31,8 @@ const STATUS_COLORS = {
 const PER_PAGE = 10;
 
 // ── Cloudinary ─────────────────────────────────────────────
-const CLOUDINARY_CLOUD_NAME = 'mlqzybno';
-const CLOUDINARY_UPLOAD_PRESET = 'kicksaura';
+const CLOUDINARY_CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME_ADMIN;
+const CLOUDINARY_UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 
 // ── State ──────────────────────────────────────────────────
 const S = {

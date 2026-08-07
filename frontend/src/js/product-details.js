@@ -524,7 +524,7 @@ function renderProduct(product) {
             </table>
           </div>
           <div class="sc-footer">
-            Our dedication to craft means that we are committed to getting the right fit. <a href="https://wa.me/916239379751?text=Hi!%20I%20want%20help%20in%20finding%20my%20right%20size" target="_blank" rel="noopener">Contact us</a> with questions on how to find the right size.
+            Our dedication to craft means that we are committed to getting the right fit. <a href="https://wa.me/${import.meta.env.VITE_WHATSAPP_NUMBER}?text=Hi!%20I%20want%20help%20in%20finding%20my%20right%20size" target="_blank" rel="noopener">Contact us</a> with questions on how to find the right size.
           </div>`;
       } else {
         // Fallback: show Nike's size chart for any unknown brand
@@ -542,7 +542,7 @@ function renderProduct(product) {
             </table>
           </div>
           <div class="sc-footer">
-            Our dedication to craft means that we are committed to getting the right fit. <a href="https://wa.me/916239379751?text=Hi!%20I%20want%20help%20in%20finding%20my%20right%20size" target="_blank" rel="noopener">Contact us</a> with questions on how to find the right size.
+            Our dedication to craft means that we are committed to getting the right fit. <a href="https://wa.me/${import.meta.env.VITE_WHATSAPP_NUMBER}?text=Hi!%20I%20want%20help%20in%20finding%20my%20right%20size" target="_blank" rel="noopener">Contact us</a> with questions on how to find the right size.
           </div>`;
       }
     }

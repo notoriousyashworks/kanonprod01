@@ -478,7 +478,7 @@ function renderOrderDetail(order, indexFallback) {
       </table>
     </div>
 
-    <a href="https://wa.me/916239379751?text=Hi!%20I%20need%20help%20with%20an%20order%20I%20placed%0AOrder%20Id%20-%20${orderNum}" target="_blank" style="
+    <a href="https://wa.me/${import.meta.env.VITE_WHATSAPP_NUMBER}?text=Hi!%20I%20need%20help%20with%20an%20order%20I%20placed%0AOrder%20Id%20-%20${orderNum}" target="_blank" style="
       position: fixed;
       bottom: 24px;
       left: 24px;

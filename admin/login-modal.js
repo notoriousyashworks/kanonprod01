@@ -285,13 +285,30 @@ async function handleVerifyOtp() {
 function handleResendOtp() {
   const btn = document.getElementById('login-resend-btn');
   btn.disabled = true;
-  window.retryOtp(null, (data) => {
-    if (data?.reqId) currentReqId = data.reqId;
-    startCountdown();
-  }, (err) => {
-    document.getElementById('login-otp-error').textContent = 'Failed to resend';
+  document.getElementById('login-otp-error').textContent = '';
+
+  try {
+    const retryFunc = window.retryOTP || window.retryOtp;
+    if (typeof retryFunc !== 'function') {
+      throw new Error('OTP service is currently unavailable.');
+    }
+
+    retryFunc(
+      '11', // '11' for SMS channel
+      (data) => {
+        if (data?.reqId) currentReqId = data.reqId;
+        startCountdown();
+      },
+      (error) => {
+        const msg = typeof error === 'string' ? error : (error?.message || 'Could not resend OTP. Please try again.');
+        document.getElementById('login-otp-error').textContent = msg;
+        btn.disabled = false;
+      }
+    );
+  } catch (err) {
+    document.getElementById('login-otp-error').textContent = err.message;
     btn.disabled = false;
-  }, currentReqId);
+  }
 }
 
 function startCountdown() {
