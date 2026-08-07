@@ -63,13 +63,13 @@ const api = {
     return d;
   },
   // Products
-  getAdminProducts: () => api.req('/api/v1/admin/products'),
+  getAdminProducts: () => api.req('/api/v1/admin/products?size=1000').then(d => d.content || d),
   createProduct: (d) => api.req('/api/v1/admin/products', { method: 'POST', body: JSON.stringify(d) }),
   updateProduct: (id, d) => api.req(`/api/v1/admin/products/${id}`, { method: 'PUT', body: JSON.stringify(d) }),
   deleteProduct: (id) => api.req(`/api/v1/admin/products/${id}`, { method: 'DELETE' }),
   toggleVisibility: (id, v) => api.req(`/api/v1/admin/products/${id}/visibility`, { method: 'PATCH', body: JSON.stringify({ isVisible: v }) }),
   // Orders
-  getAdminOrders: () => api.req('/api/v1/admin/orders'),
+  getAdminOrders: () => api.req('/api/v1/admin/orders?size=1000').then(d => d.content || d),
   getOrderStats: () => api.req('/api/v1/admin/orders/stats'),
   updateOrderStatus: (id, status, adminStatus) => api.req(`/api/v1/admin/orders/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status, adminStatus }) }),
   updateOrderFull: (id, payload) => api.req(`/api/v1/admin/orders/${id}/full-update`, { method: 'PUT', body: JSON.stringify(payload) }),

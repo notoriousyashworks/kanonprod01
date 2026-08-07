@@ -57,7 +57,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
-      start_period: 120s
+      start_period: 600s
     restart: unless-stopped
 
   product-service:
@@ -85,7 +85,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
-      start_period: 120s
+      start_period: 600s
     restart: unless-stopped
 
   order-service:
@@ -114,7 +114,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
-      start_period: 120s
+      start_period: 600s
     restart: unless-stopped
 
 
@@ -143,7 +143,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
-      start_period: 120s
+      start_period: 600s
     restart: unless-stopped
 
   frontend:

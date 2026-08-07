@@ -28,7 +28,11 @@ initSearch();
 const PRICE_MIN_DEFAULT = 0;
 const PRICE_MAX_DEFAULT = 35000;
 const PRODUCTS_BATCH_SIZE = 16;
-let visibleProductsCount = PRODUCTS_BATCH_SIZE;
+let currentPage = 0;
+let totalPages = 0;
+let totalElements = 0;
+let allLoadedProducts = [];
+let isLoadingMore = false;
 
 const state = {
   searchQuery: '',
@@ -74,56 +78,12 @@ function pushStateToURL() {
 // Restore state when user navigates back/forward
 window.addEventListener('popstate', () => {
   readStateFromURL();
-  visibleProductsCount = PRODUCTS_BATCH_SIZE;
   syncSidebarCheckboxes();
   syncPriceSlider();
   loadAndRender();
 });
 
-/* ============================================================
-   CLIENT-SIDE SEARCH ENGINE
-   Matches all tokens against a combined searchable string per product.
-   ============================================================ */
 
-/**
- * Build a single normalised searchable string from all searchable fields.
- * Excludes the long description field intentionally.
- */
-function buildSearchableText(product) {
-  return [
-    product.name        || '',
-    product.searchName  || '',
-    product.brand       || '',
-    product.searchBrand || '',
-    product.category    || '',
-    product.searchText  || '',
-  ]
-    .join(' ')
-    .toLowerCase()
-    .replace(/[^a-z0-9\s]/g, ' ');  // normalise punctuation
-}
-
-/**
- * Tokenise a query string into lowercase words, filtering short noise words.
- */
-function tokenise(query) {
-  return query
-    .toLowerCase()
-    .replace(/[^a-z0-9\s]/g, ' ')
-    .split(/\s+/)
-    .filter(t => t.length > 0);
-}
-
-/**
- * Returns true if EVERY token appears somewhere in the product's searchable text.
- * A token matches if it is a substring of any word in the text (handles abbreviations
- * like "NB" matching "New Balance").
- */
-function matchesSearch(product, tokens) {
-  if (!tokens || tokens.length === 0) return true;
-  const text = buildSearchableText(product);
-  return tokens.every(token => text.includes(token));
-}
 
 /* ============================================================
    ACTIVE FILTER CHIPS
@@ -497,26 +457,59 @@ async function getTrendingProducts() {
 
 let isLoading = false;
 
-function renderProductsWithPagination(grid, products) {
-  const visibleProducts = products.slice(0, visibleProductsCount);
-  const hasMore = products.length > visibleProducts.length;
+async function fetchPage(page) {
+    const pageData = await filterProducts({
+      query: state.searchQuery,
+      categories: state.categories,
+      brands:     state.brands,
+      sizes:      state.sizes,
+      minPrice:   state.minPrice,
+      maxPrice:   state.maxPrice,
+    }, page, PRODUCTS_BATCH_SIZE);
+    return pageData;
+}
+
+function renderProducts(grid) {
+  const hasMore = currentPage + 1 < totalPages;
 
   grid.innerHTML = `
-    ${visibleProducts.map(createProductCard).join('')}
+    ${allLoadedProducts.map(createProductCard).join('')}
     ${hasMore ? `
       <div class="products-view-more">
-        <button class="products-view-more-btn" type="button">
-          View More
-          <span>${Math.min(PRODUCTS_BATCH_SIZE, products.length - visibleProducts.length)} more</span>
+        <button class="products-view-more-btn" type="button" ${isLoadingMore ? 'disabled' : ''}>
+          ${isLoadingMore ? 'Loading...' : 'View More'}
+          ${!isLoadingMore ? `<span>${Math.min(PRODUCTS_BATCH_SIZE, totalElements - allLoadedProducts.length)} more</span>` : ''}
         </button>
       </div>
     ` : ''}
   `;
 
   grid.querySelector('.products-view-more-btn')?.addEventListener('click', () => {
-    visibleProductsCount += PRODUCTS_BATCH_SIZE;
-    renderProductsWithPagination(grid, products);
+    if (!isLoadingMore) {
+      loadMore();
+    }
   });
+}
+
+async function loadMore() {
+  if (isLoadingMore || currentPage + 1 >= totalPages) return;
+  isLoadingMore = true;
+  const grid = document.getElementById('products-grid');
+  renderProducts(grid); // Update button to Loading...
+  
+  try {
+    const nextPage = currentPage + 1;
+    const pageData = await fetchPage(nextPage);
+    allLoadedProducts = [...allLoadedProducts, ...(pageData.content || [])];
+    currentPage = pageData.number;
+    totalPages = pageData.totalPages;
+    totalElements = pageData.totalElements;
+    renderProducts(grid);
+  } catch(e) {
+    console.error(e);
+  } finally {
+    isLoadingMore = false;
+  }
 }
 
 async function loadAndRender() {
@@ -543,31 +536,20 @@ async function loadAndRender() {
   pushStateToURL();
 
   try {
-    // 1. Fetch from backend with structural filters (server-side)
-    const backendProducts = await filterProducts({
-      categories: state.categories,
-      brands:     state.brands,
-      sizes:      state.sizes,
-      minPrice:   state.minPrice,
-      maxPrice:   state.maxPrice,
-    });
+    // Fetch from backend with structural filters and search query (server-side)
+    currentPage = 0;
+    allLoadedProducts = [];
+    
+    const pageData = await fetchPage(currentPage);
+    allLoadedProducts = pageData.content || [];
+    totalPages = pageData.totalPages || 0;
+    totalElements = pageData.totalElements || 0;
 
-    // 2. Apply client-side search tokenisation
-    const tokens = tokenise(state.searchQuery);
-    const products = tokens.length > 0
-      ? backendProducts.filter(p => matchesSearch(p, tokens))
-      : backendProducts;
+    resultsCount.textContent = `${totalElements} product${totalElements !== 1 ? 's' : ''} found`;
 
-    resultsCount.textContent = `${products.length} product${products.length !== 1 ? 's' : ''} found`;
-
-    if (products.length === 0) {
+    if (totalElements === 0) {
       // Show no-results + trending
       const trending = await getTrendingProducts();
-      const trendingFiltered = trending.filter(p =>
-        !state.searchQuery || matchesSearch(p, tokens)
-          ? false
-          : true
-      );
 
       // Just show trending always when no results
       const trendingHTML = trending.length > 0
@@ -587,7 +569,7 @@ async function loadAndRender() {
         </div>
       `;
     } else {
-      renderProductsWithPagination(grid, products);
+      renderProducts(grid);
     }
 
   } catch (err) {
@@ -610,7 +592,6 @@ async function loadAndRender() {
 let triggerDebounce;
 function triggerLoad() {
   clearTimeout(triggerDebounce);
-  visibleProductsCount = PRODUCTS_BATCH_SIZE;
   triggerDebounce = setTimeout(loadAndRender, 0);
 }
 

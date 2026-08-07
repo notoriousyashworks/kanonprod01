@@ -63,4 +63,19 @@ public class ProductSpecification {
             return variantsJoin.get("size").in(sizes);
         };
     }
+
+    public static Specification<Product> hasSearchQuery(String query) {
+        return (root, cq, cb) -> {
+            if (query == null || query.trim().isEmpty()) {
+                return cb.conjunction();
+            }
+            String likePattern = "%" + query.trim().toLowerCase() + "%";
+            return cb.or(
+                    cb.like(cb.lower(root.get("searchName")), likePattern),
+                    cb.like(cb.lower(root.get("searchBrand")), likePattern),
+                    cb.like(cb.lower(root.get("searchText")), likePattern),
+                    cb.like(cb.lower(root.get("category")), likePattern)
+            );
+        };
+    }
 }

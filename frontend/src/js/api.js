@@ -43,19 +43,25 @@ export async function getCategories() {
 
 // === Products ===
 export async function getAllProducts() {
-  return request('/products');
+  const data = await request('/products');
+  return data.content || data;
 }
 
 export async function getNewArrivals() {
-  return request('/products/new-arrivals');
+  const data = await request('/products/new-arrivals');
+  return data.content || data;
 }
 
 export async function getTrendingProducts() {
-  return request('/products/trending');
+  const data = await request('/products/trending');
+  return data.content || data;
 }
 
-export async function filterProducts(filters) {
+export async function filterProducts(filters, page = 0, size = 16) {
   const queryParams = new URLSearchParams();
+  if (filters.query) {
+    queryParams.append('query', filters.query);
+  }
   if (filters.categories && filters.categories.length > 0) {
     queryParams.append('categories', filters.categories.join(','));
   }
@@ -73,8 +79,11 @@ export async function filterProducts(filters) {
     queryParams.append('sizes', filters.sizes.join(','));
   }
 
+  queryParams.append('page', page);
+  queryParams.append('size', size);
+
   const queryString = queryParams.toString();
-  const endpoint = queryString ? `/products/filter?${queryString}` : '/products/filter';
+  const endpoint = `/products/filter?${queryString}`;
   return request(endpoint);
 }
 
@@ -83,11 +92,13 @@ export async function getProductById(id) {
 }
 
 export async function searchProducts(query) {
-  return request(`/products/search?query=${encodeURIComponent(query)}`);
+  const data = await request(`/products/search?query=${encodeURIComponent(query)}`);
+  return data.content || data;
 }
 
 export async function getProductsByCategory(category) {
-  return request(`/products/category/${encodeURIComponent(category)}`);
+  const data = await request(`/products/category/${encodeURIComponent(category)}`);
+  return data.content || data;
 }
 
 // === Brands ===

@@ -47,7 +47,7 @@ public class User {
     @Column(name = "password")
     private String password;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "user_addresses_v2", joinColumns = @JoinColumn(name = "user_uuid", referencedColumnName = "uuid"))
     @jakarta.persistence.OrderColumn(name = "address_order")
     @Builder.Default

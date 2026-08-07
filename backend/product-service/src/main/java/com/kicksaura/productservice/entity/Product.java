@@ -49,13 +49,13 @@ public class Product {
     private Double discountedPrice;
 
     @ElementCollection
-    @CollectionTable(name = "product_images", joinColumns = @JoinColumn(name = "product_id"))
+    @CollectionTable(name = "product_images", joinColumns = @JoinColumn(name = "product_id"), indexes = @Index(name = "idx_product_images_product_id", columnList = "product_id"))
     @Column(name = "image_url")
     @Builder.Default
     private List<String> imageUrls = new ArrayList<>();
 
     @ElementCollection
-    @CollectionTable(name = "product_videos", joinColumns = @JoinColumn(name = "product_id"))
+    @CollectionTable(name = "product_videos", joinColumns = @JoinColumn(name = "product_id"), indexes = @Index(name = "idx_product_videos_product_id", columnList = "product_id"))
     @Column(name = "video_url")
     @Builder.Default
     private List<String> videoUrls = new ArrayList<>();

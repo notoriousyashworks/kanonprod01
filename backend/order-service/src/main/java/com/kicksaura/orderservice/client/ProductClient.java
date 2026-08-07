@@ -10,6 +10,6 @@ import java.util.UUID;
 @FeignClient(name = "product-service", url = "${product-service.url:http://product-service:8082}")
 public interface ProductClient {
 
-    @GetMapping("/api/v1/products/{productId}")
+    @GetMapping("/api/v1/admin/products/{productId}")
     ProductDTO getProductById(@PathVariable("productId") String productId);
 }

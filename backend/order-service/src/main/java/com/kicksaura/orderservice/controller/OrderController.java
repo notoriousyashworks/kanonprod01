@@ -47,15 +47,4 @@ public class OrderController {
         return ResponseEntity.ok(orderService.updateOrderStatus(id, payload.get("status"), payload.get("adminStatus")));
     }
 
-    @GetMapping("/public/pincode/{pin}")
-    public ResponseEntity<?> lookupPin(@PathVariable String pin) {
-        try {
-            org.springframework.web.client.RestTemplate restTemplate = new org.springframework.web.client.RestTemplate();
-            String url = "https://api.postalpincode.in/pincode/" + pin;
-            String result = restTemplate.getForObject(url, String.class);
-            return ResponseEntity.ok(result);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"error\":\"Failed to fetch PIN\"}");
-        }
-    }
 }

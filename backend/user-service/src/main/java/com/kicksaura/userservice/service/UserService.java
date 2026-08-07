@@ -21,9 +21,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserService {
 
-    private static final int MAX_SAVED_ADDRESSES = 3;
-    private static final String ADDRESS_LIMIT_MESSAGE =
-            "Max address limit reached. Delete one address first to add a new address.";
 
     private final UserRepository userRepository;
 
@@ -74,13 +71,7 @@ public class UserService {
                     a.getPinCode() != null && a.getPinCode().equals(newAddress.getPinCode()) &&
                     a.getHouseNumberOrAddress() != null && a.getHouseNumberOrAddress().equals(newAddress.getHouseNumberOrAddress())
             );
-            
-            trimSavedAddresses(existingUser);
-
             if (!exists) {
-                if (existingUser.getAddresses().size() >= MAX_SAVED_ADDRESSES) {
-                    throw new IllegalArgumentException(ADDRESS_LIMIT_MESSAGE);
-                }
                 existingUser.getAddresses().add(newAddress);
             }
             
@@ -91,7 +82,7 @@ public class UserService {
                 .phoneNumber(request.getPhoneNumber())
                 .firstName(clean(request.getFirstName()))
                 .lastName(clean(request.getLastName()))
-                .role("ROLE_GUEST")
+                .role("ROLE_CUSTOMER")
                 .build();
         newUser.getAddresses().add(newAddress);
 
@@ -122,11 +113,6 @@ public class UserService {
                 .build();
     }
 
-    private void trimSavedAddresses(User user) {
-        if (user.getAddresses().size() > MAX_SAVED_ADDRESSES) {
-            user.getAddresses().subList(MAX_SAVED_ADDRESSES, user.getAddresses().size()).clear();
-        }
-    }
 
     private String clean(String value) {
         return value == null ? "" : value.trim().replaceAll("\\s+", " ");

@@ -18,6 +18,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 
 @Service
 @RequiredArgsConstructor
@@ -28,37 +31,37 @@ public class ProductService {
     // ----- Public Methods -----
 
     @Transactional(readOnly = true)
-    public List<ProductResponseDTO> filterProducts(List<String> categories, List<String> brands, Double minPrice, Double maxPrice, List<String> sizes) {
+    public Page<ProductResponseDTO> filterProducts(String query, List<String> categories, List<String> brands, Double minPrice, Double maxPrice, List<String> sizes, int page, int size) {
         Specification<Product> spec = Specification.where(ProductSpecification.isVisible())
+                .and(ProductSpecification.hasSearchQuery(query))
                 .and(ProductSpecification.hasCategoryIn(categories))
                 .and(ProductSpecification.hasBrandIn(brands))
                 .and(ProductSpecification.hasPriceBetween(minPrice, maxPrice))
                 .and(ProductSpecification.hasSizeIn(sizes));
 
-        return productRepository.findAll(spec).stream()
-                .map(this::mapToResponseDTO)
-                .collect(Collectors.toList());
+        Pageable pageable = PageRequest.of(page, size);
+        return productRepository.findAll(spec, pageable).map(this::mapToResponseDTO);
     }
 
     @Transactional(readOnly = true)
-    public List<ProductResponseDTO> getAllVisibleProducts() {
-        return productRepository.findByIsVisibleTrueOrderByCreatedAtDesc().stream()
-                .map(this::mapToResponseDTO)
-                .collect(Collectors.toList());
+    public Page<ProductResponseDTO> getAllVisibleProducts(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return productRepository.findByIsVisibleTrueOrderByCreatedAtDesc(pageable)
+                .map(this::mapToResponseDTO);
     }
 
     @Transactional(readOnly = true)
-    public List<ProductResponseDTO> getNewArrivals() {
-        return productRepository.findByIsNewArrivalTrueAndIsVisibleTrueOrderByCreatedAtDesc().stream()
-                .map(this::mapToResponseDTO)
-                .collect(Collectors.toList());
+    public Page<ProductResponseDTO> getNewArrivals(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return productRepository.findByIsNewArrivalTrueAndIsVisibleTrueOrderByCreatedAtDesc(pageable)
+                .map(this::mapToResponseDTO);
     }
 
     @Transactional(readOnly = true)
-    public List<ProductResponseDTO> getTrendingProducts() {
-        return productRepository.findByIsTrendingTrueAndIsVisibleTrueOrderByCreatedAtDesc().stream()
-                .map(this::mapToResponseDTO)
-                .collect(Collectors.toList());
+    public Page<ProductResponseDTO> getTrendingProducts(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return productRepository.findByIsTrendingTrueAndIsVisibleTrueOrderByCreatedAtDesc(pageable)
+                .map(this::mapToResponseDTO);
     }
 
     @Transactional(readOnly = true)
@@ -76,10 +79,10 @@ public class ProductService {
     // ----- Admin Methods -----
 
     @Transactional(readOnly = true)
-    public List<ProductResponseDTO> getAllProducts() {
-        return productRepository.findAll().stream()
-                .map(this::mapToResponseDTO)
-                .collect(Collectors.toList());
+    public Page<ProductResponseDTO> getAllProducts(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return productRepository.findAll(pageable)
+                .map(this::mapToResponseDTO);
     }
 
     @Transactional(readOnly = true)
@@ -239,22 +242,20 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    public List<ProductResponseDTO> searchProducts(String query) {
+    public Page<ProductResponseDTO> searchProducts(String query, int page, int size) {
         if (query == null || query.trim().isEmpty()) {
-            return getAllVisibleProducts();
+            return getAllVisibleProducts(page, size);
         }
-        return productRepository.searchProductsByQuery(query.trim())
-                .stream()
-                .map(this::mapToResponseDTO)
-                .collect(Collectors.toList());
+        Pageable pageable = PageRequest.of(page, size);
+        return productRepository.searchProductsByQuery(query.trim(), pageable)
+                .map(this::mapToResponseDTO);
     }
 
     @Transactional(readOnly = true)
-    public List<ProductResponseDTO> getProductsByCategory(String category) {
-        return productRepository.findByCategoryIgnoreCaseAndIsVisibleTrue(category)
-                .stream()
-                .map(this::mapToResponseDTO)
-                .collect(Collectors.toList());
+    public Page<ProductResponseDTO> getProductsByCategory(String category, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return productRepository.findByCategoryIgnoreCaseAndIsVisibleTrue(category, pageable)
+                .map(this::mapToResponseDTO);
     }
 
     // ----- Helper Mappers -----

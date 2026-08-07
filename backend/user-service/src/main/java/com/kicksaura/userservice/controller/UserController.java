@@ -18,9 +18,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class UserController {
 
-    private static final int MAX_SAVED_ADDRESSES = 3;
-    private static final String ADDRESS_LIMIT_MESSAGE =
-            "Max address limit reached. Delete one address first to add a new address.";
 
     private final UserRepository userRepository;
 
@@ -39,9 +36,7 @@ public class UserController {
             user.setLastName(req.getLastName().trim());
         }
         if (req.getAddresses() != null) {
-            if (req.getAddresses().size() > MAX_SAVED_ADDRESSES) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ADDRESS_LIMIT_MESSAGE);
-            }
+
             user.getAddresses().clear();
             req.getAddresses().forEach(addr -> {
                 if (addr.getUuid() == null || addr.getUuid().trim().isEmpty()) {
@@ -70,21 +65,12 @@ public class UserController {
         User user = userRepository.findByUuid(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        trimSavedAddresses(user);
-
         boolean exists = user.getAddresses().stream().anyMatch(a ->
                 a.getPinCode() != null && a.getPinCode().equals(address.getPinCode()) &&
                 a.getHouseNumberOrAddress() != null && a.getHouseNumberOrAddress().equals(address.getHouseNumberOrAddress())
         );
 
         if (!exists) {
-            if (user.getAddresses().size() >= MAX_SAVED_ADDRESSES) {
-                userRepository.save(user);
-                throw new ResponseStatusException(
-                        HttpStatus.BAD_REQUEST,
-                        ADDRESS_LIMIT_MESSAGE
-                );
-            }
             user.getAddresses().add(address);
             userRepository.save(user);
         }
@@ -92,9 +78,4 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
-    private void trimSavedAddresses(User user) {
-        if (user.getAddresses().size() > MAX_SAVED_ADDRESSES) {
-            user.getAddresses().subList(MAX_SAVED_ADDRESSES, user.getAddresses().size()).clear();
-        }
-    }
 }

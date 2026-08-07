@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
+import org.springframework.data.domain.Page;
 
 @RestController
 @RequestMapping("/api/v1/products")
@@ -17,28 +18,37 @@ public class PublicProductController {
     private final ProductService productService;
 
     @GetMapping
-    public ResponseEntity<List<ProductResponseDTO>> getAllVisibleProducts() {
-        return ResponseEntity.ok(productService.getAllVisibleProducts());
+    public ResponseEntity<Page<ProductResponseDTO>> getAllVisibleProducts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "16") int size) {
+        return ResponseEntity.ok(productService.getAllVisibleProducts(page, size));
     }
 
     @GetMapping("/new-arrivals")
-    public ResponseEntity<List<ProductResponseDTO>> getNewArrivals() {
-        return ResponseEntity.ok(productService.getNewArrivals());
+    public ResponseEntity<Page<ProductResponseDTO>> getNewArrivals(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "16") int size) {
+        return ResponseEntity.ok(productService.getNewArrivals(page, size));
     }
 
     @GetMapping("/trending")
-    public ResponseEntity<List<ProductResponseDTO>> getTrendingProducts() {
-        return ResponseEntity.ok(productService.getTrendingProducts());
+    public ResponseEntity<Page<ProductResponseDTO>> getTrendingProducts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "16") int size) {
+        return ResponseEntity.ok(productService.getTrendingProducts(page, size));
     }
 
     @GetMapping("/filter")
-    public ResponseEntity<List<ProductResponseDTO>> filterProducts(
+    public ResponseEntity<Page<ProductResponseDTO>> filterProducts(
+            @RequestParam(value = "query", required = false) String query,
             @RequestParam(value = "categories", required = false) List<String> categories,
             @RequestParam(value = "brands", required = false) List<String> brands,
             @RequestParam(value = "minPrice", required = false) Double minPrice,
             @RequestParam(value = "maxPrice", required = false) Double maxPrice,
-            @RequestParam(value = "sizes", required = false) List<String> sizes) {
-        return ResponseEntity.ok(productService.filterProducts(categories, brands, minPrice, maxPrice, sizes));
+            @RequestParam(value = "sizes", required = false) List<String> sizes,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "16") int size) {
+        return ResponseEntity.ok(productService.filterProducts(query, categories, brands, minPrice, maxPrice, sizes, page, size));
     }
 
     @GetMapping("/{id}")
@@ -47,12 +57,18 @@ public class PublicProductController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<ProductResponseDTO>> searchProducts(@RequestParam(value = "query", required = false) String query) {
-        return ResponseEntity.ok(productService.searchProducts(query));
+    public ResponseEntity<Page<ProductResponseDTO>> searchProducts(
+            @RequestParam(value = "query", required = false) String query,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "16") int size) {
+        return ResponseEntity.ok(productService.searchProducts(query, page, size));
     }
 
     @GetMapping("/category/{category}")
-    public ResponseEntity<List<ProductResponseDTO>> getProductsByCategory(@PathVariable String category) {
-        return ResponseEntity.ok(productService.getProductsByCategory(category));
+    public ResponseEntity<Page<ProductResponseDTO>> getProductsByCategory(
+            @PathVariable String category,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "16") int size) {
+        return ResponseEntity.ok(productService.getProductsByCategory(category, page, size));
     }
 }

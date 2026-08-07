@@ -23,6 +23,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 
 @Slf4j
 @Service
@@ -76,6 +79,11 @@ public class OrderService {
         for (OrderItemRequestDTO itemRequest : request.getItems()) {
             // 3. Fetch product details
             ProductDTO product = productClient.getProductById(itemRequest.getProductId());
+            
+            if (!product.isVisible()) {
+                throw new IllegalArgumentException("Sorry, " + product.getName() + " in your cart is no longer available.");
+            }
+            
             productMap.put(itemRequest.getProductId().toString(), product);
 
             boolean productHasVariants = product.getVariants() != null && !product.getVariants().isEmpty();
@@ -158,128 +166,7 @@ public class OrderService {
         address.setState(state);
     }
 
-    private PinLookupResult lookupPin(String pin) {
-        try {
-            RestTemplate restTemplate = new RestTemplate();
-            String result = restTemplate.getForObject("https://api.postalpincode.in/pincode/" + pin, String.class);
-            JsonNode root = objectMapper.readTree(result);
-            JsonNode firstResult = root.isArray() && root.size() > 0 ? root.get(0) : null;
-            JsonNode postOffices = firstResult != null ? firstResult.get("PostOffice") : null;
 
-            if (postOffices == null || !postOffices.isArray() || postOffices.size() == 0) {
-                PinLookupResult fallback = fallbackPinLookup(pin);
-                if (fallback != null) {
-                    return fallback;
-                }
-                throw new IllegalArgumentException("Invalid PIN code. No records found.");
-            }
-
-            JsonNode firstOffice = postOffices.get(0);
-            String resolvedCity = firstNonBlank(
-                    text(firstOffice, "District"),
-                    text(firstOffice, "Block"),
-                    text(firstOffice, "Division"),
-                    text(firstOffice, "Name")
-            );
-            String resolvedState = text(firstOffice, "State");
-            List<String> cityCandidates = new ArrayList<>();
-
-            postOffices.forEach(office -> {
-                cityCandidates.add(text(office, "District"));
-                cityCandidates.add(text(office, "Block"));
-                cityCandidates.add(text(office, "Division"));
-                cityCandidates.add(text(office, "Name"));
-            });
-
-            if (resolvedCity.isBlank() || resolvedState.isBlank()) {
-                throw new IllegalArgumentException("Could not verify PIN code details.");
-            }
-
-            return new PinLookupResult(resolvedCity, resolvedState, cityCandidates);
-        } catch (IllegalArgumentException ex) {
-            PinLookupResult fallback = fallbackPinLookup(pin);
-            if (fallback != null) {
-                return fallback;
-            }
-            throw ex;
-        } catch (Exception ex) {
-            PinLookupResult fallback = fallbackPinLookup(pin);
-            if (fallback != null) {
-                return fallback;
-            }
-            throw new IllegalArgumentException("Could not verify PIN code right now. Please try again.");
-        }
-    }
-
-    private PinLookupResult fallbackPinLookup(String pin) {
-        if ("110030".equals(pin)) {
-            return new PinLookupResult("Mehrauli", "Delhi", List.of("Mehrauli", "New Delhi", "Delhi"));
-        }
-        if ("110074".equals(pin)) {
-            return new PinLookupResult("New Delhi", "Delhi", List.of("New Delhi", "Chhattarpur", "Delhi"));
-        }
-        if (pin != null && pin.startsWith("110")) {
-            return new PinLookupResult("New Delhi", "Delhi", List.of("New Delhi", "Delhi"));
-        }
-        return null;
-    }
-
-    private boolean locationMatches(String city, String state, PinLookupResult lookup) {
-        String enteredState = normalizeLocation(state);
-        String verifiedState = normalizeLocation(lookup.state());
-        String enteredCity = normalizeLocation(city);
-
-        if (isDelhi(enteredCity, enteredState) && isDelhi(normalizeLocation(lookup.city()), verifiedState)) {
-            return true;
-        }
-        if (!enteredState.equals(verifiedState)) {
-            return false;
-        }
-
-        return lookup.cityCandidates().stream()
-                .map(this::normalizeLocation)
-                .filter(candidate -> !candidate.isBlank())
-                .anyMatch(candidate -> enteredCity.equals(candidate)
-                        || enteredCity.contains(candidate)
-                        || candidate.contains(enteredCity));
-    }
-
-    private boolean isDelhi(String city, String state) {
-        return isDelhiValue(state) || isDelhiValue(city);
-    }
-
-    private boolean isDelhiValue(String value) {
-        return "delhi".equals(value) || "new delhi".equals(value) || value.contains(" delhi");
-    }
-
-    private String normalizeLocation(String value) {
-        return clean(value)
-                .toLowerCase(Locale.ROOT)
-                .replaceAll("[^a-z0-9 ]", " ")
-                .replaceAll("\\b(nct|national capital territory|district|division)\\b", "")
-                .replaceAll("\\s+", " ")
-                .trim();
-    }
-
-    private String clean(String value) {
-        return value == null ? "" : value.trim().replaceAll("\\s+", " ");
-    }
-
-    private String text(JsonNode node, String field) {
-        JsonNode value = node != null ? node.get(field) : null;
-        return value == null || value.isNull() ? "" : clean(value.asText());
-    }
-
-    private String firstNonBlank(String... values) {
-        for (String value : values) {
-            if (!clean(value).isBlank()) {
-                return clean(value);
-            }
-        }
-        return "";
-    }
-
-    private record PinLookupResult(String city, String state, List<String> cityCandidates) {}
 
     @Transactional(readOnly = true)
     public OrderResponseDTO getOrderById(String id) {
@@ -371,10 +258,10 @@ public class OrderService {
         return mapToDTO(orderRepository.save(order));
     }
     @Transactional(readOnly = true)
-    public List<OrderResponseDTO> getAllOrders() {
-        return orderRepository.findAllByOrderByCreatedAtDesc().stream()
-                .map(this::mapToDTO)
-                .collect(Collectors.toList());
+    public Page<OrderResponseDTO> getAllOrders(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return orderRepository.findAllByOrderByCreatedAtDesc(pageable)
+                .map(this::mapToDTO);
     }
 
     @Transactional(readOnly = true)
@@ -440,5 +327,9 @@ public class OrderService {
                 .items(items)
                 .createdAt(order.getCreatedAt())
                 .build();
+    }
+
+    private String clean(String value) {
+        return value == null ? "" : value.trim().replaceAll("\\s+", " ");
     }
 }
