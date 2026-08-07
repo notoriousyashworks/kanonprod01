@@ -31,7 +31,14 @@ public class OrderController {
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<OrderResponseDTO>> getOrdersByUserId(@PathVariable String userId) {
+    public ResponseEntity<List<OrderResponseDTO>> getOrdersByUserId(
+            @PathVariable String userId,
+            @RequestHeader(value = "X-User-Id", required = false) String authenticatedUserId) {
+        
+        if (authenticatedUserId == null || !authenticatedUserId.equals(userId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        
         return ResponseEntity.ok(orderService.getOrdersByUserId(userId));
     }
 

@@ -45,6 +45,7 @@ services:
       MSG91_WIDGET_TOKEN: ${MSG91_WIDGET_TOKEN?err}
       MSG91_AUTHKEY: ${MSG91_AUTHKEY?err}
       JWT_SECRET: ${JWT_SECRET?err}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
       TZ: Asia/Kolkata
     depends_on:
       postgres:

@@ -25,10 +25,17 @@ public class CustomerReviewController {
 
     // Admin endpoint to create a review (we'll just use the same base path for simplicity)
     @PostMapping
-    public ResponseEntity<CustomerReviewDto> createReview(@RequestBody CustomerReviewDto request) {
+    public ResponseEntity<CustomerReviewDto> createReview(
+            @RequestBody CustomerReviewDto request,
+            @RequestHeader(value = "X-User-Id", required = false) String authenticatedUserId) {
+        
+        if (authenticatedUserId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        
         System.out.println("[STEP 3 - Controller] CustomerReviewController received createReview request.");
         System.out.println("[STEP 4 - DTO] CustomerReviewDto imageUrl: " + request.getImageUrl());
-        return new ResponseEntity<>(reviewService.createReview(request), HttpStatus.CREATED);
+        return new ResponseEntity<>(reviewService.createReview(request, authenticatedUserId), HttpStatus.CREATED);
     }
 
     // Admin endpoint to delete a review

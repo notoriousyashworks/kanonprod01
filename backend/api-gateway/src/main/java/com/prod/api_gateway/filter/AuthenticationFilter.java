@@ -88,6 +88,12 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
         if (path.startsWith("/api/v1/admin")) {
             return true;
         }
+        if (path.startsWith("/api/v1/orders/user/")) {
+            return true;
+        }
+        if (path.startsWith("/api/v1/reviews") && exchange.getRequest().getMethod() != null && !exchange.getRequest().getMethod().name().equals("GET")) {
+            return true;
+        }
         if (path.startsWith("/api/users") || path.startsWith("/api/v1/users")) {
             return !(path.startsWith("/api/auth/") || 
                      path.startsWith("/api/users/send-otp") || 
@@ -101,7 +107,14 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
     }
 
     private boolean isAdminRoute(ServerWebExchange exchange) {
-        return exchange.getRequest().getURI().getPath().startsWith("/api/v1/admin");
+        String path = exchange.getRequest().getURI().getPath();
+        if (path.startsWith("/api/v1/admin")) {
+            return true;
+        }
+        if (path.startsWith("/api/v1/reviews") && exchange.getRequest().getMethod() != null && !exchange.getRequest().getMethod().name().equals("GET")) {
+            return true;
+        }
+        return false;
     }
 
     private Mono<Void> onError(ServerWebExchange exchange, String err, HttpStatus httpStatus) {

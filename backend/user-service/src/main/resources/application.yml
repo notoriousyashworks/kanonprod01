@@ -5,9 +5,9 @@ spring:
   application:
     name: user-service
   datasource:
-    url: jdbc:postgresql://postgres:5432/kicksaura
-    username: ${POSTGRES_USER}
-    password: ${POSTGRES_PASSWORD}
+    url: jdbc:postgresql://${PGHOST:postgres}:${PGPORT:5432}/${PGDATABASE:kicksaura}
+    username: ${PGUSER:${POSTGRES_USER}}
+    password: ${PGPASSWORD:${POSTGRES_PASSWORD}}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -26,7 +26,12 @@ jwt:
   secret: ${JWT_SECRET}
   expiration: 1296000000 # 15 days in milliseconds
 
+app:
+  security:
+    cookie:
+      secure: ${COOKIE_SECURE:false}
+
 msg91:
-  widget-id: ${MSG91_WIDGET_ID:36677868776e353439383633}
-  widget-token: ${MSG91_WIDGET_TOKEN:}
-  authkey: ${MSG91_AUTHKEY:}
+  widget-id: ${MSG91_WIDGET_ID}
+  widget-token: ${MSG91_WIDGET_TOKEN}
+  authkey: ${MSG91_AUTHKEY}

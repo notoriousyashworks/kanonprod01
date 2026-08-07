@@ -25,7 +25,7 @@ public class CustomerReviewService {
     }
 
     @Transactional
-    public CustomerReviewDto createReview(CustomerReviewDto request) {
+    public CustomerReviewDto createReview(CustomerReviewDto request, String authenticatedUserId) {
         if (request.getImageUrl() == null || request.getImageUrl().isBlank()) {
             throw new IllegalArgumentException("Please upload a review image before saving.");
         }
@@ -33,7 +33,7 @@ public class CustomerReviewService {
         CustomerReview review = CustomerReview.builder()
                 .imageUrl(request.getImageUrl().trim())
                 .productId("homepage-review")
-                .userId("admin-upload")
+                .userId(authenticatedUserId)
                 .build();
         CustomerReview saved = reviewRepository.save(review);
         return mapToDto(saved);

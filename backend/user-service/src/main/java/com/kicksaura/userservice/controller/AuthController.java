@@ -19,6 +19,9 @@ public class AuthController {
 
     private final AuthService authService;
 
+    @Value("${app.security.cookie.secure}")
+    private boolean cookieSecure;
+
     @Value("${msg91.widget-id}")
     private String widgetId;
 
@@ -52,7 +55,7 @@ public class AuthController {
 
         ResponseCookie cookie = ResponseCookie.from("kicksaura_auth_token", response.getToken())
                 .httpOnly(true)
-                .secure(false) // Assuming HTTP for local dev; change to true for HTTPS
+                .secure(cookieSecure)
                 .path("/")
                 .maxAge(7 * 24 * 60 * 60) // 7 days
                 .build();
@@ -69,7 +72,7 @@ public class AuthController {
     public ResponseEntity<Void> logout() {
         ResponseCookie cookie = ResponseCookie.from("kicksaura_auth_token", "")
                 .httpOnly(true)
-                .secure(false)
+                .secure(cookieSecure)
                 .path("/")
                 .maxAge(0) // Expire immediately
                 .build();

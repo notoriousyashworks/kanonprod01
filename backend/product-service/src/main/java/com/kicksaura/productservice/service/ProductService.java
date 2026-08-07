@@ -158,17 +158,39 @@ public class ProductService {
         product.setWithOgBox(request.isWithOgBox());
         product.setInStockFlag(request.isInStockFlag());
 
-        // Simple variant update strategy: remove old, add new to handle additions/deletions easily.
-        product.getVariants().clear();
+        // Merge strategy: match by SKU to preserve existing UUIDs.
+        // This prevents breaking order_items.variant_id references on every product update.
         if (request.getVariants() != null) {
-            for (VariantDTO variantDTO : request.getVariants()) {
-                ProductVariant variant = ProductVariant.builder()
-                        .size(variantDTO.getSize())
-                        .stockQuantity(variantDTO.getStockQuantity())
-                        .sku(variantDTO.getSku())
-                        .build();
-                product.addVariant(variant);
+            // Map of SKU -> existing variant (from DB)
+            java.util.Map<String, ProductVariant> existingBySku = product.getVariants().stream()
+                    .collect(java.util.stream.Collectors.toMap(ProductVariant::getSku, v -> v));
+
+            // Map of SKU -> incoming variant (from request)
+            java.util.Map<String, VariantDTO> incomingBySku = request.getVariants().stream()
+                    .collect(java.util.stream.Collectors.toMap(VariantDTO::getSku, v -> v));
+
+            // Step 1: Remove variants whose SKU is no longer in the incoming list
+            product.getVariants().removeIf(existing -> !incomingBySku.containsKey(existing.getSku()));
+
+            // Step 2: Update existing variants in-place, or add new ones
+            for (VariantDTO incomingDTO : request.getVariants()) {
+                if (existingBySku.containsKey(incomingDTO.getSku())) {
+                    // UPDATE in-place
+                    ProductVariant existing = existingBySku.get(incomingDTO.getSku());
+                    existing.setSize(incomingDTO.getSize());
+                    existing.setStockQuantity(incomingDTO.getStockQuantity());
+                } else {
+                    // INSERT new variant
+                    ProductVariant newVariant = ProductVariant.builder()
+                            .size(incomingDTO.getSize())
+                            .stockQuantity(incomingDTO.getStockQuantity())
+                            .sku(incomingDTO.getSku())
+                            .build();
+                    product.addVariant(newVariant);
+                }
             }
+        } else {
+            product.getVariants().clear();
         }
 
         System.out.println("[STEP 5 - Service] Mapped Product entity imageUrls on update: " + product.getImageUrls());
