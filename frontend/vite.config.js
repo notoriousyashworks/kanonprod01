@@ -36,6 +36,7 @@ export default defineConfig(({ mode }) => {
           aboutUs: resolve(__dirname, 'about-us.html'),
           orders: resolve(__dirname, 'orders.html'),
           profile: resolve(__dirname, 'profile.html'),
+          refundPolicy: resolve(__dirname, 'refund-policy.html'),
         },
       },
     },

@@ -71,26 +71,6 @@ export async function lookupPinCode(pin) {
     // Ignore localStorage errors
   }
 
-  // 3. Race postalpincode.in via backend proxy and zippopotam.us concurrently for fastest speed
-  const fetchPostal = async () => {
-    // Using backend proxy to bypass browser CORS / Adblockers
-    const res = await fetch(`/api/v1/orders/public/pincode/${encodeURIComponent(pin)}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    if (!Array.isArray(data) || !data[0]) throw new Error('Invalid response');
-    const resultObj = data[0];
-    if (resultObj.Status === 'Success' && Array.isArray(resultObj.PostOffice) && resultObj.PostOffice.length > 0) {
-      const firstPo = resultObj.PostOffice[0];
-      const city = firstPo.District || firstPo.Block || firstPo.Division || '';
-      const state = firstPo.State || '';
-      return { success: true, city, state, postOffices: resultObj.PostOffice };
-    } else {
-      const msg = resultObj.Message && resultObj.Message !== 'No records found' ? resultObj.Message : 'Invalid PIN code. No records found.';
-      const errRes = { success: false, error: msg };
-      throw errRes; // Throw to let Promise validation handle error or alternate API
-    }
-  };
-
   const fetchZippo = async () => {
     const res = await fetch(`https://api.zippopotam.us/IN/${encodeURIComponent(pin)}`);
     if (!res.ok) throw { success: false, error: 'Invalid PIN code. No records found.' };
@@ -105,19 +85,10 @@ export async function lookupPinCode(pin) {
   };
 
   try {
-    // Try fetchPostal primarily for better data quality (District instead of specific locality)
-    try {
-      const result = await fetchPostal();
-      pinCache.set(pin, result);
-      try { localStorage.setItem(LOCAL_PIN_PREFIX + pin, JSON.stringify(result)); } catch (e) {}
-      return result;
-    } catch (postalError) {
-      // Fallback to fetchZippo if postalpincode.in fails
-      const result = await fetchZippo();
-      pinCache.set(pin, result);
-      try { localStorage.setItem(LOCAL_PIN_PREFIX + pin, JSON.stringify(result)); } catch (e) {}
-      return result;
-    }
+    const result = await fetchZippo();
+    pinCache.set(pin, result);
+    try { localStorage.setItem(LOCAL_PIN_PREFIX + pin, JSON.stringify(result)); } catch (e) {}
+    return result;
   } catch (aggregateError) {
     if (fallback) {
       pinCache.set(pin, fallback);

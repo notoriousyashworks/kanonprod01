@@ -1,0 +1,19 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://pure-grace-production-6c99.up.railway.app/api/:path*"
+    },
+    { "source": "/products",         "destination": "/products.html" },
+    { "source": "/checkout",         "destination": "/checkout.html" },
+    { "source": "/product-details",  "destination": "/product-details.html" },
+    { "source": "/orders",           "destination": "/orders.html" },
+    { "source": "/profile",          "destination": "/profile.html" },
+    { "source": "/about-us",         "destination": "/about-us.html" },
+    { "source": "/shipping-policy",  "destination": "/shipping-policy.html" },
+    { "source": "/return-exchange",  "destination": "/return-exchange.html" },
+    { "source": "/terms-conditions", "destination": "/terms-conditions.html" },
+    { "source": "/privacy-policy",   "destination": "/privacy-policy.html" },
+    { "source": "/refund-policy",    "destination": "/refund-policy.html" }
+  ]
+}

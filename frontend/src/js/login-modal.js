@@ -77,7 +77,7 @@ function initMsg91(config) {
     widgetId:        config.widgetId,
     tokenAuth:       config.widgetToken,
     exposeMethods:   true,
-    success: (data) => console.log('MSG91 Init Success:', data),
+    success: (data) => {},
     failure: (error) => console.error('MSG91 Init Failure:', error)
   });
   sdkReady = true;
@@ -251,7 +251,6 @@ function injectModalDOM(context = null) {
   // Bind Policy Links
   document.getElementById('login-about-link').addEventListener('click', (e) => {
     e.preventDefault();
-    console.log('Opening About Us policy modal...');
     document.getElementById('policy-modal-title').textContent = 'About Us';
     document.getElementById('policy-modal-content').innerHTML = aboutUsContent;
     document.getElementById('policy-modal-overlay').classList.add('open');
@@ -259,7 +258,6 @@ function injectModalDOM(context = null) {
   
   document.getElementById('login-shipping-link').addEventListener('click', (e) => {
     e.preventDefault();
-    console.log('Opening Shipping policy modal...');
     document.getElementById('policy-modal-title').textContent = 'Shipping & Delivery Policy';
     document.getElementById('policy-modal-content').innerHTML = shippingPolicyContent;
     document.getElementById('policy-modal-overlay').classList.add('open');

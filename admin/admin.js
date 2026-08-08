@@ -3,6 +3,14 @@
    ============================================================ */
 'use strict';
 
+// ── Set View Store link from env var ──────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  const storeLink = document.getElementById('view-store-link');
+  if (storeLink && import.meta.env.VITE_STORE_URL) {
+    storeLink.href = import.meta.env.VITE_STORE_URL;
+  }
+});
+
 // ── Constants ──────────────────────────────────────────────
 const ORDER_STATUSES = [
   'ORDER_PLACED', 'ORDER_CONFIRMED', 'ORDER_DISPATCHED', 'ORDER_DELIVERED', 'CANCELLED', 'RETURNED',
@@ -131,10 +139,8 @@ async function uploadToCloudinary(file, resourceType = 'image', folder = null) {
   );
   if (!res.ok) throw new Error('Cloudinary upload failed');
   const data = await res.json();
-  console.log("[STEP 1 - Frontend] Received Cloudinary response:", data);
   if (resourceType === 'image' || data.resource_type === 'image') {
     const transformed = `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/image/upload/f_auto,q_auto/${data.public_id}`;
-    console.log("[STEP 1 - Frontend] Transformed image URL:", transformed);
     return transformed;
   }
   return data.secure_url;
@@ -969,7 +975,6 @@ function collectProductData(f) {
     inStockFlag: f.querySelector('[name="isInStockFlag"]')?.checked ?? true,
     variants,
   };
-  console.log("[STEP 2 - Frontend] Including imageUrls in POST/PUT request payload:", payload.imageUrls);
   return payload;
 }
 
@@ -1918,7 +1923,6 @@ function _renderCategoriesPage(editingCat = null) {
         imageUrl: _catUploaderState.imageUrl || null,
         active: document.getElementById('cat-active-check').checked,
       };
-      console.log("[STEP 2 - Frontend] Including imageUrl in Category payload:", data.imageUrl);
       if (isEdit) {
         const u = await api.updateCategory(editingCat.id, data);
         const i = S.categories.findIndex(c => c.id === editingCat.id);
@@ -2217,7 +2221,6 @@ function showReviewForm() {
 
     // Upload all selected images
     for (const url of urls) {
-      console.log("[STEP 2 - Frontend] Including imageUrl in Review payload:", url);
       const created = await api.createReview({ imageUrl: url });
       S.reviews.unshift(created); // Add to beginning
     }
