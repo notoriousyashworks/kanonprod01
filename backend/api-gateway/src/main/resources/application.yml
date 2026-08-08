@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: ${PORT:8080}
 
 spring:
   application:
@@ -24,7 +24,7 @@ spring:
         - id: user-service
           uri: ${USER_SERVICE_URL:http://user-service:8081}
           predicates:
-            - Path=/api/v1/users/**,/api/v1/internal/users/**
+            - Path=/api/v1/users/**,/api/v1/internal/users/**,/api/users/**,/api/auth/**
 
         - id: product-service
           uri: ${PRODUCT_SERVICE_URL:http://product-service:8082}
@@ -46,7 +46,10 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: health
+  endpoint:
+    health:
+      show-details: never
 
 logging:
   level:
