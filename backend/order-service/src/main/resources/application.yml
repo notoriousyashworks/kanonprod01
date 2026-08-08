@@ -1,5 +1,5 @@
 server:
-  port: 8083
+  port: ${PORT:8083}
 
 spring:
   application:
@@ -39,3 +39,21 @@ notification:
   email:
     recipient: kicksauraa@gmail.com
     sender-name: KicksAura Orders
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+
+# ── Inter-service URLs ───────────────────────────────────────────────────────
+# Set PRODUCT_SERVICE_URL and USER_SERVICE_URL in Railway env vars.
+# Falls back to Docker Compose service hostnames for local development.
+product-service:
+  url: ${PRODUCT_SERVICE_URL:http://product-service:8082}
+
+user-service:
+  url: ${USER_SERVICE_URL:http://user-service:8081}

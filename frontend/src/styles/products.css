@@ -467,9 +467,9 @@ details[open] > .filter-summary::after {
 
 .products-view-more-btn {
   min-height: 48px;
-  padding: 0 28px;
+  padding: 0 40px;
   border: 1.5px solid #111827;
-  border-radius: 999px;
+  border-radius: 10px;
   background: #111827;
   color: #ffffff;
   font-size: 15px;

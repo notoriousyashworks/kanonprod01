@@ -478,7 +478,6 @@ function renderProducts(grid) {
       <div class="products-view-more">
         <button class="products-view-more-btn" type="button" ${isLoadingMore ? 'disabled' : ''}>
           ${isLoadingMore ? 'Loading...' : 'View More'}
-          ${!isLoadingMore ? `<span>${Math.min(PRODUCTS_BATCH_SIZE, totalElements - allLoadedProducts.length)} more</span>` : ''}
         </button>
       </div>
     ` : ''}
