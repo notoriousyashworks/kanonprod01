@@ -6,8 +6,8 @@ spring:
     name: order-service
   datasource:
     url: jdbc:postgresql://${PGHOST:postgres}:${PGPORT:5432}/${PGDATABASE:kicksaura}
-    username: ${PGUSER:${POSTGRES_USER}}
-    password: ${PGPASSWORD:${POSTGRES_PASSWORD}}
+    username: ${PGUSER}
+    password: ${PGPASSWORD}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
