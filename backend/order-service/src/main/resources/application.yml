@@ -48,6 +48,11 @@ management:
   endpoint:
     health:
       show-details: never
+  health:
+    db:
+      enabled: false
+    mail:
+      enabled: false
 
 # ── Inter-service URLs ───────────────────────────────────────────────────────
 # Set PRODUCT_SERVICE_URL and USER_SERVICE_URL in Railway env vars.
