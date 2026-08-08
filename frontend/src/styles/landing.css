@@ -131,7 +131,7 @@
 
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 280px));
+  grid-template-columns: repeat(4, 1fr);
   justify-content: center;
   gap: 24px;
   margin-bottom: 48px;
@@ -647,11 +647,7 @@
   }
 }
 
-@media (min-width: 1200px) {
-  .product-grid {
-    grid-template-columns: repeat(auto-fit, minmax(240px, 300px));
-  }
-}
+/* Desktop: always 4 columns — enforced at base rule level */
 
 @media (max-width: 767px) {
   .hero-banner {

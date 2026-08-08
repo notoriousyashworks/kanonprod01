@@ -7,11 +7,8 @@ import { openLoginModal } from './login-modal.js?v=1.6';
 
 const PROFILE_KEY = 'kicksaura_profile';
 const ORDERS_KEY  = 'kicksaura_orders';
-const MAX_SAVED_ADDRESSES = 3;
-const ADDRESS_LIMIT_MESSAGE = 'Max address limit reached. Delete one address first to add a new address.';
-
 function normalizeAddresses(addresses) {
-  return Array.isArray(addresses) ? addresses.slice(0, MAX_SAVED_ADDRESSES) : [];
+  return Array.isArray(addresses) ? addresses : [];
 }
 
 function cleanOptional(value) {
@@ -26,10 +23,6 @@ export function getProfile() {
 }
 
 export function saveProfile(data) {
-  if (Array.isArray(data.addresses) && data.addresses.length > MAX_SAVED_ADDRESSES) {
-    throw new Error(ADDRESS_LIMIT_MESSAGE);
-  }
-
   const existing = getProfile() || {};
   const normalizedData = {
     ...data,
@@ -82,9 +75,6 @@ export function getAddresses() {
 
 export function saveAddress(addressObj) {
   const addresses = getAddresses();
-  if (addresses.length >= MAX_SAVED_ADDRESSES) {
-    throw new Error('You can save a maximum of 3 addresses. Please delete one to add a new address.');
-  }
   addresses.push(addressObj);
   saveProfile({ addresses });
 }

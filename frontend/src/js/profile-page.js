@@ -4,14 +4,13 @@
 import { getNavbarHTML, showToast, initSearch, initMobileMenu } from './ui.js';
 import { updateCartBadge } from './cart.js';
 import { getProfile, saveProfile, initProfileDropdown } from './profile.js?v=1.3';
-import { lookupPinCode } from './pin-lookup.js?v=1.1';
+
 import { initWishlistSidebar, updateWishlistBadge } from './wishlist.js';
 import { initCartSidebar } from './cart-sidebar.js';
 import { initLoginModalTrigger } from './login-modal.js';
 import { getAuthUser } from './auth.js';
 
-const MAX_SAVED_ADDRESSES = 3;
-const ADDRESS_LIMIT_MESSAGE = 'You can save a maximum of 3 addresses. Please delete one address before adding a new one.';
+
 let editingAddressIndex = -1;
 
 function normalizeLocation(value) {
@@ -49,7 +48,7 @@ function getCurrentAddresses() {
   const authP = getAuthUser() || {};
   const guestP = getProfile() || {};
   const addresses = authP.addresses?.length ? authP.addresses : guestP.addresses || [];
-  return Array.isArray(addresses) ? addresses.slice(0, MAX_SAVED_ADDRESSES) : [];
+  return Array.isArray(addresses) ? addresses : [];
 }
 
 function fillAddressForm(addr = {}) {
@@ -72,11 +71,6 @@ function fillAddressForm(addr = {}) {
 
 function openAddressEditor(index = -1) {
   const addresses = getCurrentAddresses();
-  if (index < 0 && addresses.length >= MAX_SAVED_ADDRESSES) {
-    alert(ADDRESS_LIMIT_MESSAGE);
-    return;
-  }
-
   editingAddressIndex = index;
   fillAddressForm(index >= 0 ? addresses[index] : {});
   addressEditForm?.classList.add('visible');
@@ -163,16 +157,12 @@ function renderAddress(p) {
   const existingItems = addrList.querySelectorAll('.address-item');
   existingItems.forEach(item => item.remove());
 
-  const rawAddresses = (p && Array.isArray(p.addresses)) ? p.addresses : [];
-  const addresses = rawAddresses.slice(0, MAX_SAVED_ADDRESSES);
-  if (rawAddresses.length > MAX_SAVED_ADDRESSES) {
-    saveProfile({ addresses });
-  }
+  const addresses = (p && Array.isArray(p.addresses)) ? p.addresses : [];
   const addAddressControl = document.getElementById('add-address-btn');
   if (addAddressControl) {
     addAddressControl.disabled = false;
     addAddressControl.textContent = '+ Add New';
-    addAddressControl.title = addresses.length >= MAX_SAVED_ADDRESSES ? ADDRESS_LIMIT_MESSAGE : '';
+    addAddressControl.title = '';
   }
 
   if (addresses.length > 0) {
@@ -332,10 +322,6 @@ if (saveAddressBtn) {
     }
 
     const addresses = getCurrentAddresses();
-    if (editingAddressIndex < 0 && addresses.length >= MAX_SAVED_ADDRESSES) {
-      alert(ADDRESS_LIMIT_MESSAGE);
-      return;
-    }
 
     const wasEditing = editingAddressIndex >= 0;
     const nextAddress = {
