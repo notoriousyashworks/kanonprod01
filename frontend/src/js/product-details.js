@@ -106,32 +106,44 @@ window.initVideoPlayback = function(video) {
     // Hide button immediately when init starts
     if (playBtn) playBtn.style.display = 'none';
     
-    // SVG icons for play and pause states (matching Safari native look)
-    const PLAY_SVG = '<svg width="28" height="28" viewBox="0 0 24 24" fill="white"><polygon points="6,4 20,12 6,20"/></svg>';
-    const PAUSE_SVG = '<svg width="28" height="28" viewBox="0 0 24 24" fill="white"><rect x="5" y="3" width="4" height="18" rx="1"/><rect x="15" y="3" width="4" height="18" rx="1"/></svg>';
+    // SVG icons — YouTube style: white, slightly larger
+    const PLAY_SVG  = '<svg width="34" height="34" viewBox="0 0 24 24" fill="white"><polygon points="6,3 21,12 6,21"/></svg>';
+    const PAUSE_SVG = '<svg width="30" height="30" viewBox="0 0 24 24" fill="white"><rect x="5" y="3" width="4" height="18" rx="1"/><rect x="15" y="3" width="4" height="18" rx="1"/></svg>';
 
-    // Overlays respond to actual video events — no setTimeout
+    // Helper: fade the button out quickly
+    const hideBtn = (delay = 0) => {
+      clearTimeout(playBtn._fadeTimer);
+      playBtn._fadeTimer = setTimeout(() => {
+        if (playBtn) { playBtn.style.opacity = '0'; playBtn.style.pointerEvents = 'none'; }
+      }, delay);
+    };
+
+    // Mouse leaves the video wrapper → hide immediately
+    video.parentElement.addEventListener('mouseleave', () => {
+      if (playBtn && !video.paused) hideBtn(0);
+    });
+
+    // Overlays respond to actual video events
     video.addEventListener('playing', () => {
       console.log('[VIDEO UI] playback started');
       loader.style.display = 'none';
-      // Show pause button while playing (native Safari style — stays visible)
+      // Briefly show pause icon then fade — YouTube style
       if (playBtn) {
         playBtn.innerHTML = PAUSE_SVG;
         playBtn.setAttribute('aria-label', 'Pause video');
         playBtn.style.display = 'flex';
-        playBtn.style.opacity = '0';
-        // Fade out after 1.5 s of playing so it's not always in the way
-        clearTimeout(playBtn._fadeTimer);
-        playBtn._fadeTimer = setTimeout(() => { playBtn.style.opacity = '0'; playBtn.style.pointerEvents = 'none'; }, 1500);
+        playBtn.style.opacity = '1';
+        playBtn.style.pointerEvents = 'auto';
+        hideBtn(600); // disappears after 0.6 s
       }
     });
-    // Show button on mousemove over the video area (desktop hover)
+    // Mouse moves over video while playing → reveal pause button briefly
     video.addEventListener('mousemove', () => {
       if (playBtn && !video.paused) {
         clearTimeout(playBtn._fadeTimer);
         playBtn.style.opacity = '1';
         playBtn.style.pointerEvents = 'auto';
-        playBtn._fadeTimer = setTimeout(() => { playBtn.style.opacity = '0'; playBtn.style.pointerEvents = 'none'; }, 2000);
+        hideBtn(800); // disappears 0.8 s after last movement
       }
     });
     video.addEventListener('waiting', () => {

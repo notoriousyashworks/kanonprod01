@@ -230,11 +230,24 @@ export function initProfileDropdown() {
   });
 
   // Click toggle (mobile)
+  // Key fix: only stopPropagation when we're OPENING the dropdown.
+  // When it's already open, let the click bubble to the wrap listener
+  // so tapping Orders / Profile triggers immediately (single tap).
   const iconBtn = document.getElementById('profile-icon-btn');
   if (iconBtn) {
     iconBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      dropdown.classList.toggle('visible');
+      const isVisible = dropdown.classList.contains('visible');
+      if (!isVisible) {
+        // Opening — stop propagation so the outside-click handler doesn't
+        // immediately close it, and refresh auth state before showing.
+        e.stopPropagation();
+        updateDropdownState();
+        dropdown.classList.add('visible');
+      } else {
+        // Already open — let it bubble to wrap handler (handles item clicks)
+        // and also close the dropdown.
+        dropdown.classList.remove('visible');
+      }
     });
   }
 

@@ -1494,10 +1494,10 @@ button {
   bottom: 22px !important;
   left: 22px !important;
   width: min(300px, calc(100vw - 32px)) !important;
-  min-height: 88px !important;
+  min-height: 72px !important;
   background: #f1f9cc;
   border-radius: 12px;
-  padding: 10px 12px !important;
+  padding: 8px 12px !important;
   display: flex !important;
   align-items: center !important;
   gap: 10px !important;
@@ -1546,9 +1546,9 @@ button {
 }
 
 .live-toast-banner__img-wrap {
-  width: 56px !important;
-  height: 56px !important;
-  flex: 0 0 56px !important;
+  width: 46px !important;
+  height: 46px !important;
+  flex: 0 0 46px !important;
   border-radius: 6px;
   overflow: hidden;
   background: white;
@@ -1559,17 +1559,23 @@ button {
   .live-toast-banner {
     left: 16px;
     right: 16px;
-    bottom: 16px;
+    top: 16px;       /* pop from top on mobile */
+    bottom: unset;
     max-width: none;
     margin-left: 0;
+    /* slide down into view instead of up */
+    transform: translateY(-150%);
+  }
+  .live-toast-banner.show {
+    transform: translateY(0);
   }
 }
 
 .live-toast-banner__img {
   width: 100% !important;
   height: 100% !important;
-  max-width: 56px !important;
-  max-height: 56px !important;
+  max-width: 46px !important;
+  max-height: 46px !important;
   object-fit: contain !important;
   display: block !important;
 }
@@ -1579,7 +1585,7 @@ button {
   min-width: 0;
   display: flex !important;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 }
 
 .live-toast-banner__text {
@@ -2573,32 +2579,31 @@ body.sidebar-lock #wishlist-sidebar {
 }
 
 /* -------------------------------------------
-   Video UI Overlay
+   Video UI Overlay — YouTube-style centered play/pause button
 ------------------------------------------- */
 .center-play-btn {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 64px;
-  height: 64px;
-  /* Match the clean, light native-browser play button look */
-  background: rgba(255, 255, 255, 0.22);
-  border: 2px solid rgba(255, 255, 255, 0.75);
+  width: 72px;
+  height: 72px;
+  /* YouTube: dark semi-transparent circle, no border */
+  background: rgba(0, 0, 0, 0.72);
+  border: none;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   z-index: 5;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
-  backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
-  transition: opacity 0.4s ease, transform 0.2s, background 0.2s;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.5);
+  /* Fast transition — feels snappy like YouTube */
+  transition: opacity 0.15s ease, transform 0.15s ease, background 0.15s ease;
 }
 .center-play-btn:hover {
-  background: rgba(255, 255, 255, 0.35);
-  transform: translate(-50%, -50%) scale(1.05);
+  background: rgba(0, 0, 0, 0.88);
+  transform: translate(-50%, -50%) scale(1.07);
 }
 .center-play-btn svg {
   margin-left: 4px; /* optical centering for the triangle */
