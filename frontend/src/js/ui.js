@@ -170,12 +170,12 @@ export function formatCloudinaryUrl(url) {
 
 export function formatCloudinaryVideoPoster(url) {
   if (!url || typeof url !== 'string' || !url.includes('res.cloudinary.com')) return url;
-  return url.replace('/upload/', '/upload/so_0,q_auto,f_auto,w_800/').replace(/\.mp4$/i, '.jpg');
+  return url.replace('/upload/', '/upload/so_0,w_800,q_auto/f_jpg/');
 }
 
 export function formatCloudinaryVideoHls(url) {
   if (!url || typeof url !== 'string' || !url.includes('res.cloudinary.com')) return url;
-  return url.replace('/upload/', '/upload/sp_auto,w_1280,c_limit/').replace(/\.mp4$/i, '.m3u8');
+  return url.replace('/upload/', '/upload/sp_auto:maxres_720/').replace(/\.mp4$/i, '.m3u8');
 }
 
 export function formatCloudinaryVideoMp4(url) {
