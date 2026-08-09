@@ -76,8 +76,10 @@ window.initVideoPlayback = function(video) {
     video.hlsInstance = null;
   }
 
-  // Setup loading indicator and play button overlays
-  if (video.parentElement) {
+  // Setup loading indicator and play button overlays (guard against duplicate listeners)
+  if (video.parentElement && !video.dataset.listenersAttached) {
+    video.dataset.listenersAttached = 'true';
+    
     let loader = video.parentElement.querySelector('.hls-loader');
     if (!loader) {
       loader = document.createElement('div');
@@ -90,14 +92,12 @@ window.initVideoPlayback = function(video) {
     loader.style.display = 'block';
     
     const playBtn = video.parentElement.querySelector('.center-play-btn');
+    // Hide button immediately when init starts
     if (playBtn) playBtn.style.display = 'none';
     
-    // Ensure overlays respond to native video state
-    video.addEventListener('play', () => {
-      if (playBtn) playBtn.style.display = 'none';
-    });
+    // Overlays respond to actual video events — no setTimeout
     video.addEventListener('playing', () => {
-      console.log('[HLS] Playback started');
+      console.log('[VIDEO UI] playback started');
       loader.style.display = 'none';
       if (playBtn) playBtn.style.display = 'none';
     });
@@ -114,6 +114,16 @@ window.initVideoPlayback = function(video) {
       if (playBtn) playBtn.style.display = 'flex';
       loader.style.display = 'none';
     });
+    video.addEventListener('error', () => {
+      loader.style.display = 'none';
+      if (playBtn) playBtn.style.display = 'flex';
+    });
+  } else if (video.parentElement) {
+    // Listeners already attached — just show loader
+    const loader = video.parentElement.querySelector('.hls-loader');
+    if (loader) loader.style.display = 'block';
+    const playBtn = video.parentElement.querySelector('.center-play-btn');
+    if (playBtn) playBtn.style.display = 'none';
   }
 
   if (window.Hls && Hls.isSupported()) {
@@ -199,6 +209,35 @@ window.initVideoPlayback = function(video) {
   }
 };
 
+// Custom centered Play button click handler.
+// - If HLS is already initialized: call video.play() directly (preserves user gesture).
+// - If not yet initialized: enter initVideoPlayback once (also within user gesture).
+// Never re-initializes HLS or creates a second video element.
+window.centerPlayBtnClick = function(btn) {
+  console.log('[VIDEO UI] play button clicked');
+  const v = btn.parentElement ? btn.parentElement.querySelector('video') : null;
+  if (!v) return;
+
+  if (v.dataset.initialized === 'true') {
+    // HLS already attached — just play directly
+    console.log('[VIDEO UI] video.play() requested (already initialized)');
+    const p = v.play();
+    if (p !== undefined) {
+      p.then(() => {
+        console.log('[VIDEO UI] playback started');
+      }).catch(e => {
+        console.warn('[VIDEO UI] playback failed:', e);
+        // Keep button visible on failure
+        btn.style.display = 'flex';
+      });
+    }
+  } else {
+    // First interaction — enter init flow which will also call video.play() inside
+    console.log('[VIDEO UI] video.play() requested (triggering init)');
+    window.initVideoPlayback(v);
+  }
+};
+
 function renderProduct(product) {
   // Update page title
   document.title = `${product.name} — KicksAura`;
@@ -280,10 +319,9 @@ function renderProduct(product) {
                preload="none"
                playsinline
                onclick="window.initVideoPlayback(this)"
-               onplay="window.initVideoPlayback(this)"
                style="cursor:pointer; width:100%; height:100%; object-fit:contain; background:transparent;"
              ></video>
-             <button class="center-play-btn" onclick="const v = this.parentElement.querySelector('video'); if (v) window.initVideoPlayback(v);" aria-label="Play video">
+             <button class="center-play-btn" onclick="window.centerPlayBtnClick(this)" aria-label="Play video">
                <svg width="32" height="32" viewBox="0 0 24 24" fill="white"><polygon points="6,4 20,12 6,20"/></svg>
              </button>`
         : `<img
@@ -446,11 +484,10 @@ function renderProduct(product) {
              data-hls-src="${formatCloudinaryVideoHls(item.url)}"
              data-mp4-src="${formatCloudinaryVideoMp4(item.url)}"
              controls controlsList="nodownload" playsinline autoplay 
-             onclick="window.initVideoPlayback(this)" 
-             onplay="window.initVideoPlayback(this)"
+             onclick="window.initVideoPlayback(this)"
              style="cursor:pointer; display:block; width:100%; max-height:82vh; object-fit:contain; background:#000; border-radius:8px;">
            </video>
-           <button class="center-play-btn" style="display:none;" onclick="const v = this.parentElement.querySelector('video'); if (v) window.initVideoPlayback(v);" aria-label="Play video">
+           <button class="center-play-btn" style="display:none;" onclick="window.centerPlayBtnClick(this)" aria-label="Play video">
              <svg width="32" height="32" viewBox="0 0 24 24" fill="white"><polygon points="6,4 20,12 6,20"/></svg>
            </button>
          </div>`

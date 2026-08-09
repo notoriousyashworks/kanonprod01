@@ -2600,3 +2600,16 @@ body.sidebar-lock #wishlist-sidebar {
 .center-play-btn svg {
   margin-left: 4px; /* optical centering for the triangle */
 }
+
+/* -------------------------------------------
+   Hide custom Play button on mobile/touch.
+   Let the browser's native video controls
+   provide the sole Play button on mobile.
+   This prevents the double-play-button issue
+   on mobile Safari and other touch browsers.
+------------------------------------------- */
+@media (pointer: coarse), (max-width: 768px) {
+  .center-play-btn {
+    display: none !important;
+  }
+}
