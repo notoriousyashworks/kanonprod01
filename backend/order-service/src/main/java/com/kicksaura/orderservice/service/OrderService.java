@@ -10,6 +10,7 @@ import com.kicksaura.orderservice.exception.ResourceNotFoundException;
 import com.kicksaura.orderservice.repository.OrderRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -41,6 +42,21 @@ public class OrderService {
     public OrderResponseDTO createCheckoutSession(CheckoutRequestDTO request) {
         validateShippingPin(request.getShippingAddress());
 
+        // ── [DEBUG] Log incoming request fields before any Feign calls ──────────
+        log.debug("[DEBUG] createCheckoutSession called with request: {}", request);
+        log.debug("[DEBUG] ShippingAddress: {}", request.getShippingAddress());
+        log.debug("[DEBUG] PhoneNumber: {}", request.getPhoneNumber());
+        log.debug("[DEBUG] PaymentMethod: {}", request.getPaymentMethod());
+        if (request.getItems() != null) {
+            List<String> productIds = request.getItems().stream()
+                    .map(i -> i.getProductId() != null ? i.getProductId().toString() : "null")
+                    .collect(Collectors.toList());
+            log.debug("[DEBUG] Product IDs in request: {}", productIds);
+        } else {
+            log.debug("[DEBUG] Product IDs in request: null/empty");
+        }
+        // ────────────────────────────────────────────────────────────────────────
+
         // 1. Build flat GuestCheckoutDTO for user-service (it expects flat address fields, not nested)
         GuestCheckoutDTO guestDTO = GuestCheckoutDTO.builder()
                 .phoneNumber(request.getPhoneNumber())
@@ -53,7 +69,22 @@ public class OrderService {
                 .pinCode(request.getShippingAddress() != null ? request.getShippingAddress().getPinCode() : "")
                 .build();
 
-        UserDTO userDTO = userClient.guestCheckout(guestDTO);
+        // ── [DEBUG] userClient.guestCheckout ─────────────────────────────────────
+        log.debug("[DEBUG] Calling userClient.guestCheckout with guestDTO: {}", guestDTO);
+        UserDTO userDTO;
+        try {
+            userDTO = userClient.guestCheckout(guestDTO);
+        } catch (FeignException e) {
+            String requestUrl = e.request() != null ? e.request().url() : "<unavailable>";
+            log.error("[DEBUG] FeignException from userClient.guestCheckout" +
+                    " | HTTP status: {}" +
+                    " | body: {}" +
+                    " | message: {}" +
+                    " | request URL: {}",
+                    e.status(), e.contentUTF8(), e.getMessage(), requestUrl, e);
+            throw e;
+        }
+        // ─────────────────────────────────────────────────────────────────────────
         String userId = userDTO.getUuid();
 
         // 2. Build Order
@@ -77,7 +108,23 @@ public class OrderService {
 
         for (OrderItemRequestDTO itemRequest : request.getItems()) {
             // 3. Fetch product details
-            ProductDTO product = productClient.getProductById(itemRequest.getProductId());
+            // ── [DEBUG] productClient.getProductById ─────────────────────────────
+            log.debug("[DEBUG] Calling productClient.getProductById with productId: {}", itemRequest.getProductId());
+            ProductDTO product;
+            try {
+                product = productClient.getProductById(itemRequest.getProductId());
+            } catch (FeignException e) {
+                String requestUrl = e.request() != null ? e.request().url() : "<unavailable>";
+                log.error("[DEBUG] FeignException from productClient.getProductById" +
+                        " | productId: {}" +
+                        " | HTTP status: {}" +
+                        " | body: {}" +
+                        " | message: {}" +
+                        " | request URL: {}",
+                        itemRequest.getProductId(), e.status(), e.contentUTF8(), e.getMessage(), requestUrl, e);
+                throw e;
+            }
+            // ─────────────────────────────────────────────────────────────────────
             
             if (!product.isVisible()) {
                 throw new IllegalArgumentException("Sorry, " + product.getName() + " in your cart is no longer available.");
