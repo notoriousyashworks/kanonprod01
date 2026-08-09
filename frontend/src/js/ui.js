@@ -220,7 +220,7 @@ export function createProductCard(product) {
   const saleBadgeHTML = product.saleVisible ? '<div class="pc-sale-badge" style="position: static;">Sale</div>' : '';
   const videoBadgeHTML = product.videoVisible ? '<div class="pc-sale-badge" style="position: static; background-color: #2563eb;">Video Available</div>' : '';
   const badgesContainer = (saleBadgeHTML || videoBadgeHTML)
-    ? `<div style="position:absolute; top:6px; left:12px; display:flex; gap:8px; z-index:2; align-items:center;">
+    ? `<div style="position:absolute; top:2px; left:12px; display:flex; gap:8px; z-index:2; align-items:center;">
          ${saleBadgeHTML}
          ${videoBadgeHTML}
        </div>`

@@ -229,32 +229,46 @@ export function initProfileDropdown() {
     hoverTimeout = setTimeout(() => dropdown.classList.remove('visible'), 200);
   });
 
-  // Click toggle (mobile)
-  // Key fix: only stopPropagation when we're OPENING the dropdown.
-  // When it's already open, let the click bubble to the wrap listener
-  // so tapping Orders / Profile triggers immediately (single tap).
+  // ── Mobile: open on first tap, close on second tap of icon only.
+  // Items inside the dropdown (Orders, Profile) are plain <a href> links
+  // and will navigate naturally — we must NOT close the dropdown when
+  // the tap target is inside the dropdown content area.
   const iconBtn = document.getElementById('profile-icon-btn');
   if (iconBtn) {
-    iconBtn.addEventListener('click', (e) => {
+    // touchstart gives instant response on iOS (no 300ms delay)
+    iconBtn.addEventListener('touchstart', (e) => {
       const isVisible = dropdown.classList.contains('visible');
       if (!isVisible) {
-        // Opening — stop propagation so the outside-click handler doesn't
-        // immediately close it, and refresh auth state before showing.
+        e.preventDefault();      // prevent the follow-up click event
         e.stopPropagation();
         updateDropdownState();
         dropdown.classList.add('visible');
-      } else {
-        // Already open — let it bubble to wrap handler (handles item clicks)
-        // and also close the dropdown.
-        dropdown.classList.remove('visible');
       }
+      // If already visible, let touchstart pass through so the
+      // synthesized click (on the icon) can reach the wrap handler.
+    }, { passive: false });
+
+    // Fallback click handler for non-touch desktop (mouseenter handles it
+    // but click is needed for keyboard/accessibility)
+    iconBtn.addEventListener('click', (e) => {
+      // On touch devices this fires after touchstart; we already handled it.
+      // Only act here for true mouse clicks (pointer: fine).
+      const isTouchEvent = e.sourceCapabilities?.firesTouchEvents === true;
+      if (isTouchEvent) return;
+      e.stopPropagation();
+      dropdown.classList.toggle('visible');
+      if (dropdown.classList.contains('visible')) updateDropdownState();
     });
   }
 
-  // Close on outside click
+  // Close when tapping outside — but NOT when tapping inside the dropdown
   document.addEventListener('click', (e) => {
     if (!wrap.contains(e.target)) dropdown.classList.remove('visible');
   });
+  // touchstart version for faster close on mobile
+  document.addEventListener('touchstart', (e) => {
+    if (!wrap.contains(e.target)) dropdown.classList.remove('visible');
+  }, { passive: true });
 }
 
 // Update dropdown state whenever auth changes (login / logout)

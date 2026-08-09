@@ -245,7 +245,9 @@ function injectModalDOM(context = null) {
   // Bind Policy Links
   document.getElementById('login-about-link').addEventListener('click', (e) => {
     e.preventDefault();
-    window.location.href = '/about-us';
+    document.getElementById('policy-modal-title').textContent = 'About Us';
+    document.getElementById('policy-modal-content').innerHTML = aboutUsContent;
+    document.getElementById('policy-modal-overlay').classList.add('open');
   });
   
   document.getElementById('login-shipping-link').addEventListener('click', (e) => {

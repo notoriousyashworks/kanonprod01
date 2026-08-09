@@ -1557,13 +1557,12 @@ button {
 
 @media(max-width: 480px) {
   .live-toast-banner {
-    left: 16px;
+    left: 16px !important;
     right: 16px;
-    top: 16px;       /* pop from top on mobile */
-    bottom: unset;
-    max-width: none;
+    top: 16px !important;
+    bottom: unset !important;
+    max-width: none !important;
     margin-left: 0;
-    /* slide down into view instead of up */
     transform: translateY(-150%);
   }
   .live-toast-banner.show {
