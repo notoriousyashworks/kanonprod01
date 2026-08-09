@@ -51,90 +51,145 @@ function renderError(msg) {
 
 // Initialize video playback on interaction
 window.initVideoPlayback = function(video) {
-  console.log('[HLS] initVideoPlayback called', { video: video.id, hlsSrc: video.dataset.hlsSrc, mp4Src: video.dataset.mp4Src });
+  console.log('[HLS] User requested playback', { video: video.id });
+  
   if (video.dataset.initialized === 'true') {
     console.log('[HLS] Already initialized. Toggling play/pause.');
-    video.paused ? video.play() : video.pause();
+    if (video.paused) {
+      const p = video.play();
+      if (p !== undefined) p.catch(e => console.warn('[HLS] Resume error:', e));
+      console.log('[HLS] Playback resumed');
+    } else {
+      video.pause();
+    }
     return;
   }
+  
+  video.dataset.initialized = 'true';
+  console.log('[HLS] Initializing');
   
   const hlsSrc = video.dataset.hlsSrc;
   const mp4Src = video.dataset.mp4Src;
   
   if (video.hlsInstance) {
-    console.log('[HLS] Destroying previous Hls instance');
     video.hlsInstance.destroy();
     video.hlsInstance = null;
   }
 
+  // Setup loading indicator and play button overlays
+  if (video.parentElement) {
+    let loader = video.parentElement.querySelector('.hls-loader');
+    if (!loader) {
+      loader = document.createElement('div');
+      loader.className = 'hls-loader';
+      loader.innerHTML = '<div style="width:40px;height:40px;border:3px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 1s linear infinite;"></div><style>@keyframes spin{100%{transform:rotate(360deg)}}</style>';
+      loader.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:10;pointer-events:none;';
+      video.parentElement.style.position = 'relative';
+      video.parentElement.appendChild(loader);
+    }
+    loader.style.display = 'block';
+    
+    const playBtn = video.parentElement.querySelector('.center-play-btn');
+    if (playBtn) playBtn.style.display = 'none';
+    
+    // Ensure overlays respond to native video state
+    video.addEventListener('play', () => {
+      if (playBtn) playBtn.style.display = 'none';
+    });
+    video.addEventListener('playing', () => {
+      console.log('[HLS] Playback started');
+      loader.style.display = 'none';
+      if (playBtn) playBtn.style.display = 'none';
+    });
+    video.addEventListener('waiting', () => {
+      console.log('[HLS] Playback waiting/buffering');
+      loader.style.display = 'block';
+      if (playBtn) playBtn.style.display = 'none';
+    });
+    video.addEventListener('pause', () => {
+      if (playBtn) playBtn.style.display = 'flex';
+      loader.style.display = 'none';
+    });
+    video.addEventListener('ended', () => {
+      if (playBtn) playBtn.style.display = 'flex';
+      loader.style.display = 'none';
+    });
+  }
+
   if (window.Hls && Hls.isSupported()) {
-    console.log('[HLS] Hls.isSupported() is true, initializing hls.js');
     const hls = new Hls({ startLevel: -1 });
     video.hlsInstance = hls;
 
     hls.on(Hls.Events.MEDIA_ATTACHED, function () {
-      console.log('[HLS] MEDIA_ATTACHED, loading source:', hlsSrc);
+      console.log('[HLS] MEDIA_ATTACHED');
+      console.log('[HLS] Loading source');
       hls.loadSource(hlsSrc);
     });
 
-    hls.on(Hls.Events.MANIFEST_PARSED, function (event, data) {
-      console.log('[HLS] MANIFEST_PARSED received', data);
-      const playPromise = video.play();
-      if (playPromise !== undefined) {
-        playPromise.catch(e => console.warn('[HLS] Autoplay prevented:', e));
+    hls.on(Hls.Events.MANIFEST_PARSED, function () {
+      console.log('[HLS] MANIFEST_PARSED');
+      console.log('[HLS] Video ready for playback');
+      if (video.paused) {
+        const p = video.play();
+        if (p !== undefined) p.catch(() => {});
       }
     });
 
     hls.on(Hls.Events.ERROR, function (event, data) {
-      console.error('[HLS] Hls ERROR:', data);
+      console.error('[HLS] Playback error:', data);
       if (data.fatal) {
-        switch (data.type) {
-          case Hls.ErrorTypes.NETWORK_ERROR:
-            console.error('[HLS] Fatal network error, trying to recover');
-            hls.startLoad();
-            break;
-          case Hls.ErrorTypes.MEDIA_ERROR:
-            console.error('[HLS] Fatal media error, trying to recover');
-            hls.recoverMediaError();
-            break;
-          default:
-            console.error('[HLS] Fatal unrecoverable error, falling back to MP4');
-            hls.destroy();
-            video.hlsInstance = null;
-            video.src = mp4Src;
-            video.load();
-            const playPromise = video.play();
-            if (playPromise !== undefined) {
-              playPromise.catch(e => console.warn('[HLS] Fallback MP4 play error:', e));
-            }
-            break;
+        if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
+          hls.startLoad();
+        } else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
+          hls.recoverMediaError();
+        } else {
+          console.error('[HLS] Fatal unrecoverable error, falling back to MP4');
+          hls.destroy();
+          video.hlsInstance = null;
+          video.src = mp4Src;
+          video.load();
+          const p = video.play();
+          if (p !== undefined) p.catch(e => console.warn('[HLS] Fallback MP4 error:', e));
         }
       }
     });
 
-    console.log('[HLS] Calling attachMedia()');
     hls.attachMedia(video);
+    
+    // Synchronous play to capture the user gesture context immediately
+    const playPromise = video.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(e => console.warn('[HLS] Initial synchronous play error (expected):', e));
+    }
+    
   } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-    console.log('[HLS] Native HLS supported (Safari), setting src to:', hlsSrc);
+    console.log('[HLS] Native HLS supported (Safari)');
     video.src = hlsSrc;
+    video.load();
+    
+    // Synchronous play to capture the user gesture context immediately
+    const playPromise = video.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(e => console.warn('[HLS] Native initial play error:', e));
+    }
+    
     video.addEventListener('loadedmetadata', function() {
-      console.log('[HLS] Native HLS loadedmetadata');
-      const playPromise = video.play();
-      if (playPromise !== undefined) {
-        playPromise.catch(e => console.warn('[HLS] Native play error:', e));
+      if (video.paused) {
+        const p = video.play();
+        if (p !== undefined) p.catch(() => {});
       }
     }, { once: true });
+    
     video.addEventListener('error', function(e) {
-      console.error('[HLS] Native HLS error, falling back to MP4', e);
+      console.error('[HLS] Playback error (Native HLS), falling back to MP4', e);
       video.src = mp4Src;
       video.load();
-      const playPromise = video.play();
-      if (playPromise !== undefined) {
-        playPromise.catch(err => console.warn('[HLS] Fallback MP4 play error:', err));
-      }
+      const p = video.play();
+      if (p !== undefined) p.catch(err => console.warn('[HLS] Fallback MP4 error:', err));
     }, { once: true });
+    
   } else {
-    console.log('[HLS] No HLS support, falling back to MP4:', mp4Src);
+    console.log('[HLS] No HLS support, falling back to MP4');
     video.src = mp4Src;
     video.load();
     const playPromise = video.play();
@@ -142,8 +197,6 @@ window.initVideoPlayback = function(video) {
       playPromise.catch(e => console.warn('[HLS] MP4 play error:', e));
     }
   }
-  
-  video.dataset.initialized = 'true';
 };
 
 function renderProduct(product) {
@@ -214,7 +267,7 @@ function renderProduct(product) {
     // - Images: first slide gets src immediately (eager). Others use data-src (lazy loaded on demand).
     // - Videos: preload="none" + src only injected when activated — saves huge bandwidth.
     const slidesHTML = mediaItems.map((item, idx) => `
-      <div class="main-media-slide" data-idx="${idx}">
+      <div class="main-media-slide" data-idx="${idx}" style="position: relative; display: flex; align-items: center; justify-content: center;">
         ${item.type === 'video'
         ? `<video
                id="main-video-${idx}"
@@ -227,8 +280,12 @@ function renderProduct(product) {
                preload="none"
                playsinline
                onclick="window.initVideoPlayback(this)"
+               onplay="window.initVideoPlayback(this)"
                style="cursor:pointer; width:100%; height:100%; object-fit:contain; background:transparent;"
-             ></video>`
+             ></video>
+             <button class="center-play-btn" onclick="const v = this.parentElement.querySelector('video'); if (v) window.initVideoPlayback(v);" aria-label="Play video">
+               <svg width="32" height="32" viewBox="0 0 24 24" fill="white"><polygon points="6,4 20,12 6,20"/></svg>
+             </button>`
         : `<img
                ${idx === 0 ? `src="${item.url}"` : `data-src="${item.url}"`}
                alt="${product.name}"
@@ -383,14 +440,20 @@ function renderProduct(product) {
     if (bgVideo) bgVideo.pause();
 
     lbContent.innerHTML = item.type === 'video'
-      ? `<video 
-           poster="${formatCloudinaryVideoPoster(item.url)}"
-           data-hls-src="${formatCloudinaryVideoHls(item.url)}"
-           data-mp4-src="${formatCloudinaryVideoMp4(item.url)}"
-           controls controlsList="nodownload" playsinline autoplay 
-           onclick="window.initVideoPlayback(this)" 
-           style="cursor:pointer; display:block; width:100%; max-height:82vh; object-fit:contain; background:#000; border-radius:8px;">
-         </video>`
+      ? `<div style="position: relative; display: flex; align-items: center; justify-content: center; width: 100%; height: 100%;">
+           <video 
+             poster="${formatCloudinaryVideoPoster(item.url)}"
+             data-hls-src="${formatCloudinaryVideoHls(item.url)}"
+             data-mp4-src="${formatCloudinaryVideoMp4(item.url)}"
+             controls controlsList="nodownload" playsinline autoplay 
+             onclick="window.initVideoPlayback(this)" 
+             onplay="window.initVideoPlayback(this)"
+             style="cursor:pointer; display:block; width:100%; max-height:82vh; object-fit:contain; background:#000; border-radius:8px;">
+           </video>
+           <button class="center-play-btn" style="display:none;" onclick="const v = this.parentElement.querySelector('video'); if (v) window.initVideoPlayback(v);" aria-label="Play video">
+             <svg width="32" height="32" viewBox="0 0 24 24" fill="white"><polygon points="6,4 20,12 6,20"/></svg>
+           </button>
+         </div>`
       : `<img src="${item.url}" alt="" style="display:block; width:100%; max-height:82vh; object-fit:contain; border-radius:8px; background:transparent;" />`;
 
     if (item.type === 'video') {

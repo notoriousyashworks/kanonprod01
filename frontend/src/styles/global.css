@@ -2571,3 +2571,32 @@ body.sidebar-lock #wishlist-sidebar {
     display: none !important;
   }
 }
+
+/* -------------------------------------------
+   Video UI Overlay
+------------------------------------------- */
+.center-play-btn {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 68px;
+  height: 68px;
+  background: rgba(0, 0, 0, 0.55);
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 5;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  transition: opacity 0.2s, transform 0.2s, background 0.2s;
+}
+.center-play-btn:hover {
+  background: rgba(0, 0, 0, 0.75);
+  transform: translate(-50%, -50%) scale(1.05);
+}
+.center-play-btn svg {
+  margin-left: 4px; /* optical centering for the triangle */
+}
