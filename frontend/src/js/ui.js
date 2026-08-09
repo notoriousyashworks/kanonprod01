@@ -175,7 +175,7 @@ export function formatCloudinaryVideoPoster(url) {
 
 export function formatCloudinaryVideoHls(url) {
   if (!url || typeof url !== 'string' || !url.includes('res.cloudinary.com')) return url;
-  return url.replace('/upload/', '/upload/sp_auto:maxres_720/').replace(/\.mp4$/i, '.m3u8');
+  return url.replace('/upload/', '/upload/sp_auto:maxres_720p/').replace(/\.mp4$/i, '.m3u8');
 }
 
 export function formatCloudinaryVideoMp4(url) {
