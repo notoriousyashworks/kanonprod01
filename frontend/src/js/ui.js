@@ -585,14 +585,14 @@ export async function initPurchaseNotifications() {
         notificationEl.classList.remove('show');
       }, 5000);
 
-      // Schedule next notification between 40s and 50s
-      const nextDelay = 40000 + Math.random() * 10000;
+      // Schedule next notification between 30s and 40s
+      const nextDelay = 30000 + Math.random() * 10000;
       setTimeout(showNotification, nextDelay);
     };
 
     let initialDelay = 2000;
     if (sessionStorage.getItem('hasSeenPurchaseNotification')) {
-      initialDelay = 40000 + Math.random() * 10000;
+      initialDelay = 30000 + Math.random() * 10000;
     } else {
       sessionStorage.setItem('hasSeenPurchaseNotification', 'true');
     }

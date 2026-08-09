@@ -38,9 +38,9 @@ const state = {
   searchQuery: '',
   categories: [],   // string[]
   brands: [],       // string[]
-  sizes: [],        // string[]
   minPrice: PRICE_MIN_DEFAULT,
   maxPrice: PRICE_MAX_DEFAULT,
+  trending: false,
 };
 
 // ── Read initial state from URL ────────────────────────────
@@ -50,9 +50,9 @@ function readStateFromURL() {
   state.searchQuery = p.get('search') || '';
   state.categories  = p.get('categories')  ? p.get('categories').split(',').filter(Boolean)  : [];
   state.brands      = p.get('brands')      ? p.get('brands').split(',').filter(Boolean)      : [];
-  state.sizes       = p.get('sizes')       ? p.get('sizes').split(',').filter(Boolean)       : [];
   state.minPrice    = p.has('minPrice') ? Number(p.get('minPrice')) : PRICE_MIN_DEFAULT;
   state.maxPrice    = p.has('maxPrice') ? Number(p.get('maxPrice')) : PRICE_MAX_DEFAULT;
+  state.trending    = p.get('trending') === 'true';
 
   // Legacy: single ?category=... param (from homepage card clicks)
   const legacyCategory = p.get('category');
@@ -67,9 +67,9 @@ function pushStateToURL() {
   if (state.searchQuery) p.set('search', state.searchQuery);
   if (state.categories.length)  p.set('categories', state.categories.join(','));
   if (state.brands.length)      p.set('brands', state.brands.join(','));
-  if (state.sizes.length)       p.set('sizes', state.sizes.join(','));
   if (state.minPrice !== PRICE_MIN_DEFAULT) p.set('minPrice', state.minPrice);
   if (state.maxPrice !== PRICE_MAX_DEFAULT) p.set('maxPrice', state.maxPrice);
+  if (state.trending) p.set('trending', 'true');
 
   const newUrl = `${window.location.pathname}${p.toString() ? '?' + p.toString() : ''}`;
   history.pushState(null, '', newUrl);
@@ -120,17 +120,16 @@ function renderActiveChips() {
     });
   });
 
-  // Size chips
-  state.sizes.forEach(size => {
+  // Trending chip (if trending is active)
+  if (state.trending) {
     chips.push({
-      label: `Size: ${size}`,
+      label: 'Trending 🔥',
       onRemove: () => {
-        state.sizes = state.sizes.filter(s => s !== size);
-        syncSidebarCheckboxes();
+        state.trending = false;
         triggerLoad();
-      },
+      }
     });
-  });
+  }
 
   // Price chip (only when non-default)
   if (state.minPrice !== PRICE_MIN_DEFAULT || state.maxPrice !== PRICE_MAX_DEFAULT) {
@@ -172,7 +171,9 @@ function updatePageTitle() {
   const title = document.getElementById('products-page-title');
   if (!title) return;
 
-  if (state.searchQuery) {
+  if (state.trending) {
+    title.textContent = 'Trending Products';
+  } else if (state.searchQuery) {
     title.textContent = 'Search Results';
   } else if (state.categories.length === 1) {
     title.textContent = state.categories[0];
@@ -282,57 +283,6 @@ async function initSidebarBrands() {
   });
 }
 
-/* ============================================================
-   SIDEBAR — SIZE (derived from product variants)
-   ============================================================ */
-async function initSidebarSizes() {
-  try {
-    const products = await getAllProducts();
-    const sizeSet = new Set();
-
-    products.forEach(p => {
-      (p.variants || []).forEach(v => {
-        if (v.size) sizeSet.add(v.size);
-      });
-    });
-
-    // Sort sizes: numeric first (by number), then alpha
-    const sizes = [...sizeSet].sort((a, b) => {
-      const na = parseFloat(a);
-      const nb = parseFloat(b);
-      if (!isNaN(na) && !isNaN(nb)) return na - nb;
-      return a.localeCompare(b);
-    });
-
-    const sizeGroup = document.getElementById('size-filter-group');
-    if (!sizeGroup || !sizes.length) return;
-
-    sizeGroup.innerHTML = `<div class="size-grid">${
-      sizes.map(sz => {
-        const checked = state.sizes.includes(sz);
-        return `
-          <label class="size-chip-label">
-            <input type="checkbox" ${checked ? 'checked' : ''} data-size="${sz}" />
-            <span class="size-chip-value">${sz}</span>
-          </label>`;
-      }).join('')
-    }</div>`;
-  } catch (e) {
-    console.error('Could not load sizes', e);
-  }
-
-  document.querySelectorAll('#size-filter-group input[type="checkbox"]').forEach(cb => {
-    cb.addEventListener('change', e => {
-      const sz = e.target.dataset.size;
-      if (e.target.checked) {
-        if (!state.sizes.includes(sz)) state.sizes.push(sz);
-      } else {
-        state.sizes = state.sizes.filter(s => s !== sz);
-      }
-      triggerLoad();
-    });
-  });
-}
 
 /* ============================================================
    SIDEBAR — PRICE SLIDER
@@ -400,9 +350,6 @@ function syncSidebarCheckboxes() {
   document.querySelectorAll('#brand-filter-group input[type="checkbox"]').forEach(cb => {
     cb.checked = state.brands.includes(cb.dataset.brand);
   });
-  document.querySelectorAll('#size-filter-group input[type="checkbox"]').forEach(cb => {
-    cb.checked = state.sizes.includes(cb.dataset.size);
-  });
 }
 
 /* ============================================================
@@ -458,11 +405,21 @@ async function getTrendingProducts() {
 let isLoading = false;
 
 async function fetchPage(page) {
+    if (state.trending) {
+      // If trending is explicitly requested via filters/URL
+      const trendingAll = await getTrendingProducts();
+      return {
+        content: trendingAll,
+        number: 0,
+        totalPages: 1,
+        totalElements: trendingAll.length
+      };
+    }
+
     const pageData = await filterProducts({
       query: state.searchQuery,
       categories: state.categories,
       brands:     state.brands,
-      sizes:      state.sizes,
       minPrice:   state.minPrice,
       maxPrice:   state.maxPrice,
     }, page, PRODUCTS_BATCH_SIZE);
@@ -602,7 +559,6 @@ readStateFromURL();
 Promise.all([
   initSidebarCategories(),
   initSidebarBrands(),
-  initSidebarSizes(),
 ]).then(() => {
   initPriceSlider();
   initProductsSearch();

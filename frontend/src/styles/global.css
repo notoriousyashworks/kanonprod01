@@ -1546,9 +1546,9 @@ button {
 }
 
 .live-toast-banner__img-wrap {
-  width: 46px !important;
-  height: 46px !important;
-  flex: 0 0 46px !important;
+  width: 54px !important;
+  height: 54px !important;
+  flex: 0 0 54px !important;
   border-radius: 6px;
   overflow: hidden;
   background: white;
@@ -1558,23 +1558,23 @@ button {
 @media(max-width: 480px) {
   .live-toast-banner {
     left: 16px !important;
-    right: 16px;
+    right: 16px !important;
     top: 16px !important;
-    bottom: unset !important;
+    bottom: auto !important; /* 'auto' is safer than 'unset' for positioning overrides */
     max-width: none !important;
     margin-left: 0;
-    transform: translateY(-150%);
+    transform: translateY(-150%) !important;
   }
   .live-toast-banner.show {
-    transform: translateY(0);
+    transform: translateY(0) !important;
   }
 }
 
 .live-toast-banner__img {
   width: 100% !important;
   height: 100% !important;
-  max-width: 46px !important;
-  max-height: 46px !important;
+  max-width: 54px !important;
+  max-height: 54px !important;
   object-fit: contain !important;
   display: block !important;
 }
