@@ -2549,3 +2549,25 @@ body.sidebar-lock #wishlist-sidebar {
     padding: 0 10px !important;
   }
 }
+
+/* Failsafe to ensure logo is curvy */
+.header__logo-img {
+  border-radius: 8px !important;
+}
+
+/* Failsafe to prevent mobile drawer from ever rendering in flow */
+.mobile-nav-drawer {
+  position: fixed !important;
+}
+@media (min-width: 768px) {
+  .mobile-nav-drawer,
+  .mobile-nav-overlay,
+  .mobile-menu-btn {
+    display: none !important;
+  }
+}
+@media (max-width: 767px) {
+  .header__nav {
+    display: none !important;
+  }
+}
