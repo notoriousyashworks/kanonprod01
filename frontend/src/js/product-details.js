@@ -52,8 +52,19 @@ function renderError(msg) {
 // Initialize video playback on interaction
 window.initVideoPlayback = function(video) {
   console.log('[HLS] User requested playback', { video: video.id });
-  
+
+  // On touch/mobile: once initialized, do NOT intercept clicks on the video body.
+  // The native controls own play/pause — tap video to reveal controls, tap the
+  // center button in those controls to actually play/pause.
+  const isTouchDevice = window.matchMedia('(pointer: coarse)').matches;
+
   if (video.dataset.initialized === 'true') {
+    if (isTouchDevice) {
+      // Mobile: hand off to native controls entirely — do nothing here.
+      console.log('[HLS] Mobile: already initialized, deferring to native controls.');
+      return;
+    }
+    // Desktop: click on video body toggles play/pause.
     console.log('[HLS] Already initialized. Toggling play/pause.');
     if (video.paused) {
       const p = video.play();
