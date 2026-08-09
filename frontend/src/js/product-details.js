@@ -51,7 +51,9 @@ function renderError(msg) {
 
 // Initialize video playback on interaction
 window.initVideoPlayback = function(video) {
+  console.log('[HLS] initVideoPlayback called', { video: video.id, hlsSrc: video.dataset.hlsSrc, mp4Src: video.dataset.mp4Src });
   if (video.dataset.initialized === 'true') {
+    console.log('[HLS] Already initialized. Toggling play/pause.');
     video.paused ? video.play() : video.pause();
     return;
   }
@@ -59,19 +61,86 @@ window.initVideoPlayback = function(video) {
   const hlsSrc = video.dataset.hlsSrc;
   const mp4Src = video.dataset.mp4Src;
   
+  if (video.hlsInstance) {
+    console.log('[HLS] Destroying previous Hls instance');
+    video.hlsInstance.destroy();
+    video.hlsInstance = null;
+  }
+
   if (window.Hls && Hls.isSupported()) {
+    console.log('[HLS] Hls.isSupported() is true, initializing hls.js');
     const hls = new Hls({ startLevel: -1 });
-    hls.loadSource(hlsSrc);
-    hls.attachMedia(video);
-    hls.on(Hls.Events.MANIFEST_PARSED, function() {
-      video.play();
+    video.hlsInstance = hls;
+
+    hls.on(Hls.Events.MEDIA_ATTACHED, function () {
+      console.log('[HLS] MEDIA_ATTACHED, loading source:', hlsSrc);
+      hls.loadSource(hlsSrc);
     });
+
+    hls.on(Hls.Events.MANIFEST_PARSED, function (event, data) {
+      console.log('[HLS] MANIFEST_PARSED received', data);
+      const playPromise = video.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(e => console.warn('[HLS] Autoplay prevented:', e));
+      }
+    });
+
+    hls.on(Hls.Events.ERROR, function (event, data) {
+      console.error('[HLS] Hls ERROR:', data);
+      if (data.fatal) {
+        switch (data.type) {
+          case Hls.ErrorTypes.NETWORK_ERROR:
+            console.error('[HLS] Fatal network error, trying to recover');
+            hls.startLoad();
+            break;
+          case Hls.ErrorTypes.MEDIA_ERROR:
+            console.error('[HLS] Fatal media error, trying to recover');
+            hls.recoverMediaError();
+            break;
+          default:
+            console.error('[HLS] Fatal unrecoverable error, falling back to MP4');
+            hls.destroy();
+            video.hlsInstance = null;
+            video.src = mp4Src;
+            video.load();
+            const playPromise = video.play();
+            if (playPromise !== undefined) {
+              playPromise.catch(e => console.warn('[HLS] Fallback MP4 play error:', e));
+            }
+            break;
+        }
+      }
+    });
+
+    console.log('[HLS] Calling attachMedia()');
+    hls.attachMedia(video);
   } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+    console.log('[HLS] Native HLS supported (Safari), setting src to:', hlsSrc);
     video.src = hlsSrc;
-    video.play();
+    video.addEventListener('loadedmetadata', function() {
+      console.log('[HLS] Native HLS loadedmetadata');
+      const playPromise = video.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(e => console.warn('[HLS] Native play error:', e));
+      }
+    }, { once: true });
+    video.addEventListener('error', function(e) {
+      console.error('[HLS] Native HLS error, falling back to MP4', e);
+      video.src = mp4Src;
+      video.load();
+      const playPromise = video.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(err => console.warn('[HLS] Fallback MP4 play error:', err));
+      }
+    }, { once: true });
   } else {
+    console.log('[HLS] No HLS support, falling back to MP4:', mp4Src);
     video.src = mp4Src;
-    video.play();
+    video.load();
+    const playPromise = video.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(e => console.warn('[HLS] MP4 play error:', e));
+    }
   }
   
   video.dataset.initialized = 'true';
