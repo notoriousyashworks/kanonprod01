@@ -2,7 +2,7 @@
    Product Details Page
    ============================================ */
 import { getProductById } from './api.js';
-import { getNavbarHTML, getFooterHTML, showToast, formatCloudinaryUrl, initSearch, initMobileMenu } from './ui.js';
+import { getNavbarHTML, getFooterHTML, showToast, formatCloudinaryUrl, formatCloudinaryVideoPoster, formatCloudinaryVideoHls, formatCloudinaryVideoMp4, initSearch, initMobileMenu } from './ui.js';
 import { addToCart, updateCartBadge } from './cart.js';
 import { initWishlistSidebar, updateWishlistBadge, isWishlisted, toggleWishlistItem } from './wishlist.js';
 import { initCartSidebar, openShippingPolicyModal } from './cart-sidebar.js';
@@ -48,6 +48,34 @@ function renderError(msg) {
       <a href="/" style="display:inline-block; margin-top: 16px; color: #c82333; font-weight: 600;">← Back to Home</a>
     </div>`;
 }
+
+// Initialize video playback on interaction
+window.initVideoPlayback = function(video) {
+  if (video.dataset.initialized === 'true') {
+    video.paused ? video.play() : video.pause();
+    return;
+  }
+  
+  const hlsSrc = video.dataset.hlsSrc;
+  const mp4Src = video.dataset.mp4Src;
+  
+  if (window.Hls && Hls.isSupported()) {
+    const hls = new Hls({ startLevel: -1 });
+    hls.loadSource(hlsSrc);
+    hls.attachMedia(video);
+    hls.on(Hls.Events.MANIFEST_PARSED, function() {
+      video.play();
+    });
+  } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+    video.src = hlsSrc;
+    video.play();
+  } else {
+    video.src = mp4Src;
+    video.play();
+  }
+  
+  video.dataset.initialized = 'true';
+};
 
 function renderProduct(product) {
   // Update page title
@@ -120,14 +148,16 @@ function renderProduct(product) {
       <div class="main-media-slide" data-idx="${idx}">
         ${item.type === 'video'
         ? `<video
-               src="${item.url}"
                id="main-video-${idx}"
+               poster="${formatCloudinaryVideoPoster(item.url)}"
+               data-hls-src="${formatCloudinaryVideoHls(item.url)}"
+               data-mp4-src="${formatCloudinaryVideoMp4(item.url)}"
                controls
                controlsList="nofullscreen nodownload noplaybackrate"
                disablePictureInPicture
-               preload="metadata"
+               preload="none"
                playsinline
-               onclick="this.paused ? this.play() : this.pause()"
+               onclick="window.initVideoPlayback(this)"
                style="cursor:pointer; width:100%; height:100%; object-fit:contain; background:transparent;"
              ></video>`
         : `<img
@@ -284,8 +314,22 @@ function renderProduct(product) {
     if (bgVideo) bgVideo.pause();
 
     lbContent.innerHTML = item.type === 'video'
-      ? `<video src="${item.url}" controls controlsList="nodownload" playsinline autoplay onclick="this.paused ? this.play() : this.pause()" style="cursor:pointer; display:block; width:100%; max-height:82vh; object-fit:contain; background:#000; border-radius:8px;"></video>`
+      ? `<video 
+           poster="${formatCloudinaryVideoPoster(item.url)}"
+           data-hls-src="${formatCloudinaryVideoHls(item.url)}"
+           data-mp4-src="${formatCloudinaryVideoMp4(item.url)}"
+           controls controlsList="nodownload" playsinline autoplay 
+           onclick="window.initVideoPlayback(this)" 
+           style="cursor:pointer; display:block; width:100%; max-height:82vh; object-fit:contain; background:#000; border-radius:8px;">
+         </video>`
       : `<img src="${item.url}" alt="" style="display:block; width:100%; max-height:82vh; object-fit:contain; border-radius:8px; background:transparent;" />`;
+
+    if (item.type === 'video') {
+      setTimeout(() => {
+        const v = lbContent.querySelector('video');
+        if (v) window.initVideoPlayback(v);
+      }, 50);
+    }
 
     // Update arrow visibility
     const prev = document.getElementById('lb-prev');

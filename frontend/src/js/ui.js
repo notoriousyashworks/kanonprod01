@@ -160,13 +160,32 @@ export function formatPrice(price) {
   return '₹ ' + price.toLocaleString('en-IN');
 }
 
-// Helper: convert raw Cloudinary URLs (like .heic from iPhones) to auto-format webp/jpg on the fly
 export function formatCloudinaryUrl(url) {
-  if (!url || typeof url !== 'string') return url;
+  if (!url || typeof url !== 'string' || !url.includes('res.cloudinary.com')) return url;
   if (url.includes('/upload/') && !url.includes('/f_auto')) {
     return url.replace('/upload/', '/upload/f_auto,q_auto,w_800/');
   }
   return url;
+}
+
+export function formatCloudinaryVideoPoster(url) {
+  if (!url || typeof url !== 'string' || !url.includes('res.cloudinary.com')) return url;
+  return url.replace('/upload/', '/upload/so_0,q_auto,f_auto,w_800/').replace(/\.mp4$/i, '.jpg');
+}
+
+export function formatCloudinaryVideoHls(url) {
+  if (!url || typeof url !== 'string' || !url.includes('res.cloudinary.com')) return url;
+  return url.replace('/upload/', '/upload/sp_auto,w_1280,c_limit/').replace(/\.mp4$/i, '.m3u8');
+}
+
+export function formatCloudinaryVideoMp4(url) {
+  if (!url || typeof url !== 'string' || !url.includes('res.cloudinary.com')) return url;
+  return url.replace('/upload/', '/upload/q_auto,vc_h264,w_800/');
+}
+
+export function formatCloudinaryHoverPreview(url) {
+  if (!url || typeof url !== 'string' || !url.includes('res.cloudinary.com')) return url;
+  return url.replace('/upload/', '/upload/q_auto,vc_h264,w_400/');
 }
 
 // Create a product card HTML
@@ -185,7 +204,15 @@ export function createProductCard(product) {
   if (image) {
     mediaHTML = `<img src="${image}" alt="${product.name}" loading="lazy" />`;
   } else if (firstVideo) {
-    mediaHTML = `<video src="${firstVideo}#t=0.1" class="pc-video-preview" muted playsinline loop onmouseover="this.play()" onmouseout="this.pause()" style="width:100%; height:100%; object-fit:contain; background:transparent;"></video>`;
+    mediaHTML = `<video 
+      poster="${formatCloudinaryVideoPoster(firstVideo)}"
+      data-src="${formatCloudinaryHoverPreview(firstVideo)}"
+      class="pc-video-preview" 
+      muted playsinline loop 
+      onmouseover="if (!this.src && this.dataset.src) { this.src = this.dataset.src; } this.play();" 
+      onmouseout="this.pause()" 
+      style="width:100%; height:100%; object-fit:contain; background:transparent;">
+    </video>`;
   } else {
     mediaHTML = `<div class="pc-no-image">👟</div>`;
   }
