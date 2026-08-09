@@ -535,14 +535,9 @@
   font-weight: 500;
 }
 
-@media (max-width: 767px) {
+@media (max-width: 1100px) {
   .hero-trending-widget {
-    top: auto !important;
-    bottom: 10px !important;
-    right: 10px !important;
-    transform: scale(0.5) !important;
-    transform-origin: bottom right;
-    display: block !important;
+    display: none !important;
   }
 }
 
