@@ -100,14 +100,8 @@ function injectModalDOM(context = null) {
   // Always use the split checkout layout
   overlay.classList.add('checkout-mode');
 
-  // The actual OTP DOM logic
+  // The actual OTP DOM logic (no brand block — checkout layout has its own header)
   const otpDom = `
-      <div class="login-modal-brand">
-        <img src="/logos/headlogo.png" alt="KicksAura" class="login-modal-brand-logo" onerror="this.style.display='none'"/>
-        <h2 id="login-modal-title">Log In</h2>
-        <p id="login-modal-subtitle">Enter your mobile number to continue</p>
-      </div>
-
       <!-- PHONE STEP -->
       <div id="login-step-phone">
         <div class="login-input-wrap" id="login-phone-wrap">
@@ -209,7 +203,7 @@ function injectModalDOM(context = null) {
         </div>
         
         <div class="login-modal-inner">
-          ${otpDom.replace(/<div class="login-modal-brand">[\s\S]*?<\/div>/, '')}
+          ${otpDom}
           
           <div class="login-modal-footer-links">
             <a href="#" id="login-about-link">About Us</a> | <a href="#" id="login-shipping-link">Shipping & Delivery Policy</a>
@@ -770,10 +764,11 @@ export function closeLoginModal() {
   overlay.classList.remove('open');
   document.body.style.overflow = '';
 
-  // If they closed the checkout login modal without logging in, redirect them back to cart
+  // If they closed the checkout login modal without logging in, redirect them back home
+  // (There is no standalone /cart route — the cart is a sidebar on the home page)
   if (overlay.classList.contains('checkout-mode')) {
     if (!isLoggedIn()) {
-      window.location.href = '/cart';
+      window.location.href = '/';
     }
   }
 }
