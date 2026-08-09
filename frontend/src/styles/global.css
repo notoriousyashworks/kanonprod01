@@ -2594,7 +2594,7 @@ body.sidebar-lock #wishlist-sidebar {
   box-shadow: 0 2px 8px rgba(0,0,0,0.25);
   backdrop-filter: blur(2px);
   -webkit-backdrop-filter: blur(2px);
-  transition: opacity 0.2s, transform 0.2s, background 0.2s;
+  transition: opacity 0.4s ease, transform 0.2s, background 0.2s;
 }
 .center-play-btn:hover {
   background: rgba(255, 255, 255, 0.35);

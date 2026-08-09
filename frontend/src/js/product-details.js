@@ -106,28 +106,69 @@ window.initVideoPlayback = function(video) {
     // Hide button immediately when init starts
     if (playBtn) playBtn.style.display = 'none';
     
+    // SVG icons for play and pause states (matching Safari native look)
+    const PLAY_SVG = '<svg width="28" height="28" viewBox="0 0 24 24" fill="white"><polygon points="6,4 20,12 6,20"/></svg>';
+    const PAUSE_SVG = '<svg width="28" height="28" viewBox="0 0 24 24" fill="white"><rect x="5" y="3" width="4" height="18" rx="1"/><rect x="15" y="3" width="4" height="18" rx="1"/></svg>';
+
     // Overlays respond to actual video events — no setTimeout
     video.addEventListener('playing', () => {
       console.log('[VIDEO UI] playback started');
       loader.style.display = 'none';
-      if (playBtn) playBtn.style.display = 'none';
+      // Show pause button while playing (native Safari style — stays visible)
+      if (playBtn) {
+        playBtn.innerHTML = PAUSE_SVG;
+        playBtn.setAttribute('aria-label', 'Pause video');
+        playBtn.style.display = 'flex';
+        playBtn.style.opacity = '0';
+        // Fade out after 1.5 s of playing so it's not always in the way
+        clearTimeout(playBtn._fadeTimer);
+        playBtn._fadeTimer = setTimeout(() => { playBtn.style.opacity = '0'; playBtn.style.pointerEvents = 'none'; }, 1500);
+      }
+    });
+    // Show button on mousemove over the video area (desktop hover)
+    video.addEventListener('mousemove', () => {
+      if (playBtn && !video.paused) {
+        clearTimeout(playBtn._fadeTimer);
+        playBtn.style.opacity = '1';
+        playBtn.style.pointerEvents = 'auto';
+        playBtn._fadeTimer = setTimeout(() => { playBtn.style.opacity = '0'; playBtn.style.pointerEvents = 'none'; }, 2000);
+      }
     });
     video.addEventListener('waiting', () => {
       console.log('[HLS] Playback waiting/buffering');
       loader.style.display = 'block';
-      if (playBtn) playBtn.style.display = 'none';
+      if (playBtn) { playBtn.style.opacity = '0'; playBtn.style.pointerEvents = 'none'; }
     });
     video.addEventListener('pause', () => {
-      if (playBtn) playBtn.style.display = 'flex';
+      clearTimeout(playBtn?._fadeTimer);
+      if (playBtn) {
+        playBtn.innerHTML = PLAY_SVG;
+        playBtn.setAttribute('aria-label', 'Play video');
+        playBtn.style.opacity = '1';
+        playBtn.style.pointerEvents = 'auto';
+        playBtn.style.display = 'flex';
+      }
       loader.style.display = 'none';
     });
     video.addEventListener('ended', () => {
-      if (playBtn) playBtn.style.display = 'flex';
+      clearTimeout(playBtn?._fadeTimer);
+      if (playBtn) {
+        playBtn.innerHTML = PLAY_SVG;
+        playBtn.setAttribute('aria-label', 'Play video');
+        playBtn.style.opacity = '1';
+        playBtn.style.pointerEvents = 'auto';
+        playBtn.style.display = 'flex';
+      }
       loader.style.display = 'none';
     });
     video.addEventListener('error', () => {
       loader.style.display = 'none';
-      if (playBtn) playBtn.style.display = 'flex';
+      if (playBtn) {
+        playBtn.innerHTML = PLAY_SVG;
+        playBtn.style.opacity = '1';
+        playBtn.style.pointerEvents = 'auto';
+        playBtn.style.display = 'flex';
+      }
     });
   } else if (video.parentElement) {
     // Listeners already attached — just show loader
@@ -220,30 +261,34 @@ window.initVideoPlayback = function(video) {
   }
 };
 
-// Custom centered Play button click handler.
-// - If HLS is already initialized: call video.play() directly (preserves user gesture).
-// - If not yet initialized: enter initVideoPlayback once (also within user gesture).
-// Never re-initializes HLS or creates a second video element.
+// Custom centered Play/Pause button click handler (desktop only — hidden on mobile via CSS).
+// Mirrors the Safari native centered button: shows ▶ when paused, ⏸ when playing.
 window.centerPlayBtnClick = function(btn) {
   console.log('[VIDEO UI] play button clicked');
   const v = btn.parentElement ? btn.parentElement.querySelector('video') : null;
   if (!v) return;
 
   if (v.dataset.initialized === 'true') {
-    // HLS already attached — just play directly
-    console.log('[VIDEO UI] video.play() requested (already initialized)');
-    const p = v.play();
-    if (p !== undefined) {
-      p.then(() => {
-        console.log('[VIDEO UI] playback started');
-      }).catch(e => {
-        console.warn('[VIDEO UI] playback failed:', e);
-        // Keep button visible on failure
-        btn.style.display = 'flex';
-      });
+    if (v.paused || v.ended) {
+      // Video is paused — play it
+      console.log('[VIDEO UI] video.play() requested (already initialized)');
+      const p = v.play();
+      if (p !== undefined) {
+        p.then(() => {
+          console.log('[VIDEO UI] playback started');
+        }).catch(e => {
+          console.warn('[VIDEO UI] playback failed:', e);
+          btn.style.opacity = '1';
+          btn.style.pointerEvents = 'auto';
+        });
+      }
+    } else {
+      // Video is playing — pause it
+      console.log('[VIDEO UI] video.pause() requested');
+      v.pause();
     }
   } else {
-    // First interaction — enter init flow which will also call video.play() inside
+    // First interaction — enter init flow which also calls video.play() inside
     console.log('[VIDEO UI] video.play() requested (triggering init)');
     window.initVideoPlayback(v);
   }
@@ -511,11 +556,17 @@ function renderProduct(product) {
       }, 50);
     }
 
-    // Update arrow visibility
+    // Update arrow visibility: hide entirely when showing a video, show for images
     const prev = document.getElementById('lb-prev');
     const next = document.getElementById('lb-next');
-    if (prev) prev.style.opacity = lbIdx === 0 ? '0.3' : '1';
-    if (next) next.style.opacity = lbIdx === mediaItems.length - 1 ? '0.3' : '1';
+    if (item.type === 'video') {
+      // No prev/next navigation when viewing a video in the lightbox
+      if (prev) prev.style.display = 'none';
+      if (next) next.style.display = 'none';
+    } else {
+      if (prev) { prev.style.display = ''; prev.style.opacity = lbIdx === 0 ? '0.3' : '1'; }
+      if (next) { next.style.display = ''; next.style.opacity = lbIdx === mediaItems.length - 1 ? '0.3' : '1'; }
+    }
 
     // Counter removed
     const counter = document.getElementById('lb-counter');
