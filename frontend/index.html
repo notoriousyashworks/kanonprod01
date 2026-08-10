@@ -268,7 +268,33 @@
       .hero-carousel-arrow--next {
         right: 20px;
       }
+      .hero-banner-btn {
+        position: absolute;
+        right: 8%;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 10;
+        padding: 12px 28px;
+        background: transparent;
+        border: 2px solid #000;
+        color: #000;
+        font-weight: 700;
+        font-size: 15px;
+        border-radius: 8px;
+        text-decoration: none;
+        transition: all 0.2s ease;
+      }
+      .hero-banner-btn:hover {
+        background: #000;
+        color: #fff;
+      }
       @media (max-width: 767px) {
+        .hero-banner-btn {
+          padding: 8px 18px;
+          font-size: 13px;
+          right: 5%;
+          border-width: 1.5px;
+        }
         .hero-banner-wrapper {
           width: min(calc(100vw - 24px), 100%);
           margin-top: 14px;
@@ -300,7 +326,12 @@
           <div class="hero-carousel" id="hero-carousel" aria-roledescription="banner" aria-label="Featured offers">
             <div class="hero-carousel-track" onclick="window.location.href='/products'" style="cursor: pointer;">
               <div class="hero-slide hero-slide--poster is-active" aria-label="Luxury brands offer">
-                <img src="/images/bannermainf.png" alt="Luxury brands in every thread at Kicks Aura">
+                <picture>
+                  <source media="(max-width: 767px)" srcset="/images/BannerPhone.png">
+                  <source media="(min-width: 768px)" srcset="/images/BannerDesktop.png">
+                  <img src="/images/BannerDesktop.png" alt="Luxury brands in every thread at Kicks Aura">
+                </picture>
+                <a href="/products" class="hero-banner-btn">View All Products</a>
               </div>
             </div>
 

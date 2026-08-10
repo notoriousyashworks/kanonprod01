@@ -13,7 +13,7 @@ import { shippingPolicyContent } from './policy-content.js';
 const form = document.getElementById('checkout-form');
 const placeOrderBtn = document.getElementById('place-order-btn');
 const applyBtn = document.querySelector('.btn-apply');
-const MAX_SAVED_ADDRESSES = 3;
+const MAX_SAVED_ADDRESSES = 10;
 const ADDRESS_LIMIT_MESSAGE = 'Max address limit reached. Delete one address first to add a new address.';
 
 function hasDisplaySize(size) {
@@ -79,28 +79,28 @@ function normalizeSavedAddresses(addresses) {
   return Array.isArray(addresses) ? addresses.slice(0, MAX_SAVED_ADDRESSES) : [];
 }
 
+
 function syncCheckoutAddresses(addresses) {
-  const normalized = normalizeSavedAddresses(addresses);
+  // Do NOT truncate here — preserve all backend addresses as-is.
+  const all = Array.isArray(addresses) ? addresses : [];
   if (!checkoutUser) checkoutUser = getAuthUser() || {};
-  checkoutUser.addresses = normalized;
+  checkoutUser.addresses = all;
   const authUser = getAuthUser();
   if (authUser) {
-    authUser.addresses = normalized;
+    authUser.addresses = all;
     setAuthUser(authUser);
   }
-  saveProfile({ addresses: normalized });
-  return normalized;
+  saveProfile({ addresses: all });
+  return all;
 }
 
 function getLimitedCheckoutAddresses() {
   const rawAddresses = Array.isArray(checkoutUser?.addresses) ? checkoutUser.addresses : [];
-  const addresses = normalizeSavedAddresses(rawAddresses);
-  if (rawAddresses.length !== addresses.length) {
-    syncCheckoutAddresses(addresses);
-  } else if (checkoutUser) {
-    checkoutUser.addresses = addresses;
+  // Return all addresses without truncating or writing back.
+  if (checkoutUser) {
+    checkoutUser.addresses = rawAddresses;
   }
-  return addresses;
+  return rawAddresses;
 }
 
 function isSameAddress(a = {}, b = {}) {
