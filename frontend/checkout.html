@@ -194,9 +194,49 @@
           </div>
         </section>
 
+        </form>
 
+      </div><!-- /co-left-inner -->
+    </div><!-- /co-left -->
 
-        <!-- Payment -->
+    <!-- ── RIGHT PANEL ─────────────────────────── -->
+    <div class="co-right">
+      <div class="co-right-inner">
+        <div class="co-order-items" id="summary-items-list">
+          <!-- Populated by checkout.js -->
+        </div>
+        <div class="co-totals">
+          <div class="co-totals-row">
+            <span class="co-totals-label">Subtotal</span>
+            <span class="co-totals-value" id="summary-subtotal">₹0</span>
+          </div>
+          <div class="co-totals-row" id="summary-discount-row" style="display:none;">
+            <span class="co-totals-label co-totals-label--discount" style="color: #16a34a;">Prepaid Discount</span>
+            <span class="co-totals-value co-totals-value--discount" id="summary-discount" style="color: #16a34a;"></span>
+          </div>
+          <div class="co-totals-row">
+            <span class="co-totals-label" data-policy="shipping" style="cursor: pointer;" title="Click to view Shipping Policy">
+              Shipping
+              <svg class="co-info-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="8" cy="8" r="7"/><path d="M8 7v5M8 5v.5"/>
+              </svg>
+            </span>
+            <span class="co-totals-value co-totals-value--muted" id="summary-shipping">Enter shipping address</span>
+          </div>
+        </div>
+        <div class="co-grand-total">
+          <span class="co-grand-label">Total</span>
+          <span class="co-grand-value">
+            <span class="co-grand-currency">INR</span>
+            <span id="summary-total">₹0</span>
+          </span>
+        </div>
+      </div><!-- /co-right-inner -->
+    </div><!-- /co-right -->
+
+    <!-- LEFT BOTTOM: Payment + Button + Footer -->
+    <div class="co-left-bottom">
+      <div class="co-left-inner">
         <section class="co-section">
           <h2 class="co-section-title">Payment</h2>
           <p class="co-section-sub">All transactions are secure and encrypted.</p>
@@ -219,67 +259,17 @@
             </label>
           </div>
         </section>
-
-        <!-- Place Order -->
         <button type="button" class="co-submit-btn" id="place-order-btn">
           <span class="btn-main-text">Complete order</span>
           <span class="btn-sub-text" id="place-order-subtitle"></span>
         </button>
-
-      </form>
-
-      <!-- Footer links -->
         <nav class="co-footer-links">
-          <a href="/shipping-policy" target="_blank">Shipping & Delivery Policy</a>
-          <a href="/return-exchange" target="_blank">Return, Exchange & Refund</a>
+          <a href="/shipping-policy" target="_blank">Shipping &amp; Delivery Policy</a>
+          <a href="/return-exchange" target="_blank">Return, Exchange &amp; Refund</a>
           <a href="https://wa.me/916239379751" target="_blank" rel="noopener">Contact Us</a>
         </nav>
-
       </div><!-- /co-left-inner -->
-    </div><!-- /co-left -->
-
-    <!-- ── RIGHT PANEL ─────────────────────────── -->
-    <div class="co-right">
-      <div class="co-right-inner">
-
-        <!-- Cart Items -->
-      <div class="co-order-items" id="summary-items-list">
-        <!-- Populated by checkout.js -->
-      </div>
-
-      <!-- Coupon removed -->
-
-      <!-- Totals -->
-      <div class="co-totals">
-        <div class="co-totals-row">
-          <span class="co-totals-label">Subtotal</span>
-          <span class="co-totals-value" id="summary-subtotal">₹0</span>
-        </div>
-        <div class="co-totals-row" id="summary-discount-row" style="display:none;">
-          <span class="co-totals-label co-totals-label--discount" style="color: #16a34a;">Prepaid Discount</span>
-          <span class="co-totals-value co-totals-value--discount" id="summary-discount" style="color: #16a34a;"></span>
-        </div>
-        <div class="co-totals-row">
-          <span class="co-totals-label" data-policy="shipping" style="cursor: pointer;" title="Click to view Shipping Policy">
-            Shipping
-            <svg class="co-info-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
-              <circle cx="8" cy="8" r="7"/><path d="M8 7v5M8 5v.5"/>
-            </svg>
-          </span>
-          <span class="co-totals-value co-totals-value--muted" id="summary-shipping">Enter shipping address</span>
-        </div>
-      </div>
-
-      <div class="co-grand-total">
-        <span class="co-grand-label">Total</span>
-        <span class="co-grand-value">
-          <span class="co-grand-currency">INR</span>
-          <span id="summary-total">₹0</span>
-        </span>
-      </div>
-
-      </div><!-- /co-right-inner -->
-    </div><!-- /co-right -->
+    </div><!-- /co-left-bottom -->
 
   </div><!-- /co-wrap -->
 
