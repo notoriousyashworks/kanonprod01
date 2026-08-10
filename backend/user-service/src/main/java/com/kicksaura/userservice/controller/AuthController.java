@@ -56,6 +56,7 @@ public class AuthController {
         ResponseCookie cookie = ResponseCookie.from("kicksaura_auth_token", response.getToken())
                 .httpOnly(true)
                 .secure(cookieSecure)
+                .sameSite("Lax")
                 .path("/")
                 .maxAge(7 * 24 * 60 * 60) // 7 days
                 .build();
@@ -73,6 +74,7 @@ public class AuthController {
         ResponseCookie cookie = ResponseCookie.from("kicksaura_auth_token", "")
                 .httpOnly(true)
                 .secure(cookieSecure)
+                .sameSite("Lax")
                 .path("/")
                 .maxAge(0) // Expire immediately
                 .build();
