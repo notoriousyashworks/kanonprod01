@@ -327,7 +327,7 @@ function renderProduct(product) {
     ? product.variants.reduce((sum, v) => sum + (v.stockQuantity || 0), 0)
     : (product.stockQuantity ?? 10);
   const isInStock = product.inStockFlag ?? (totalStock > 0);
-  const initialViewers = Math.floor(Math.random() * 3) + 6; // 6 to 8 (always > 5)
+  const initialViewers = Math.floor(Math.random() * 8) + 8; // 8 to 15 (always >= 8)
   const initialCarts = Math.floor(Math.random() * 4) + 1; // 1 to 4
 
   // Thumbnails HTML — vertical strip
@@ -960,9 +960,9 @@ function renderProduct(product) {
   window._pdLiveInterval = setInterval(() => {
     const viewersEl = document.getElementById('pd-viewers-num');
     if (viewersEl) {
-      let currentV = parseInt(viewersEl.textContent || '6');
+      let currentV = parseInt(viewersEl.textContent || '8');
       const change = Math.random() > 0.5 ? 1 : -1;
-      const newV = Math.max(6, Math.min(8, currentV + change));
+      const newV = Math.max(8, Math.min(15, currentV + change));
       viewersEl.textContent = newV;
     }
   }, 9000);

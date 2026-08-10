@@ -22,4 +22,10 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
 
     @Query("SELECT COUNT(DISTINCT o.userId) FROM Order o")
     long countDistinctCustomers();
+
+    @Query("SELECT COUNT(o) FROM Order o WHERE UPPER(o.status) IN ('ORDER_PLACED', 'PENDING')")
+    long countPendingOrders();
+
+    @Query("SELECT COALESCE(SUM(o.totalAmount), 0) FROM Order o WHERE UPPER(o.status) NOT IN ('CANCELLED', 'RETURNED')")
+    double sumTotalRevenue();
 }

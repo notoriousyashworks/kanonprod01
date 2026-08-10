@@ -319,17 +319,9 @@ public class OrderService {
 
     @Transactional(readOnly = true)
     public OrderStatsDTO getOrderStats() {
-        List<Order> allOrders = orderRepository.findAll();
-        long totalOrders = allOrders.size();
-        long pendingOrders = allOrders.stream()
-                .filter(o -> "ORDER_PLACED".equalsIgnoreCase(o.getStatus())
-                          || "PENDING".equalsIgnoreCase(o.getStatus()))
-                .count();
-        double totalRevenue = allOrders.stream()
-                .filter(o -> !"CANCELLED".equalsIgnoreCase(o.getStatus())
-                          && !"RETURNED".equalsIgnoreCase(o.getStatus()))
-                .mapToDouble(Order::getTotalAmount)
-                .sum();
+        long totalOrders = orderRepository.count();
+        long pendingOrders = orderRepository.countPendingOrders();
+        double totalRevenue = orderRepository.sumTotalRevenue();
         long totalCustomers = orderRepository.countDistinctCustomers();
 
         return OrderStatsDTO.builder()

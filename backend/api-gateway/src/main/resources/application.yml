@@ -53,8 +53,9 @@ management:
 
 logging:
   level:
-    org.springframework.cloud.gateway: TRACE
-    org.springframework.web.reactive: DEBUG
+    root: INFO
+    org.springframework.cloud.gateway: INFO
+    org.springframework.web.reactive: INFO
 
 jwt:
   secret: ${JWT_SECRET}
