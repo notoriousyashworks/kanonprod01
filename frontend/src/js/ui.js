@@ -577,10 +577,64 @@ export async function initPurchaseNotifications() {
         window.location.href = `/product-details?id=${product.id}`;
       };
 
+      // ── Swipe-to-dismiss (mobile touch) ────────────────
+      let touchStartY = 0;
+      let currentDeltaY = 0;
+      const SWIPE_THRESHOLD = 60; // px needed to trigger dismiss
+
+      const isMobile = () => window.innerWidth <= 768;
+
+      const onTouchStart = (e) => {
+        if (!isMobile()) return;
+        touchStartY = e.touches[0].clientY;
+        currentDeltaY = 0;
+        // Disable CSS transition while dragging for instant feel
+        notificationEl.style.transition = 'opacity 0.15s ease';
+      };
+
+      const onTouchMove = (e) => {
+        if (!isMobile()) return;
+        currentDeltaY = e.touches[0].clientY - touchStartY;
+        // Follow the finger — offset relative to centred "show" position
+        notificationEl.style.transform = `translate(-50%, ${currentDeltaY}px)`;
+        // Fade out as it moves away
+        const opacity = Math.max(0, 1 - Math.abs(currentDeltaY) / 160);
+        notificationEl.style.opacity = String(opacity);
+        e.preventDefault(); // prevent page scroll while swiping the toast
+      };
+
+      const onTouchEnd = () => {
+        if (!isMobile()) return;
+        // Restore smooth transition
+        notificationEl.style.transition = 'transform 0.35s ease, opacity 0.35s ease';
+
+        if (Math.abs(currentDeltaY) >= SWIPE_THRESHOLD) {
+          // Flick off in the direction of the swipe
+          const flyOut = currentDeltaY < 0 ? '-160%' : '160%';
+          notificationEl.style.transform = `translate(-50%, ${flyOut})`;
+          notificationEl.style.opacity = '0';
+          setTimeout(() => {
+            notificationEl.classList.remove('show');
+            notificationEl.style.transform = '';
+            notificationEl.style.opacity = '';
+          }, 350);
+        } else {
+          // Short swipe — snap back to centre
+          notificationEl.style.transform = 'translate(-50%, 0)';
+          notificationEl.style.opacity = '1';
+        }
+        currentDeltaY = 0;
+      };
+
+      notificationEl.addEventListener('touchstart', onTouchStart, { passive: true });
+      notificationEl.addEventListener('touchmove', onTouchMove, { passive: false });
+      notificationEl.addEventListener('touchend', onTouchEnd, { passive: true });
+      // ────────────────────────────────────────────────────
+
       // Show it
       notificationEl.classList.add('show');
 
-      // Hide after 5 seconds
+      // Auto-hide after 5 seconds
       setTimeout(() => {
         notificationEl.classList.remove('show');
       }, 5000);
@@ -590,7 +644,7 @@ export async function initPurchaseNotifications() {
       setTimeout(showNotification, nextDelay);
     };
 
-    let initialDelay = 2000;
+    let initialDelay = 4000;
     if (sessionStorage.getItem('hasSeenPurchaseNotification')) {
       initialDelay = 30000 + Math.random() * 10000;
     } else {
