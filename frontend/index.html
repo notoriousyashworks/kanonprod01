@@ -269,31 +269,40 @@
         right: 20px;
       }
       .hero-banner-btn {
+        display: none;
         position: absolute;
-        right: 8%;
-        top: 50%;
-        transform: translateY(-50%);
         z-index: 10;
-        padding: 12px 28px;
-        background: transparent;
-        border: 2px solid #000;
-        color: #000;
-        font-weight: 700;
-        font-size: 15px;
-        border-radius: 8px;
         text-decoration: none;
-        transition: all 0.2s ease;
-      }
-      .hero-banner-btn:hover {
-        background: #000;
-        color: #fff;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
       }
       @media (max-width: 767px) {
         .hero-banner-btn {
-          padding: 8px 18px;
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 10px 20px;
           font-size: 13px;
-          right: 5%;
-          border-width: 1.5px;
+          font-weight: 700;
+          border-radius: 8px;
+          top: auto;
+          right: auto;
+          transform: none;
+          bottom: 16px;
+          left: 16px;
+          background: rgba(255, 255, 255, 0.85);
+          backdrop-filter: blur(8px);
+          -webkit-backdrop-filter: blur(8px);
+          border: 1px solid rgba(255, 255, 255, 0.4);
+          color: #111;
+          box-shadow: 0 4px 16px rgba(0,0,0,0.12), inset 0 0 0 1px rgba(255,255,255,0.2);
+          letter-spacing: 0.5px;
+        }
+        .hero-banner-btn:hover {
+          background: #111;
+          color: #fff;
+          border-color: #111;
+          box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+          transform: translateY(-2px);
         }
         .hero-banner-wrapper {
           width: min(calc(100vw - 24px), 100%);
@@ -331,7 +340,10 @@
                   <source media="(min-width: 768px)" srcset="/images/BannerDesktop.png">
                   <img src="/images/BannerDesktop.png" alt="Luxury brands in every thread at Kicks Aura">
                 </picture>
-                <a href="/products" class="hero-banner-btn">View All Products</a>
+                <a href="/products" class="hero-banner-btn">
+                  View All Products
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-top: 1px;"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                </a>
               </div>
             </div>
 
