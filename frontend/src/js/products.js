@@ -496,6 +496,30 @@ async function loadAndRender() {
     currentPage = 0;
     allLoadedProducts = [];
     
+    // Check if category other than Sneakers is selected
+    if (state.categories.length > 0 && state.categories.some(c => c.toLowerCase() !== 'sneakers')) {
+      const trending = await getTrendingProducts();
+      resultsCount.textContent = `0 products found`;
+      
+      const trendingHTML = trending.length > 0
+        ? `
+          <p class="trending-section-title">Trending Products</p>
+          <div class="products-grid">${trending.map(createProductCard).join('')}</div>
+        `
+        : '';
+
+      grid.innerHTML = `
+        <div class="no-results-container" style="grid-column: 1/-1;">
+          <div class="no-results-hero">
+            <p class="no-results-title" style="font-size: 2rem; color: #ff3333; margin-bottom: 8px;">Coming Soon!</p>
+            <p class="no-results-subtitle">We are currently working on adding products to this category.</p>
+          </div>
+          ${trendingHTML}
+        </div>
+      `;
+      return;
+    }
+
     const pageData = await fetchPage(currentPage);
     allLoadedProducts = pageData.content || [];
     totalPages = pageData.totalPages || 0;
