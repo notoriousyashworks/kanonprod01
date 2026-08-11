@@ -327,7 +327,6 @@ export function getNavbarHTML(activePage = 'home') {
           <a href="/" class="nav-link ${activePage === 'home' ? 'nav-link--active' : ''}">Home</a>
           <a href="/#shop-category" class="nav-link ${activePage === 'products' ? 'nav-link--active' : ''}">Categories</a>
           <a href="/#new-arrivals" class="nav-link">New Arrivals</a>
-          <a href="/#customer-reviews" class="nav-link">Customer Reviews</a>
           <a href="/shipping-policy" class="nav-link ${activePage === 'shipping' ? 'nav-link--active' : ''}">Shipping Policy</a>
           <a href="https://wa.me/${import.meta.env.VITE_WHATSAPP_NUMBER}?text=Hey!" target="_blank" rel="noopener" class="nav-link">Contact on WhatsApp</a>
         </div>
@@ -352,9 +351,6 @@ export function getNavbarHTML(activePage = 'home') {
           </a>
           <a href="/#new-arrivals" class="mobile-nav-link">
             New Arrivals
-          </a>
-          <a href="/#customer-reviews" class="mobile-nav-link">
-            Customer Reviews
           </a>
           <a href="/shipping-policy" class="mobile-nav-link ${activePage === 'shipping' ? 'mobile-nav-link--active' : ''}">
             Shipping Policy
