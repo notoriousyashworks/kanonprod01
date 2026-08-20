@@ -329,6 +329,7 @@ export function getNavbarHTML(activePage = 'home') {
           <a href="/#new-arrivals" class="nav-link">New Arrivals</a>
           <a href="/shipping-policy" class="nav-link ${activePage === 'shipping' ? 'nav-link--active' : ''}">Shipping Policy</a>
           <a href="https://wa.me/${import.meta.env.VITE_WHATSAPP_NUMBER}?text=Hey!" target="_blank" rel="noopener" class="nav-link">Contact on WhatsApp</a>
+          <a href="/#customer-reviews" class="nav-link">Customer Reviews</a>
         </div>
       </nav>
 
@@ -357,6 +358,9 @@ export function getNavbarHTML(activePage = 'home') {
           </a>
           <a href="https://wa.me/${import.meta.env.VITE_WHATSAPP_NUMBER}?text=Hey!" target="_blank" rel="noopener" class="mobile-nav-link mobile-nav-link--whatsapp">
             Contact on WhatsApp
+          </a>
+          <a href="/#customer-reviews" class="mobile-nav-link">
+            Customer Reviews
           </a>
         </nav>
         <div class="mobile-nav-drawer__footer">
