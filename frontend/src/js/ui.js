@@ -219,12 +219,10 @@ export function createProductCard(product) {
 
   const saleBadgeHTML = product.saleVisible ? '<div class="pc-sale-badge" style="position: static;">Sale</div>' : '';
   const videoBadgeHTML = product.videoVisible ? '<div class="pc-sale-badge" style="position: static; background-color: #2563eb;">Video Available</div>' : '';
-  const limitedStockBadgeHTML = product.limitedStock ? '<div class="pc-sale-badge" style="position: static; background-color: #d97706;">Limited Stock</div>' : '';
-  const badgesContainer = (saleBadgeHTML || videoBadgeHTML || limitedStockBadgeHTML)
+  const badgesContainer = (saleBadgeHTML || videoBadgeHTML)
     ? `<div style="position:absolute; top:8px; left:0; display:flex; gap:8px; z-index:2; align-items:center;">
          ${saleBadgeHTML}
          ${videoBadgeHTML}
-         ${limitedStockBadgeHTML}
        </div>`
     : '';
 

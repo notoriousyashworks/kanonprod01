@@ -483,10 +483,16 @@ function renderProduct(product) {
 
       ${isInStock ? `
       <div class="pd-stock-status-row" style="margin-bottom: 8px;">
+        ${product.limitedStock ? `
+          <span style="display:inline-flex; align-items:center; gap:6px; background: linear-gradient(135deg, #ff6b00, #ff4500); color:#fff; font-size:13px; font-weight:700; letter-spacing:0.04em; padding:5px 13px; border-radius:20px; box-shadow:0 2px 8px rgba(255,100,0,0.35);">
+            🔥 SELLING FAST
+          </span>
+        ` : `
           <div class="pd-stock-icon-circle pd-stock-in">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
           </div>
           <span class="pd-stock-text pd-stock-in-text">In stock!</span>
+        `}
       </div>
       ` : ''}
       ${sizeChooserHTML}
