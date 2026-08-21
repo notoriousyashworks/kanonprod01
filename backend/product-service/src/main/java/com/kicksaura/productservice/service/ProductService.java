@@ -114,7 +114,7 @@ public class ProductService {
                 .isVideoVisible(request.isVideoVisible())
                 .withOgBox(request.isWithOgBox())
                 .isInStockFlag(request.isInStockFlag())
-                .isLimitedStock(request.isLimitedStock())
+                .isLimitedStock(request.getLimitedStock())
                 .build();
 
         if (request.getVariants() != null) {
@@ -161,7 +161,7 @@ public class ProductService {
         product.setVideoVisible(request.isVideoVisible());
         product.setWithOgBox(request.isWithOgBox());
         product.setInStockFlag(request.isInStockFlag());
-        product.setLimitedStock(request.isLimitedStock());
+        product.setLimitedStock(request.getLimitedStock());
 
         // Merge strategy: match by SKU to preserve existing UUIDs.
         // This prevents breaking order_items.variant_id references on every product update.
@@ -292,7 +292,7 @@ public class ProductService {
                 .isVideoVisible(product.isVideoVisible())
                 .withOgBox(product.isWithOgBox())
                 .isInStockFlag(product.isInStockFlag())
-                .isLimitedStock(product.isLimitedStock())
+                .limitedStock(product.isLimitedStock())
                 .createdAt(product.getCreatedAt())
                 .variants(variantDTOs)
                 .build();

@@ -460,11 +460,11 @@ async function loadMore() {
     currentPage = pageData.number;
     totalPages = pageData.totalPages;
     totalElements = pageData.totalElements;
-    renderProducts(grid);
   } catch(e) {
     console.error(e);
   } finally {
     isLoadingMore = false;
+    renderProducts(grid); // Re-render after reset so button shows correctly
   }
 }
 
@@ -496,30 +496,6 @@ async function loadAndRender() {
     currentPage = 0;
     allLoadedProducts = [];
     
-    // Check if category other than Sneakers is selected
-    if (state.categories.length > 0 && state.categories.some(c => c.toLowerCase() !== 'sneakers')) {
-      const trending = await getTrendingProducts();
-      resultsCount.textContent = `0 products found`;
-      
-      const trendingHTML = trending.length > 0
-        ? `
-          <p class="trending-section-title">Trending Products</p>
-          <div class="products-grid">${trending.map(createProductCard).join('')}</div>
-        `
-        : '';
-
-      grid.innerHTML = `
-        <div class="no-results-container" style="grid-column: 1/-1;">
-          <div class="no-results-hero">
-            <p class="no-results-title" style="font-size: 2rem; color: #ff3333; margin-bottom: 8px;">Coming Soon!</p>
-            <p class="no-results-subtitle">We are currently working on adding products to this category.</p>
-          </div>
-          ${trendingHTML}
-        </div>
-      `;
-      return;
-    }
-
     const pageData = await fetchPage(currentPage);
     allLoadedProducts = pageData.content || [];
     totalPages = pageData.totalPages || 0;
@@ -528,10 +504,8 @@ async function loadAndRender() {
     resultsCount.textContent = `${totalElements} product${totalElements !== 1 ? 's' : ''} found`;
 
     if (totalElements === 0) {
-      // Show no-results + trending
       const trending = await getTrendingProducts();
 
-      // Just show trending always when no results
       const trendingHTML = trending.length > 0
         ? `
           <p class="trending-section-title">Trending Products</p>
@@ -539,11 +513,18 @@ async function loadAndRender() {
         `
         : '';
 
+      // If a category filter is active and returned nothing → Coming Soon
+      const isCategoryFilter = state.categories.length > 0;
+
       grid.innerHTML = `
         <div class="no-results-container" style="grid-column: 1/-1;">
           <div class="no-results-hero">
-            <p class="no-results-title">No products found</p>
-            <p class="no-results-subtitle">We couldn't find any products matching your search.</p>
+            ${isCategoryFilter
+              ? `<p class="no-results-title" style="font-size: 2rem; color: #ff3333; margin-bottom: 8px;">Coming Soon!</p>
+                 <p class="no-results-subtitle">We are currently working on adding products to this category.</p>`
+              : `<p class="no-results-title">No products found</p>
+                 <p class="no-results-subtitle">We couldn't find any products matching your search.</p>`
+            }
           </div>
           ${trendingHTML}
         </div>

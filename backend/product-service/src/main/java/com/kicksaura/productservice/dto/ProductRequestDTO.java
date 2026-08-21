@@ -1,5 +1,6 @@
 package com.kicksaura.productservice.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -53,7 +54,8 @@ public class ProductRequestDTO {
     private boolean withOgBox;
     @Builder.Default
     private boolean isInStockFlag = true;
-    private boolean isLimitedStock;
+    @JsonProperty("limitedStock")
+    private boolean limitedStock;
 
     @Valid
     private List<VariantDTO> variants;
