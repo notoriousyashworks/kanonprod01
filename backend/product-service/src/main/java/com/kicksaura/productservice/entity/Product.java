@@ -92,6 +92,10 @@ public class Product {
     @Builder.Default
     private boolean isInStockFlag = true;
 
+    @Column(name = "is_limited_stock", nullable = false, columnDefinition = "boolean default false")
+    @Builder.Default
+    private boolean isLimitedStock = false;
+
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     @ToString.Exclude

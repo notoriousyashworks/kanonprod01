@@ -747,6 +747,9 @@ async function showProductForm(product = null) {
         <input type="checkbox" name="isVideoVisible" ${product?.videoVisible ? 'checked' : ''}> Video Available Badge Visible
       </label>
       <label class="form-checkbox-label" style="margin-top: 8px;">
+        <input type="checkbox" name="isLimitedStock" ${product?.limitedStock ? 'checked' : ''}> Limited Stock Badge Visible
+      </label>
+      <label class="form-checkbox-label" style="margin-top: 8px;">
         <input type="checkbox" name="isNewArrival" ${product?.newArrival ? 'checked' : ''}> New Arrival
       </label>
       <label class="form-checkbox-label" style="margin-top: 8px;">
@@ -969,6 +972,7 @@ function collectProductData(f) {
     visible: f.querySelector('[name="isVisible"]')?.checked ?? true,
     saleVisible: f.querySelector('[name="isSaleVisible"]')?.checked ?? false,
     videoVisible: f.querySelector('[name="isVideoVisible"]')?.checked ?? false,
+    limitedStock: f.querySelector('[name="isLimitedStock"]')?.checked ?? false,
     newArrival: f.querySelector('[name="isNewArrival"]')?.checked ?? false,
     trending: f.querySelector('[name="isTrending"]')?.checked ?? false,
     withOgBox: f.querySelector('[name="withOgBox"]')?.checked ?? false,

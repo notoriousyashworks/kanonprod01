@@ -34,6 +34,7 @@ public class ProductResponseDTO {
     private boolean isVideoVisible;
     private boolean withOgBox;
     private boolean isInStockFlag;
+    private boolean isLimitedStock;
     private LocalDateTime createdAt;
     
     private List<VariantDTO> variants;

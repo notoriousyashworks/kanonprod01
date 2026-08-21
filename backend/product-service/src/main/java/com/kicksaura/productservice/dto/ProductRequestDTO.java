@@ -53,6 +53,7 @@ public class ProductRequestDTO {
     private boolean withOgBox;
     @Builder.Default
     private boolean isInStockFlag = true;
+    private boolean isLimitedStock;
 
     @Valid
     private List<VariantDTO> variants;
