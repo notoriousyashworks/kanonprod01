@@ -636,7 +636,7 @@ async function showProductForm(product = null) {
   // For new products (shoe flow): pre-fill UK 7–10.5 as defaults
   // For edits: load existing variants
   const ALL_SHOE_SIZES = [
-    'UK 6', 'UK 6.5', 'UK 7', 'UK 7.5', 'UK 8', 'UK 8.5',
+    'UK 5', 'UK 5.5', 'UK 6', 'UK 6.5', 'UK 7', 'UK 7.5', 'UK 8', 'UK 8.5',
     'UK 9', 'UK 9.5', 'UK 10', 'UK 10.5', 'UK 11', 'UK 11.5', 'UK 12'
   ];
   const DEFAULT_SIZES = ['UK 7', 'UK 7.5', 'UK 8', 'UK 8.5', 'UK 9', 'UK 9.5', 'UK 10', 'UK 10.5'];

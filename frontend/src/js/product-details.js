@@ -414,13 +414,21 @@ function renderProduct(product) {
 
   const hasVariants = product.variants && product.variants.length > 0;
 
-  // Size variant buttons
+  // Size variant buttons — sort numerically so UK 6 < UK 6.5 < UK 10 etc.
+  const sortedVariants = hasVariants
+    ? [...product.variants].sort((a, b) => {
+        const aNum = parseFloat((a.size || '').replace(/[^0-9.]/g, '')) || 0;
+        const bNum = parseFloat((b.size || '').replace(/[^0-9.]/g, '')) || 0;
+        return aNum - bNum;
+      })
+    : [];
+
   const variantsHTML = hasVariants
-    ? product.variants.map(v => `
+    ? sortedVariants.map(v => `
         <button class="size-btn ${v.stockQuantity <= 0 ? 'size-btn--oos' : ''}"
           data-variant-id="${v.id}"
           data-stock="${v.stockQuantity}"
-          ${v.stockQuantity <= 0 ? 'disabled title="Out of stock"' : ''}>
+          ${v.stockQuantity <= 0 ? 'disabled title="Out of stock"' : ''}> 
           ${v.size}
         </button>`).join('')
     : '';
@@ -695,6 +703,8 @@ function renderProduct(product) {
         'new balance': {
           headers: ['UK Size', 'EU Size', 'Foot Length (cm)'],
           rows: [
+            ['UK 5', '38.5', '23.5'],
+            ['UK 5.5', '39', '24'],
             ['UK 6', '39.5', '24.5'],
             ['UK 6.5', '40', '25'],
             ['UK 7', '40.5', '25.5'],
@@ -713,6 +723,8 @@ function renderProduct(product) {
         'nike': {
           headers: ['UK Size', 'EU Size', 'Foot Length (cm)'],
           rows: [
+            ['UK 5', '38', '23.5'],
+            ['UK 5.5', '38.5', '24'],
             ['UK 6 (EU 40)', '40', '24.5'],
             ['UK 6.5', '40.5', '25'],
             ['UK 7', '41', '25.4'],
@@ -730,6 +742,8 @@ function renderProduct(product) {
         'adidas': {
           headers: ['UK Size', 'EU Size', 'Foot Length (cm)'],
           rows: [
+            ['UK 5', '38', '23.5'],
+            ['UK 5.5', '38 2/3', '24'],
             ['UK 6', '39 1/3', '24.5'],
             ['UK 6.5', '40', '25'],
             ['UK 7', '40 2/3', '25.5'],
@@ -748,6 +762,8 @@ function renderProduct(product) {
         'crocs': {
           headers: ['UK Size', 'EU Size', 'Foot Length (cm)'],
           rows: [
+            ['UK 5', '36-37', '23.5'],
+            ['UK 5.5', '37-38', '24'],
             ['UK 6', '37-38', '24.5'],
             ['UK 6.5', '38-39', '25'],
             ['UK 7', '39-40', '25.5'],
@@ -766,6 +782,8 @@ function renderProduct(product) {
         'on cloud': {
           headers: ['UK Size', 'EU Size', 'Foot Length (cm)'],
           rows: [
+            ['UK 5', '38', '23.5'],
+            ['UK 5.5', '38.5', '24'],
             ['UK 6', '39', '24.5'],
             ['UK 6.5', '40', '25'],
             ['UK 7', '40.5', '25.5'],
@@ -784,6 +802,8 @@ function renderProduct(product) {
         'onitsuka tiger': {
           headers: ['UK Size', 'EU Size', 'Foot Length (cm)'],
           rows: [
+            ['UK 5', '37.5', '23.5'],
+            ['UK 5.5', '38', '24'],
             ['UK 6', '39', '24.5'],
             ['UK 6.5', '39.5', '25'],
             ['UK 7', '40.5', '25.5'],
