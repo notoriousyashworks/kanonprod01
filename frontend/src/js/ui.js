@@ -373,19 +373,7 @@ export function getNavbarHTML(activePage = 'home') {
         <div class="header__banner-marquee">
           <div class="marquee-content">
             <span class="dot">•</span>
-            <span>PAN-INDIA DELIVERY</span>
-            <span class="dot">•</span>
-            <span class="text-blue">PREPAID ORDERS (₹ 200 Off)</span>
-            <span class="dot">•</span>
-            <span>COD AVAILABLE (only ₹ 99 Advance)</span>
-            <span class="dot">•</span>
-            <span class="text-blue">1000+ HAPPY CUSTOMERS ACROSS INDIA</span>
-            <span class="dot">•</span>
-            <span>Limited Stock! 🚨</span>
-            <span class="dot">•</span>
-            <span class="text-blue">COUPON CODE : GRAB150 (Flat ₹150 Off on Every Product)</span>
-          </div>
-          <div class="marquee-content" aria-hidden="true">
+            <span class="text-blue">COUPON CODE : GRAB100 (Flat ₹100 Off on Every Product)</span>
             <span class="dot">•</span>
             <span>PAN-INDIA DELIVERY</span>
             <span class="dot">•</span>
@@ -396,10 +384,10 @@ export function getNavbarHTML(activePage = 'home') {
             <span class="text-blue">1000+ HAPPY CUSTOMERS ACROSS INDIA</span>
             <span class="dot">•</span>
             <span>Limited Stock! 🚨</span>
-            <span class="dot">•</span>
-            <span class="text-blue">COUPON CODE : GRAB150 (Flat ₹150 Off on Every Product)</span>
           </div>
           <div class="marquee-content" aria-hidden="true">
+            <span class="dot">•</span>
+            <span class="text-blue">COUPON CODE : GRAB100 (Flat ₹100 Off on Every Product)</span>
             <span class="dot">•</span>
             <span>PAN-INDIA DELIVERY</span>
             <span class="dot">•</span>
@@ -410,10 +398,24 @@ export function getNavbarHTML(activePage = 'home') {
             <span class="text-blue">1000+ HAPPY CUSTOMERS ACROSS INDIA</span>
             <span class="dot">•</span>
             <span>Limited Stock! 🚨</span>
-            <span class="dot">•</span>
-            <span class="text-blue">COUPON CODE : GRAB150 (Flat ₹150 Off on Every Product)</span>
           </div>
           <div class="marquee-content" aria-hidden="true">
+            <span class="dot">•</span>
+            <span class="text-blue">COUPON CODE : GRAB100 (Flat ₹100 Off on Every Product)</span>
+            <span class="dot">•</span>
+            <span>PAN-INDIA DELIVERY</span>
+            <span class="dot">•</span>
+            <span class="text-blue">PREPAID ORDERS (₹ 200 Off)</span>
+            <span class="dot">•</span>
+            <span>COD AVAILABLE (only ₹ 99 Advance)</span>
+            <span class="dot">•</span>
+            <span class="text-blue">1000+ HAPPY CUSTOMERS ACROSS INDIA</span>
+            <span class="dot">•</span>
+            <span>Limited Stock! 🚨</span>
+          </div>
+          <div class="marquee-content" aria-hidden="true">
+            <span class="dot">•</span>
+            <span class="text-blue">COUPON CODE : GRAB100 (Flat ₹100 Off on Every Product)</span>
             <span class="dot">•</span>
             <span>PAN-INDIA DELIVERY</span>
             <span class="dot">•</span>
@@ -424,8 +426,6 @@ export function getNavbarHTML(activePage = 'home') {
             <span class="text-blue">1000+ HAPPY CUSTOMERS</span>
             <span class="dot">•</span>
             <span>Limited Stock!</span>
-            <span class="dot">•</span>
-            <span class="text-blue">COUPON CODE : GRAB150 (Flat ₹150 Off on Every Product)</span>
           </div>
         </div>
       </div>
