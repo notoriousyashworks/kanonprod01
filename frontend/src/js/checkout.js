@@ -347,11 +347,46 @@ if (contactPhoneInput) {
   });
 }
 
-// ─── Coupon (placeholder) ─────────────────────────────────────────────────────
+// ─── Coupon ────────────────────────────────────────────────────────────────────
+const couponMsg = document.getElementById('coupon-msg');
+
+function showCouponMsg(text, isError) {
+  couponMsg.textContent = text;
+  couponMsg.style.color = isError ? '#dc2626' : '#16a34a';
+  couponMsg.style.display = 'block';
+}
+
 if (applyBtn) {
-  applyBtn.addEventListener('click', (e) => {
+  applyBtn.addEventListener('click', async (e) => {
     e.preventDefault();
-    alert('Coupon applied successfully!');
+    const code = (document.getElementById('coupon-input')?.value || '').trim().toUpperCase();
+    if (!code) {
+      showCouponMsg('Please enter a coupon code', true);
+      return;
+    }
+
+    applyBtn.disabled = true;
+    applyBtn.textContent = '…';
+
+    try {
+      const res = await fetch('/api/v1/coupons/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ code }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.valid) {
+        showCouponMsg(`Coupon "${data.code || code}" Applied Successfully`, false);
+      } else {
+        showCouponMsg(data.message || 'Coupon Not Applicable', true);
+      }
+    } catch {
+      showCouponMsg('Coupon Not Applicable', true);
+    } finally {
+      applyBtn.disabled = false;
+      applyBtn.textContent = 'Apply';
+    }
   });
 }
 
