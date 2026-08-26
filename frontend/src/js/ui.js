@@ -382,8 +382,6 @@ export function getNavbarHTML(activePage = 'home') {
             <span>COD AVAILABLE (only ₹ 99 Advance)</span>
             <span class="dot">•</span>
             <span class="text-blue">1000+ HAPPY CUSTOMERS ACROSS INDIA</span>
-            <span class="dot">•</span>
-            <span>Limited Stock! 🚨</span>
           </div>
           <div class="marquee-content" aria-hidden="true">
             <span class="dot">•</span>
@@ -396,8 +394,6 @@ export function getNavbarHTML(activePage = 'home') {
             <span>COD AVAILABLE (only ₹ 99 Advance)</span>
             <span class="dot">•</span>
             <span class="text-blue">1000+ HAPPY CUSTOMERS ACROSS INDIA</span>
-            <span class="dot">•</span>
-            <span>Limited Stock! 🚨</span>
           </div>
           <div class="marquee-content" aria-hidden="true">
             <span class="dot">•</span>
@@ -410,8 +406,6 @@ export function getNavbarHTML(activePage = 'home') {
             <span>COD AVAILABLE (only ₹ 99 Advance)</span>
             <span class="dot">•</span>
             <span class="text-blue">1000+ HAPPY CUSTOMERS ACROSS INDIA</span>
-            <span class="dot">•</span>
-            <span>Limited Stock! 🚨</span>
           </div>
           <div class="marquee-content" aria-hidden="true">
             <span class="dot">•</span>
@@ -424,8 +418,6 @@ export function getNavbarHTML(activePage = 'home') {
             <span>COD AVAILABLE (only ₹ 99 Advance)</span>
             <span class="dot">•</span>
             <span class="text-blue">1000+ HAPPY CUSTOMERS</span>
-            <span class="dot">•</span>
-            <span>Limited Stock!</span>
           </div>
         </div>
       </div>
