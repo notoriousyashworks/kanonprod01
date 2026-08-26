@@ -2157,8 +2157,8 @@ function showCouponForm(coupon = null) {
     const data = {
       code: f.querySelector('[name="code"]').value.trim().toUpperCase(),
       discountType,
-      discountPercent: discountType === 'PERCENTAGE' ? (parseFloat(f.querySelector('[name="disc"]').value) || 0) : null,
-      discountAmount: discountType === 'PER_PRODUCT' ? (parseFloat(f.querySelector('[name="discAmt"]').value) || 0) : null,
+      discountPercent: discountType === 'PERCENTAGE' ? (parseFloat(f.querySelector('[name="disc"]').value) || 0) : 0,
+      discountAmount: discountType === 'PER_PRODUCT' ? (parseFloat(f.querySelector('[name="discAmt"]').value) || 0) : 0,
       minOrderValue: parseFloat(f.querySelector('[name="minVal"]').value) || null,
       expiryDate: f.querySelector('[name="expiry"]').value || null,
       active: f.querySelector('[name="active"]').checked,
