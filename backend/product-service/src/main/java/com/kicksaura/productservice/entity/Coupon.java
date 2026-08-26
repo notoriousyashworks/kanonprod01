@@ -14,6 +14,8 @@ import java.util.UUID;
 @Builder
 public class Coupon {
 
+    public enum DiscountType { PERCENTAGE, PER_PRODUCT }
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
@@ -23,6 +25,14 @@ public class Coupon {
 
     @Column(name = "discount_percent", nullable = false)
     private Double discountPercent;
+
+    @Column(name = "discount_amount")
+    private Double discountAmount;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "discount_type", nullable = false)
+    @Builder.Default
+    private DiscountType discountType = DiscountType.PERCENTAGE;
 
     @Column(name = "min_order_value")
     private Double minOrderValue;
