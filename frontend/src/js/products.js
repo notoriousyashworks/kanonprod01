@@ -501,7 +501,7 @@ async function loadAndRender() {
     totalPages = pageData.totalPages || 0;
     totalElements = pageData.totalElements || 0;
 
-    resultsCount.textContent = `${totalElements} product${totalElements !== 1 ? 's' : ''} found`;
+    resultsCount.textContent = '';
 
     if (totalElements === 0) {
       const trending = await getTrendingProducts();
