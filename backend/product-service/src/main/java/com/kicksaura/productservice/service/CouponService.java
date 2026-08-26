@@ -5,6 +5,7 @@ import com.kicksaura.productservice.dto.CouponValidateResponse;
 import com.kicksaura.productservice.entity.Coupon;
 import com.kicksaura.productservice.exception.ResourceNotFoundException;
 import com.kicksaura.productservice.repository.CouponRepository;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +20,18 @@ import java.util.stream.Collectors;
 public class CouponService {
 
     private final CouponRepository couponRepository;
+
+    /** Backfill existing coupons that were created before discount_type/discount_amount columns existed. */
+    @PostConstruct
+    @Transactional
+    public void backfillLegacyCoupons() {
+        try {
+            couponRepository.backfillNullDiscountTypes();
+            couponRepository.backfillNullDiscountAmounts();
+        } catch (Exception e) {
+            // Columns may not exist yet on very first startup — ignore
+        }
+    }
 
     @Transactional(readOnly = true)
     public List<CouponDTO> getAllCoupons() {
@@ -75,7 +88,8 @@ public class CouponService {
     // ── Public validate (called from checkout, no auth required) ────────────────
     @Transactional(readOnly = true)
     public CouponValidateResponse validateCoupon(String code) {
-        return couponRepository.findByCodeIgnoreCase(code)
+        String upperCode = code.trim().toUpperCase();
+        return couponRepository.findByCodeIgnoreCase(upperCode)
                 .map(c -> {
                     if (!c.isActive()) {
                         return CouponValidateResponse.builder()
@@ -85,12 +99,16 @@ public class CouponService {
                         return CouponValidateResponse.builder()
                                 .valid(false).message("Coupon has expired").build();
                     }
+                    // Default to PERCENTAGE if column was null (existing rows before migration)
+                    Coupon.DiscountType type = c.getDiscountType() != null
+                            ? c.getDiscountType()
+                            : Coupon.DiscountType.PERCENTAGE;
                     return CouponValidateResponse.builder()
                             .valid(true)
                             .code(c.getCode())
-                            .discountType(c.getDiscountType())
-                            .discountPercent(c.getDiscountPercent())
-                            .discountAmount(c.getDiscountAmount())
+                            .discountType(type)
+                            .discountPercent(c.getDiscountPercent() != null ? c.getDiscountPercent() : 0.0)
+                            .discountAmount(c.getDiscountAmount() != null ? c.getDiscountAmount() : 0.0)
                             .build();
                 })
                 .orElse(CouponValidateResponse.builder()

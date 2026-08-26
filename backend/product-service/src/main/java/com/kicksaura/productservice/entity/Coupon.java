@@ -26,11 +26,12 @@ public class Coupon {
     @Column(name = "discount_percent", nullable = false)
     private Double discountPercent;
 
-    @Column(name = "discount_amount")
-    private Double discountAmount;
+    @Column(name = "discount_amount", columnDefinition = "double precision default 0")
+    @Builder.Default
+    private Double discountAmount = 0.0;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "discount_type", nullable = false)
+    @Column(name = "discount_type", nullable = false, columnDefinition = "varchar(20) default 'PERCENTAGE'")
     @Builder.Default
     private DiscountType discountType = DiscountType.PERCENTAGE;
 
