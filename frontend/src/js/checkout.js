@@ -16,6 +16,9 @@ const applyBtn = document.querySelector('.btn-apply');
 const MAX_SAVED_ADDRESSES = 10;
 const ADDRESS_LIMIT_MESSAGE = 'Max address limit reached. Delete one address first to add a new address.';
 
+// ─── Applied Coupon State ─────────────────────────────────────────────────────
+let appliedCoupon = null; // { code, discountType, discountAmount, discountPercent }
+
 function hasDisplaySize(size) {
   const value = String(size ?? '').trim();
   return value && value.toLowerCase() !== 'one size' && value.toLowerCase() !== 'n/a';
@@ -248,13 +251,33 @@ function calculateTotals() {
     shipping = totalUnits * 99;
   }
 
+  // ── Coupon discount ──────────────────────────────────────────────────────────
+  let couponDiscount = 0;
+  const couponRow = document.getElementById('summary-coupon-row');
+  const couponDiscEl = document.getElementById('summary-coupon-discount');
+  const couponLabelEl = document.getElementById('summary-coupon-label');
+
+  if (appliedCoupon) {
+    if (appliedCoupon.discountType === 'PER_PRODUCT') {
+      couponDiscount = appliedCoupon.discountAmount * totalUnits;
+      if (couponLabelEl) couponLabelEl.textContent = `Coupon "${appliedCoupon.code}" (₹${appliedCoupon.discountAmount} × ${totalUnits})`;
+    } else {
+      couponDiscount = Math.round((appliedCoupon.discountPercent / 100) * subtotal);
+      if (couponLabelEl) couponLabelEl.textContent = `Coupon "${appliedCoupon.code}" (${appliedCoupon.discountPercent}% off)`;
+    }
+    if (couponRow) couponRow.style.display = 'flex';
+    if (couponDiscEl) couponDiscEl.textContent = `-₹${couponDiscount.toLocaleString('en-IN')}`;
+  } else {
+    if (couponRow) couponRow.style.display = 'none';
+  }
+
   const codDescEl = document.querySelector('#pay-cod-label .co-payment-desc');
   if (codDescEl) {
     const codAdvance = totalUnits > 0 ? (totalUnits * 99) : 99;
     codDescEl.textContent = `₹${codAdvance.toLocaleString('en-IN')} advance collected by Captain via WhatsApp`;
   }
 
-  const total = subtotal - discount + shipping;
+  const total = subtotal - discount - couponDiscount + shipping;
 
   if (selectedPayment === 'prepaid') {
     if (subtitleEl) subtitleEl.textContent = `Captain will connect over WhatsApp to collect ₹${total.toLocaleString('en-IN')}`;
@@ -361,6 +384,8 @@ if (applyBtn) {
     e.preventDefault();
     const code = (document.getElementById('coupon-input')?.value || '').trim().toUpperCase();
     if (!code) {
+      appliedCoupon = null;
+      calculateTotals();
       showCouponMsg('Please enter a coupon code', true);
       return;
     }
@@ -377,11 +402,22 @@ if (applyBtn) {
       });
       const data = await res.json().catch(() => ({}));
       if (res.ok && data.valid) {
-        showCouponMsg(`Coupon "${data.code || code}" Applied Successfully`, false);
+        appliedCoupon = {
+          code: data.code || code,
+          discountType: data.discountType || 'PERCENTAGE',
+          discountAmount: data.discountAmount || 0,
+          discountPercent: data.discountPercent || 0,
+        };
+        calculateTotals();
+        showCouponMsg(`Coupon "${appliedCoupon.code}" Applied Successfully`, false);
       } else {
+        appliedCoupon = null;
+        calculateTotals();
         showCouponMsg(data.message || 'Coupon Not Applicable', true);
       }
     } catch {
+      appliedCoupon = null;
+      calculateTotals();
       showCouponMsg('Coupon Not Applicable', true);
     } finally {
       applyBtn.disabled = false;

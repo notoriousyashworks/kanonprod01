@@ -2066,7 +2066,7 @@ function _renderCouponsUI() {
         const expired = c.expiryDate && new Date(c.expiryDate) < new Date();
         return `<tr>
                     <td><code class="coupon-code">${esc(c.code)}</code></td>
-                    <td><strong>${c.discountPercent}% off</strong></td>
+                    <td><strong>${c.discountType === 'PER_PRODUCT' ? `₹${c.discountAmount} per product` : `${c.discountPercent}% off`}</strong></td>
                     <td>${c.minOrderValue ? fmt.currency(c.minOrderValue) : '—'}</td>
                     <td class="${expired ? 'text-danger' : ''}">${fmt.date(c.expiryDate)}</td>
                     <td>${expired
@@ -2103,6 +2103,7 @@ function _renderCouponsUI() {
 
 function showCouponForm(coupon = null) {
   const isEdit = !!coupon;
+  const currentType = coupon?.discountType || 'PERCENTAGE';
   const html = `<form id="coupon-form">
     <div class="form-group">
       <label class="form-label">Coupon Code *</label>
@@ -2110,10 +2111,29 @@ function showCouponForm(coupon = null) {
              placeholder="e.g. SAVE20" style="text-transform:uppercase;font-family:monospace">
       <small class="form-hint">Will be auto-uppercased</small>
     </div>
+
+    <div class="form-group">
+      <label class="form-label">Discount Type *</label>
+      <div style="display:flex;gap:12px;margin-top:6px;">
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:14px;">
+          <input type="radio" name="discountType" value="PERCENTAGE" ${currentType === 'PERCENTAGE' ? 'checked' : ''}>
+          Percentage (% off)
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:14px;">
+          <input type="radio" name="discountType" value="PER_PRODUCT" ${currentType === 'PER_PRODUCT' ? 'checked' : ''}>
+          Per Product (₹ off per item)
+        </label>
+      </div>
+    </div>
+
     <div class="form-grid-2">
-      <div class="form-group">
+      <div class="form-group" id="field-percent" style="${currentType === 'PER_PRODUCT' ? 'display:none;' : ''}">
         <label class="form-label">Discount (%) *</label>
-        <input type="number" class="form-input" name="disc" value="${coupon?.discountPercent || ''}" min="1" max="100" step="0.1" required>
+        <input type="number" class="form-input" name="disc" value="${coupon?.discountPercent || ''}" min="1" max="100" step="0.1">
+      </div>
+      <div class="form-group" id="field-amount" style="${currentType === 'PERCENTAGE' ? 'display:none;' : ''}">
+        <label class="form-label">Discount Amount (₹ per product) *</label>
+        <input type="number" class="form-input" name="discAmt" value="${coupon?.discountAmount || ''}" min="1" step="1" placeholder="e.g. 200">
       </div>
       <div class="form-group">
         <label class="form-label">Min Order Value (₹)</label>
@@ -2133,13 +2153,21 @@ function showCouponForm(coupon = null) {
 
   showModal(isEdit ? 'Edit Coupon' : 'Add Coupon', html, isEdit ? 'Update' : 'Create', async () => {
     const f = document.getElementById('coupon-form');
+    const discountType = f.querySelector('[name="discountType"]:checked')?.value || 'PERCENTAGE';
     const data = {
       code: f.querySelector('[name="code"]').value.trim().toUpperCase(),
-      discountPercent: parseFloat(f.querySelector('[name="disc"]').value) || 0,
+      discountType,
+      discountPercent: discountType === 'PERCENTAGE' ? (parseFloat(f.querySelector('[name="disc"]').value) || 0) : null,
+      discountAmount: discountType === 'PER_PRODUCT' ? (parseFloat(f.querySelector('[name="discAmt"]').value) || 0) : null,
       minOrderValue: parseFloat(f.querySelector('[name="minVal"]').value) || null,
       expiryDate: f.querySelector('[name="expiry"]').value || null,
       active: f.querySelector('[name="active"]').checked,
     };
+    if ((discountType === 'PERCENTAGE' && !data.discountPercent) ||
+        (discountType === 'PER_PRODUCT' && !data.discountAmount)) {
+      toast('Please enter a discount value', 'error');
+      return false; // keep modal open
+    }
     if (isEdit) {
       const u = await api.updateCoupon(coupon.id, data);
       const i = S.coupons.findIndex(c => c.id === coupon.id);
@@ -2150,6 +2178,17 @@ function showCouponForm(coupon = null) {
       toast('Coupon created');
     }
     hideModal(); _renderCouponsUI();
+  });
+
+  // Wire up the type toggle AFTER the modal renders
+  requestAnimationFrame(() => {
+    document.querySelectorAll('[name="discountType"]').forEach(radio => {
+      radio.addEventListener('change', () => {
+        const isPP = radio.value === 'PER_PRODUCT';
+        document.getElementById('field-percent').style.display = isPP ? 'none' : '';
+        document.getElementById('field-amount').style.display = isPP ? '' : 'none';
+      });
+    });
   });
 }
 
