@@ -273,15 +273,15 @@ function calculateTotals() {
   const codDescEl = document.querySelector('#pay-cod-label .co-payment-desc');
   if (codDescEl) {
     const codAdvance = totalUnits > 0 ? (totalUnits * 99) : 99;
-    codDescEl.textContent = `₹${codAdvance.toLocaleString('en-IN')} advance collected by Captain via WhatsApp`;
+    codDescEl.textContent = `₹${codAdvance.toLocaleString('en-IN')} advance collected by Sales Team via WhatsApp`;
   }
 
   const total = subtotal - discount - couponDiscount + shipping;
 
   if (selectedPayment === 'prepaid') {
-    if (subtitleEl) subtitleEl.textContent = `Captain will connect over WhatsApp to collect ₹${total.toLocaleString('en-IN')}`;
+    if (subtitleEl) subtitleEl.textContent = `Sales Team will connect over WhatsApp to collect ₹${total.toLocaleString('en-IN')}`;
   } else if (selectedPayment === 'cod') {
-    if (subtitleEl) subtitleEl.textContent = `Captain will connect over WhatsApp to collect ₹${shipping.toLocaleString('en-IN')} advance`;
+    if (subtitleEl) subtitleEl.textContent = `Sales Team will connect over WhatsApp to collect ₹${shipping.toLocaleString('en-IN')} advance`;
   }
 
   // Update DOM

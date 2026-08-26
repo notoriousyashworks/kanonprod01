@@ -271,7 +271,7 @@ function renderOrderDetail(order, indexFallback) {
   const dateStr = formatDate(order.placedAt, false);
 
   let steps = [];
-  steps.push({ title: 'Order Placed <span style="font-weight: normal;">(pls wait for confirmation by Captain! They will reach out to you on Whats app)</span>', date: dateStr, status: normalizedStatus === 'PLACED' ? 'active' : 'completed', emoji: '🛒' });
+  steps.push({ title: 'Order Placed <span style="font-weight: normal;">(pls wait for confirmation by Sales Team! They will reach out to you on Whats app)</span>', date: dateStr, status: normalizedStatus === 'PLACED' ? 'active' : 'completed', emoji: '🛒' });
   
   if (['CONFIRMED', 'DISPATCHED', 'DELIVERED', 'RETURNED'].includes(normalizedStatus)) {
     steps.push({ title: 'Order Confirmed', date: dateStr, status: normalizedStatus === 'CONFIRMED' ? 'active' : 'completed', desc: normalizedStatus === 'CONFIRMED' ? 'Your order has been confirmed and is being dispatched' : undefined, emoji: '✅' });
