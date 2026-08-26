@@ -2071,7 +2071,8 @@ function _renderCouponsUI() {
                     <td class="${expired ? 'text-danger' : ''}">${fmt.date(c.expiryDate)}</td>
                     <td>${expired
             ? '<span class="badge badge-danger">Expired</span>'
-            : `<span class="badge ${c.active ? 'badge-success' : 'badge-neutral'}">${c.active ? 'Active' : 'Inactive'}</span>`}
+            : `<span class="badge ${c.active ? 'badge-success' : 'badge-neutral'}">${c.active ? 'Active' : 'Inactive'}</span>
+               ${c.showOnCheckout ? '<span class="badge badge-info" style="margin-left:4px;background-color:#007bff;color:white;">Visible</span>' : ''}`}
                     </td>
                     <td><div class="action-btns">
                       <button class="btn-icon btn-icon--edit edit-coupon" data-id="${c.id}" title="Edit">${iconEdit()}</button>
@@ -2148,6 +2149,9 @@ function showCouponForm(coupon = null) {
       <label class="form-checkbox-label">
         <input type="checkbox" name="active" ${coupon?.active !== false ? 'checked' : ''}> Active
       </label>
+      <label class="form-checkbox-label" style="margin-left:16px;">
+        <input type="checkbox" name="showOnCheckout" ${coupon?.showOnCheckout ? 'checked' : ''}> Show on Checkout
+      </label>
     </div>
   </form>`;
 
@@ -2162,6 +2166,7 @@ function showCouponForm(coupon = null) {
       minOrderValue: parseFloat(f.querySelector('[name="minVal"]').value) || null,
       expiryDate: f.querySelector('[name="expiry"]').value || null,
       active: f.querySelector('[name="active"]').checked,
+      showOnCheckout: f.querySelector('[name="showOnCheckout"]').checked,
     };
     if ((discountType === 'PERCENTAGE' && !data.discountPercent) ||
         (discountType === 'PER_PRODUCT' && !data.discountAmount)) {

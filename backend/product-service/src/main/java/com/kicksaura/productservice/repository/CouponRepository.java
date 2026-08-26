@@ -13,6 +13,8 @@ import java.util.UUID;
 public interface CouponRepository extends JpaRepository<Coupon, UUID> {
     Optional<Coupon> findByCodeIgnoreCase(String code);
     boolean existsByCodeIgnoreCase(String code);
+    
+    java.util.List<Coupon> findByIsActiveTrueAndShowOnCheckoutTrue();
 
     @Modifying
     @Query(value = "UPDATE coupons SET discount_type = 'PERCENTAGE' WHERE discount_type IS NULL", nativeQuery = true)

@@ -28,4 +28,6 @@ public class CouponDTO {
 
     @JsonProperty("active")
     private boolean isActive;
+
+    private boolean showOnCheckout;
 }

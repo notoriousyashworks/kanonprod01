@@ -962,3 +962,43 @@ if (!isLoggedIn()) {
     }
   }, 10);
 }
+
+// ─── Fetch and Render Visible Coupons ───────────────────────────────────────
+async function loadVisibleCoupons() {
+  try {
+    const res = await fetch('/api/v1/coupons');
+    if (!res.ok) return;
+    const coupons = await res.json();
+    const container = document.getElementById('available-coupons-container');
+    if (!container || !coupons || coupons.length === 0) return;
+    
+    container.style.display = 'flex';
+    container.style.gap = '8px';
+    container.style.flexWrap = 'wrap';
+    
+    coupons.forEach(c => {
+      const tag = document.createElement('div');
+      tag.className = 'available-coupon-tag';
+      tag.innerHTML = `<strong>${c.code}</strong>`;
+      tag.style.border = '1px dashed #4f46e5';
+      tag.style.padding = '4px 10px';
+      tag.style.borderRadius = '4px';
+      tag.style.cursor = 'pointer';
+      tag.style.backgroundColor = '#eef2ff';
+      tag.style.color = '#4f46e5';
+      tag.style.fontSize = '13px';
+      tag.title = 'Click to apply';
+      tag.addEventListener('click', () => {
+        const input = document.getElementById('coupon-input');
+        if (input) {
+          input.value = c.code;
+          document.querySelector('.btn-apply').click();
+        }
+      });
+      container.appendChild(tag);
+    });
+  } catch (err) {
+    console.error('Failed to load coupons', err);
+  }
+}
+loadVisibleCoupons();

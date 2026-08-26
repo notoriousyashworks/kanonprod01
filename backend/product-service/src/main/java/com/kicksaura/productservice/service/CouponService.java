@@ -57,6 +57,7 @@ public class CouponService {
                 .minOrderValue(request.getMinOrderValue())
                 .expiryDate(request.getExpiryDate())
                 .isActive(request.isActive())
+                .showOnCheckout(request.isShowOnCheckout())
                 .build();
         return mapToDTO(couponRepository.save(coupon));
     }
@@ -74,6 +75,7 @@ public class CouponService {
         coupon.setMinOrderValue(request.getMinOrderValue());
         coupon.setExpiryDate(request.getExpiryDate());
         coupon.setActive(request.isActive());
+        coupon.setShowOnCheckout(request.isShowOnCheckout());
         return mapToDTO(couponRepository.save(coupon));
     }
 
@@ -83,6 +85,13 @@ public class CouponService {
             throw new ResourceNotFoundException("Coupon not found with id: " + id);
         }
         couponRepository.deleteById(UUID.fromString(id));
+    }
+
+    @Transactional(readOnly = true)
+    public List<CouponDTO> getVisibleCoupons() {
+        return couponRepository.findByIsActiveTrueAndShowOnCheckoutTrue().stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
     }
 
     // ── Public validate (called from checkout, no auth required) ────────────────
@@ -125,6 +134,7 @@ public class CouponService {
                 .minOrderValue(coupon.getMinOrderValue())
                 .expiryDate(coupon.getExpiryDate())
                 .isActive(coupon.isActive())
+                .showOnCheckout(coupon.isShowOnCheckout())
                 .build();
     }
 }

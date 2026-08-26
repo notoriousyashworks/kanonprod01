@@ -30,4 +30,8 @@ public class PublicCouponController {
         }
         return ResponseEntity.ok(couponService.validateCoupon(code));
     }
+    @GetMapping
+    public ResponseEntity<java.util.List<com.kicksaura.productservice.dto.CouponDTO>> getVisibleCoupons() {
+        return ResponseEntity.ok(couponService.getVisibleCoupons());
+    }
 }

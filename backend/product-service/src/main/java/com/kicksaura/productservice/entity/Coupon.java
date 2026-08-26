@@ -44,4 +44,8 @@ public class Coupon {
     @Column(name = "is_active", nullable = false)
     @Builder.Default
     private boolean isActive = true;
+
+    @Column(name = "show_on_checkout", nullable = false)
+    @Builder.Default
+    private boolean showOnCheckout = false;
 }
