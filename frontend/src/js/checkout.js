@@ -260,11 +260,10 @@ function calculateTotals() {
   if (appliedCoupon) {
     if (appliedCoupon.discountType === 'PER_PRODUCT') {
       couponDiscount = appliedCoupon.discountAmount * totalUnits;
-      if (couponLabelEl) couponLabelEl.textContent = `Coupon "${appliedCoupon.code}" (₹${appliedCoupon.discountAmount} × ${totalUnits})`;
     } else {
       couponDiscount = Math.round((appliedCoupon.discountPercent / 100) * subtotal);
-      if (couponLabelEl) couponLabelEl.textContent = `Coupon "${appliedCoupon.code}" (${appliedCoupon.discountPercent}% off)`;
     }
+    if (couponLabelEl) couponLabelEl.textContent = `Coupon "${appliedCoupon.code}" Discount`;
     if (couponRow) couponRow.style.display = 'flex';
     if (couponDiscEl) couponDiscEl.textContent = `-₹${couponDiscount.toLocaleString('en-IN')}`;
   } else {
@@ -376,7 +375,7 @@ const couponMsg = document.getElementById('coupon-msg');
 function showCouponMsg(text, isError) {
   couponMsg.textContent = text;
   couponMsg.style.color = isError ? '#dc2626' : '#16a34a';
-  couponMsg.style.display = 'block';
+  couponMsg.style.display = text ? 'block' : 'none';
 }
 
 if (applyBtn) {
@@ -409,7 +408,7 @@ if (applyBtn) {
           discountPercent: data.discountPercent || 0,
         };
         calculateTotals();
-        showCouponMsg(`Coupon "${appliedCoupon.code}" Applied Successfully`, false);
+        showCouponMsg('', false);
       } else {
         appliedCoupon = null;
         calculateTotals();
