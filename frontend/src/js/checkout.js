@@ -979,7 +979,15 @@ async function loadVisibleCoupons() {
     coupons.forEach(c => {
       const tag = document.createElement('div');
       tag.className = 'available-coupon-tag';
-      tag.innerHTML = `<strong>${c.code}</strong>`;
+      
+      let desc = '';
+      if (c.discountType === 'PER_PRODUCT' && c.discountAmount > 0) {
+        desc = `- ₹${c.discountAmount} off on every product`;
+      } else if (c.discountType === 'PERCENTAGE' && c.discountPercent > 0) {
+        desc = `- ${c.discountPercent}% off`;
+      }
+      
+      tag.innerHTML = `<strong>${c.code}</strong> <span style="font-size: 11px; opacity: 0.8; margin-left: 4px;">${desc}</span>`;
       tag.style.border = '1px dashed #4f46e5';
       tag.style.padding = '4px 10px';
       tag.style.borderRadius = '4px';
