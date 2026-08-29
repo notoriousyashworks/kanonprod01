@@ -334,31 +334,24 @@
         <div class="hero-banner-wrapper">
           <div class="hero-carousel" id="hero-carousel" aria-roledescription="banner" aria-label="Featured offers">
             <div class="hero-carousel-track" onclick="window.location.href='/products'" style="cursor: pointer;">
-              <div class="hero-slide hero-slide--poster is-active" aria-label="Luxury brands offer">
-                <picture>
-                  <source media="(max-width: 767px)" srcset="/images/BannerPhone.png">
-                  <source media="(min-width: 768px)" srcset="/images/BannerDesktop.png">
-                  <img src="/images/BannerDesktop.png" alt="Luxury brands in every thread at Kicks Aura">
-                </picture>
-                <a href="/products" class="hero-banner-btn">
-                  View All Products
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-top: 1px;"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-                </a>
+              <div class="hero-slide hero-slide--poster is-active" aria-label="Offer 1">
+                <img src="/images/banner_01.png" alt="Kicks Aura Banner 1">
+              </div>
+              <div class="hero-slide hero-slide--poster" aria-label="Offer 2">
+                <img src="/images/banner_02.png" alt="Kicks Aura Banner 2">
+              </div>
+              <div class="hero-slide hero-slide--poster" aria-label="Offer 3">
+                <img src="/images/banner_03.png" alt="Kicks Aura Banner 3">
               </div>
             </div>
+            
+            <button class="hero-carousel-arrow hero-carousel-arrow--prev" aria-label="Previous slide">&lsaquo;</button>
+            <button class="hero-carousel-arrow hero-carousel-arrow--next" aria-label="Next slide">&rsaquo;</button>
 
-            <!-- Trending Widget -->
-            <div id="hero-trending-widget" class="hero-trending-widget" style="display: none;">
-              <div class="ht-header">
-                <span class="ht-title">🔥 Trending Now 🔥</span>
-                <div class="ht-controls">
-                  <button id="ht-prev" aria-label="Previous trending product">&lsaquo;</button>
-                  <button id="ht-next" aria-label="Next trending product">&rsaquo;</button>
-                </div>
-              </div>
-              <div class="ht-window">
-                <div class="ht-track" id="ht-track"></div>
-              </div>
+            <div class="hero-carousel-dots">
+              <div class="hero-carousel-dot is-active" role="button" tabindex="0" aria-label="Go to slide 1"><img src="/images/banner_01.png" alt=""></div>
+              <div class="hero-carousel-dot" role="button" tabindex="0" aria-label="Go to slide 2"><img src="/images/banner_02.png" alt=""></div>
+              <div class="hero-carousel-dot" role="button" tabindex="0" aria-label="Go to slide 3"><img src="/images/banner_03.png" alt=""></div>
             </div>
           </div>
         </div>

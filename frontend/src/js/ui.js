@@ -532,7 +532,7 @@ const LAST_NAMES = [
 ];
 
 function getRandomName() {
-  const isBoy = Math.random() < 0.75;
+  const isBoy = Math.random() < 0.90;
   const firstNames = isBoy ? MALE_FIRST_NAMES : FEMALE_FIRST_NAMES;
   const fName = firstNames[Math.floor(Math.random() * firstNames.length)];
   const lName = LAST_NAMES[Math.floor(Math.random() * LAST_NAMES.length)];
@@ -568,11 +568,10 @@ export async function initPurchaseNotifications() {
         </div>
         <div class="live-toast-banner__content">
           <div class="live-toast-banner__text">
-            <strong>${name}</strong> from 🇮🇳 <strong>India</strong> just purchased <br/>
+            <strong>${name}</strong> from 🇮🇳 <strong>India</strong> purchased
             <a href="/product-details?id=${product.id}" class="live-toast-banner__product-link">${product.name}</a>
           </div>
           <div class="live-toast-banner__price">${price}</div>
-          <div class="live-toast-banner__time">${Math.floor(Math.random() * 45) + 5} Minutes ago</div>
         </div>
       `;
 
