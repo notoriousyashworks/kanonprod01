@@ -478,6 +478,26 @@ button {
   color: var(--text-white);
 }
 
+.footer__contact-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.footer__contact-info p {
+  font-size: 13px;
+  color: #aaaaaa;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.footer__contact-info p span {
+  color: #cccccc;
+  font-weight: 600;
+  margin-right: 4px;
+}
+
 .footer__brand {
   align-items: flex-start;
 }

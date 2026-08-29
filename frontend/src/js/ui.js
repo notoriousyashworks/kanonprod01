@@ -465,6 +465,11 @@ export function getFooterHTML() {
           <a href="/">Home</a>
           <a href="/about-us">About Us</a>
           <a href="https://wa.me/${import.meta.env.VITE_WHATSAPP_NUMBER}?text=Hey!" target="_blank" rel="noopener">Contact Us</a>
+          <div class="footer__contact-info">
+            <p><span>Address:</span> Phase 2, Chandigarh, India</p>
+            <p><span>Mobile:</span> +91 6239379751</p>
+            <p><span>Email:</span> kicksauraa@gmail.com</p>
+          </div>
         </div>
         <div class="footer__col">
           <h4>POLICIES</h4>
