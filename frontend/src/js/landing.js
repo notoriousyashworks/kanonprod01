@@ -271,109 +271,59 @@ const ARRIVALS_PAGE_SIZE = 8;
 
 async function loadArrivals() {
   const grid = document.getElementById('new-arrivals-grid');
-  const exploreBtn = document.getElementById('explore-all-btn');
+  const moreWrap = document.getElementById('new-arrivals-more-wrap');
+  const viewMoreBtn = document.getElementById('new-arrivals-view-more');
+
   try {
     const products = await getNewArrivals();
     if (!products || products.length === 0) {
       grid.innerHTML = `
-        <div class="text-center" style="grid-column: 1/-1; padding: 60px 20px;">
-          <p class="headline-md">No products yet</p>
-          <p class="body-md text-muted mt-sm">Products will appear here once the backend is running with data.</p>
+        <div style="grid-column: 1/-1; text-align:center; padding: 60px 20px;">
+          <p style="font-size:18px; font-weight:600;">No products yet</p>
+          <p style="color:#666; margin-top:8px;">Products will appear here once the backend is running with data.</p>
         </div>
       `;
-      if (exploreBtn) exploreBtn.style.display = 'none';
       return;
     }
 
-    allNewArrivals = products.slice(0, 16);
+    allNewArrivals = products;
     visibleArrivalsCount = Math.min(ARRIVALS_PAGE_SIZE, allNewArrivals.length);
 
-    const initialSlice = allNewArrivals.slice(0, visibleArrivalsCount);
-    const arrivalCards = initialSlice.map(createProductCard).join('');
-    grid.innerHTML = arrivalCards + arrivalCards;
-    attachCardListeners(initialSlice);
-    initArrivalArrows(grid);
+    renderArrivalsGrid();
 
-    if (exploreBtn) {
-      exploreBtn.style.display = 'none';
+    if (viewMoreBtn) {
+      viewMoreBtn.addEventListener('click', () => {
+        visibleArrivalsCount = Math.min(visibleArrivalsCount + ARRIVALS_PAGE_SIZE, allNewArrivals.length);
+        renderArrivalsGrid();
+      });
     }
   } catch (error) {
     grid.innerHTML = `
-      <div class="text-center" style="grid-column: 1/-1; padding: 60px 20px;">
-        <p class="headline-md">Couldn't load products</p>
-        <p class="body-md text-muted mt-sm">Make sure the backend services are running on port 8080.</p>
-        <button class="btn btn--secondary mt-md" onclick="location.reload()">Retry</button>
+      <div style="grid-column: 1/-1; text-align:center; padding: 60px 20px;">
+        <p style="font-size:18px; font-weight:600;">Couldn't load products</p>
+        <p style="color:#666; margin-top:8px;">Make sure the backend services are running.</p>
+        <button style="margin-top:16px; padding:10px 24px; border:1px solid #111; border-radius:4px; cursor:pointer; background:#111; color:#fff;" onclick="location.reload()">Retry</button>
       </div>
     `;
-    if (exploreBtn) exploreBtn.style.display = 'none';
   }
 }
 
-function initArrivalArrows(grid) {
-  const carousel = grid.closest('.new-arrivals-carousel');
-  const previousButton = carousel?.querySelector('.arrival-arrow--prev');
-  const nextButton = carousel?.querySelector('.arrival-arrow--next');
-  if (!carousel || !previousButton || !nextButton) return;
+function renderArrivalsGrid() {
+  const grid = document.getElementById('new-arrivals-grid');
+  const moreWrap = document.getElementById('new-arrivals-more-wrap');
+  const viewMoreBtn = document.getElementById('new-arrivals-view-more');
 
-  let manualOffset = 0;
-  let hasManualOffset = false;
+  const slice = allNewArrivals.slice(0, visibleArrivalsCount);
+  grid.innerHTML = slice.map(createProductCard).join('');
+  attachCardListeners(slice);
 
-  const getStep = () => {
-    const firstCard = grid.querySelector('.product-card-link');
-    const gap = parseFloat(getComputedStyle(grid).columnGap || getComputedStyle(grid).gap || 24) || 24;
-    return firstCard ? firstCard.getBoundingClientRect().width + gap : 304;
-  };
-
-  const getAnimatedOffset = (loopWidth) => {
-    const transform = getComputedStyle(grid).transform;
-    if (!transform || transform === 'none') return 0;
-
-    const values = transform.match(/matrix.*\((.+)\)/)?.[1]?.split(',').map(Number);
-    const translateX = values?.length === 16 ? values[12] : values?.[4];
-    if (!Number.isFinite(translateX)) return 0;
-
-    return ((-translateX % loopWidth) + loopWidth) % loopWidth;
-  };
-
-  const freezeAtCurrentPosition = () => {
-    const step = getStep();
-    const loopWidth = Math.max(grid.scrollWidth / 2, step);
-    if (!hasManualOffset) {
-      manualOffset = getAnimatedOffset(loopWidth);
-      hasManualOffset = true;
-    }
-    grid.classList.add('product-grid--manual');
-    grid.style.transform = `translate3d(-${manualOffset}px, 0, 0)`;
-  };
-
-  const move = (direction) => {
-    const anims = grid.getAnimations();
-    const marqueeAnim = anims.find(a => a.animationName && a.animationName.includes('Marquee'));
-    
-    const step = getStep();
-    const loopWidth = Math.max(grid.scrollWidth / 2, step);
-
-    if (marqueeAnim) {
-      // If the CSS animation is running, just scrub it forward or backward
-      const duration = marqueeAnim.effect.getTiming().duration;
-      const timePerPixel = duration / loopWidth;
-      let newTime = (marqueeAnim.currentTime || 0) + (direction * step * timePerPixel);
-      
-      // Wrap around smoothly
-      if (newTime < 0) newTime = (newTime % duration) + duration;
-      if (newTime >= duration) newTime = newTime % duration;
-      
-      marqueeAnim.currentTime = newTime;
-    } else {
-      // Fallback if animation is removed/missing
-      freezeAtCurrentPosition();
-      manualOffset = (manualOffset + direction * step + loopWidth) % loopWidth;
-      grid.style.transform = `translate3d(-${manualOffset}px, 0, 0)`;
-    }
-  };
-
-  previousButton.onclick = () => move(-1);
-  nextButton.onclick = () => move(1);
+  if (moreWrap) {
+    moreWrap.style.display = visibleArrivalsCount < allNewArrivals.length ? 'block' : 'none';
+  }
+  if (viewMoreBtn) {
+    viewMoreBtn.textContent = 'View More';
+    viewMoreBtn.disabled = false;
+  }
 }
 
 function attachCardListeners(products) {

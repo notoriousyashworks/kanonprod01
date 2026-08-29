@@ -369,23 +369,20 @@
     <section id="new-arrivals" class="new-arrivals">
       <div class="container">
         <h2 class="section-title">NEW ARRIVALS</h2>
-        <div class="new-arrivals-carousel">
-          <button class="arrival-arrow arrival-arrow--prev" type="button" aria-label="Previous new arrivals">&lsaquo;</button>
-          <!-- Empty state or loaded products will go here -->
-          <div id="new-arrivals-grid" class="product-grid">
-            <!-- Fallback skeletons -->
-            <div class="product-card skeleton"></div>
-            <div class="product-card skeleton"></div>
-            <div class="product-card skeleton"></div>
-            <div class="product-card skeleton"></div>
-            <div class="product-card skeleton"></div>
-            <div class="product-card skeleton"></div>
-            <div class="product-card skeleton"></div>
-            <div class="product-card skeleton"></div>
-          </div>
-          <button class="arrival-arrow arrival-arrow--next" type="button" aria-label="Next new arrivals">&rsaquo;</button>
+        <div id="new-arrivals-grid" class="new-arrivals-grid">
+          <!-- Skeleton placeholders -->
+          <div class="product-card skeleton"></div>
+          <div class="product-card skeleton"></div>
+          <div class="product-card skeleton"></div>
+          <div class="product-card skeleton"></div>
+          <div class="product-card skeleton"></div>
+          <div class="product-card skeleton"></div>
+          <div class="product-card skeleton"></div>
+          <div class="product-card skeleton"></div>
         </div>
-        <button id="explore-all-btn" class="btn-explore" style="display: none; cursor: pointer;">View All</button>
+        <div id="new-arrivals-more-wrap" style="display:none; text-align:center; margin-top: 40px;">
+          <button id="new-arrivals-view-more" class="btn-explore" style="cursor:pointer;">View More</button>
+        </div>
       </div>
     </section>
 
