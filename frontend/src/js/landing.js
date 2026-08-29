@@ -85,7 +85,7 @@ function initHeroCarousel() {
 
   const startAutoSlide = () => {
     stopAutoSlide();
-    autoTimer = setInterval(() => goToTrackIndex(trackIndex + 1), 1500);
+    autoTimer = setInterval(() => goToTrackIndex(trackIndex + 1), 4500);
   };
 
   previousButton?.addEventListener('click', (event) => {
