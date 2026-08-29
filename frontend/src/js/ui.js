@@ -242,8 +242,8 @@ export function createProductCard(product) {
           ${product.category ? `<div class="pc-category">${product.category}</div>` : ''}
           <h3 class="pc-name">${product.name}</h3>
           <div class="pc-price-row">
-            ${originalPrice ? `<span class="pc-original-price">${fmtPrice(originalPrice)}</span>` : ''}
             <span class="pc-price ${originalPrice ? 'pc-price--sale' : 'pc-price--normal'}">${fmtPrice(currentPrice)}</span>
+            ${originalPrice ? `<span class="pc-original-price">${fmtPrice(originalPrice)}</span>` : ''}
           </div>
         </div>
       </article>
