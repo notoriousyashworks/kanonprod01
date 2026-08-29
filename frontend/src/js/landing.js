@@ -139,7 +139,9 @@ function initHeroCarousel() {
     startAutoSlide();
   };
 
-  track.addEventListener('transitionend', () => {
+  track.addEventListener('transitionend', (e) => {
+    if (e.target !== track) return;
+    
     if (trackIndex === 0) {
       goToTrackIndex(realSlides.length, false);
     }
