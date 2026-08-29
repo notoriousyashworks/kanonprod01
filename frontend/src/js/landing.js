@@ -45,6 +45,7 @@ function initHeroCarousel() {
   let startX = 0;
   let dragDelta = 0;
   let isDragging = false;
+  let isAnimating = false;
 
   const getRealIndex = () => (trackIndex - 1 + realSlides.length) % realSlides.length;
 
@@ -62,11 +63,17 @@ function initHeroCarousel() {
   };
 
   const moveTrack = (animate = true) => {
+    if (animate) isAnimating = true;
     track.style.transition = animate ? 'transform 1.25s cubic-bezier(0.25, 0.74, 0.28, 0.99)' : 'none';
     track.style.transform = `translate3d(-${trackIndex * 100}%, 0, 0)`;
   };
 
   const goToTrackIndex = (index, animate = true) => {
+    if (isAnimating && (index < 1 || index > realSlides.length)) return;
+    
+    if (index < 0) index = 0;
+    if (index > realSlides.length + 1) index = realSlides.length + 1;
+    
     trackIndex = index;
     updateSlideClasses();
     updateDots();
@@ -132,6 +139,14 @@ function initHeroCarousel() {
 
     if (Math.abs(dragDelta) > 60) {
       goToTrackIndex(trackIndex + (dragDelta < 0 ? 1 : -1));
+    } else if (Math.abs(dragDelta) < 5) {
+      // It's a click!
+      const currentSlide = slides[trackIndex];
+      const href = currentSlide?.dataset?.href;
+      if (href) {
+        window.location.href = href;
+      }
+      goToTrackIndex(trackIndex);
     } else {
       goToTrackIndex(trackIndex);
     }
@@ -141,6 +156,8 @@ function initHeroCarousel() {
 
   track.addEventListener('transitionend', (e) => {
     if (e.target !== track) return;
+    
+    isAnimating = false;
     
     if (trackIndex === 0) {
       goToTrackIndex(realSlides.length, false);
