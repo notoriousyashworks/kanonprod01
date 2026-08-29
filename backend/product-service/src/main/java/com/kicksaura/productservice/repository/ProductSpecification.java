@@ -19,7 +19,10 @@ public class ProductSpecification {
             if (categories == null || categories.isEmpty()) {
                 return criteriaBuilder.conjunction();
             }
-            return root.get("category").in(categories);
+            List<String> lowerCategories = categories.stream()
+                .map(String::toLowerCase)
+                .collect(java.util.stream.Collectors.toList());
+            return criteriaBuilder.lower(root.get("category")).in(lowerCategories);
         };
     }
 
