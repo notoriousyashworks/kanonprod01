@@ -1166,3 +1166,88 @@
     right: -100%;
   }
 }
+
+/* ============================================
+   Related Products Section
+   ============================================ */
+.related-products-section {
+  width: 100%;
+  background: #ffffff;
+  border-top: 1px solid #f0f0f0;
+  padding: 56px 0 64px;
+  margin-top: 48px;
+}
+
+.related-products-inner {
+  width: min(100% - 32px, 1320px);
+  margin: 0 auto;
+}
+
+.related-products-title {
+  font-size: clamp(20px, 2.5vw, 28px);
+  font-weight: 800;
+  color: #111111;
+  margin: 0 0 32px;
+  letter-spacing: -0.5px;
+}
+
+.related-products-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+
+/* Skeleton loaders */
+@keyframes relatedShimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+.related-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.related-skeleton__img {
+  aspect-ratio: 1 / 1.08;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 400px 100%;
+  animation: relatedShimmer 1.4s ease-in-out infinite;
+}
+
+.related-skeleton__line {
+  height: 14px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 400px 100%;
+  animation: relatedShimmer 1.4s ease-in-out infinite;
+}
+
+.related-skeleton__line--short {
+  width: 55%;
+}
+
+/* Responsive grid */
+@media (max-width: 1024px) {
+  .related-products-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 680px) {
+  .related-products-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+
+  .related-products-title {
+    font-size: 18px;
+  }
+
+  .related-products-section {
+    padding: 36px 0 48px;
+    margin-top: 32px;
+  }
+}

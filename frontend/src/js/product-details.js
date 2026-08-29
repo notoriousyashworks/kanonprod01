@@ -1,8 +1,8 @@
 /* ============================================
    Product Details Page
    ============================================ */
-import { getProductById } from './api.js';
-import { getNavbarHTML, getFooterHTML, showToast, formatCloudinaryUrl, formatCloudinaryVideoPoster, formatCloudinaryVideoHls, formatCloudinaryVideoMp4, initSearch, initMobileMenu } from './ui.js';
+import { getProductById, getRelatedProducts } from './api.js';
+import { getNavbarHTML, getFooterHTML, showToast, formatCloudinaryUrl, formatCloudinaryVideoPoster, formatCloudinaryVideoHls, formatCloudinaryVideoMp4, initSearch, initMobileMenu, createProductCard } from './ui.js';
 import { addToCart, updateCartBadge } from './cart.js';
 import { initWishlistSidebar, updateWishlistBadge, isWishlisted, toggleWishlistItem } from './wishlist.js';
 import { initCartSidebar, openShippingPolicyModal } from './cart-sidebar.js';
@@ -538,6 +538,9 @@ function renderProduct(product) {
     </div>
   `;
 
+  // Render related products below the product section
+  renderRelatedProducts(product);
+
   // Lightbox state
   let lbIdx = 0;
 
@@ -1041,6 +1044,61 @@ function renderProduct(product) {
     sessionStorage.setItem('checkout_intent', 'true');
     window.location.href = '/checkout';
   });
+}
+
+async function renderRelatedProducts(product) {
+  // Determine category name from product object
+  const categoryName = product.category?.name || product.category || product.brandName || null;
+  if (!categoryName) return;
+
+  // Inject placeholder section below the main product
+  const main = document.querySelector('main.product-page');
+  if (!main) return;
+
+  // Remove any existing related section (handles re-renders)
+  document.getElementById('related-products-section')?.remove();
+
+  const section = document.createElement('section');
+  section.id = 'related-products-section';
+  section.className = 'related-products-section';
+  section.innerHTML = `
+    <div class="related-products-inner">
+      <h2 class="related-products-title">You May Also Like</h2>
+      <div class="related-products-grid" id="related-products-grid">
+        ${[...Array(4)].map(() => `
+          <div class="related-skeleton">
+            <div class="related-skeleton__img"></div>
+            <div class="related-skeleton__line"></div>
+            <div class="related-skeleton__line related-skeleton__line--short"></div>
+          </div>`).join('')}
+      </div>
+    </div>
+  `;
+  main.appendChild(section);
+
+  try {
+    const related = await getRelatedProducts(categoryName, product.id, 8);
+    const grid = document.getElementById('related-products-grid');
+    if (!grid) return;
+
+    if (!related || related.length === 0) {
+      section.remove();
+      return;
+    }
+
+    grid.innerHTML = related.map(p => createProductCard(p)).join('');
+
+    // Re-attach wishlist toggle for the new cards
+    grid.querySelectorAll('.pc-heart-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      });
+    });
+  } catch (err) {
+    console.warn('[Related Products] Failed to load:', err);
+    section.remove();
+  }
 }
 
 loadProduct();

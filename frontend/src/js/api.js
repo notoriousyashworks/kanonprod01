@@ -101,6 +101,19 @@ export async function getProductsByCategory(category) {
   return data.content || data;
 }
 
+export async function getRelatedProducts(categoryName, excludeId, limit = 8) {
+  const data = await request(`/products/category/${encodeURIComponent(categoryName)}`);
+  const all = data.content || data;
+  const filtered = all.filter(p => String(p.id) !== String(excludeId));
+  // Shuffle and return up to `limit` products
+  for (let i = filtered.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [filtered[i], filtered[j]] = [filtered[j], filtered[i]];
+  }
+  return filtered.slice(0, limit);
+}
+
+
 // === Brands ===
 export async function getBrands() {
   return request('/brands');
