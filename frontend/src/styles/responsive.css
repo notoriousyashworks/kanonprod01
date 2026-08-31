@@ -62,19 +62,9 @@ img, video, iframe, embed, object {
     margin: 0;
   }
 
-  /* Logo: centered between hamburger and icons */
+  /* Logo: hidden on mobile */
   .header__logo {
-    order: 1;
-    flex: 1 1 auto !important;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 !important;
-  }
-
-  .header__logo img,
-  .header__logo-img {
-    height: 32px;
+    display: none !important;
   }
 
   /* Icons: far right, same row */
@@ -259,10 +249,6 @@ img, video, iframe, embed, object {
   }
   .header__icons {
     gap: 0px;
-  }
-  .header__logo img,
-  .header__logo-img {
-    height: 30px;
   }
 }
 
