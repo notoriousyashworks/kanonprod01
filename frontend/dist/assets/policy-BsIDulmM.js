@@ -1,0 +1,1 @@
+import{k as i,m as a,n as e,j as t,o as n,p as r,q as o}from"./login-modal.js_v_1-DB14_tue.js";import{i as s,a as d}from"./cart-sidebar-7vtdmx1r.js";import{i as m}from"./profile-CSgqY9yl.js";document.getElementById("navbar-container").innerHTML=i("policy");document.getElementById("footer-container").innerHTML=a();e();t();n();s();r();m();o();d();

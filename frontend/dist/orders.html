@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/svg+xml" href="/assets/favicon-BtsTzBdj.svg">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Orders — KicksAura</title>
+  <meta name="description" content="View all your orders at KicksAura." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    body { background: #f9f9f9; font-family: 'Inter', sans-serif; }
+
+    /* New layout */
+    .account-layout {
+      max-width: 1250px;
+      margin: 40px auto;
+      padding: 0 20px;
+      display: flex;
+      gap: 60px;
+      align-items: flex-start;
+    }
+
+    .account-sidebar {
+      width: 200px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .sidebar-link {
+      font-size: 18px;
+      font-weight: 700;
+      color: #888;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .sidebar-link:hover {
+      color: #333;
+    }
+    .sidebar-link.active {
+      color: #111;
+    }
+
+    .account-main {
+      flex: 1;
+      min-width: 0;
+    }
+
+    /* List View Cards */
+    .new-order-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      background: #fff;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+      border: 1px solid #eee;
+      cursor: pointer;
+      transition: box-shadow 0.2s;
+    }
+    .new-order-card:hover {
+      box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+    }
+    
+    .noc-header-right {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+    }
+    .noc-status-badge {
+      background: #f1f5f9;
+      color: #334155;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .noc-content {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-top: 4px;
+      margin-bottom: 24px;
+    }
+    
+    .noc-image {
+      width: 100px;
+      height: 100px;
+      border-radius: 8px;
+      background: #f5f5f5;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .noc-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .noc-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .noc-meta-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #111;
+      margin: 0 0 6px 0;
+    }
+    .noc-meta {
+      font-size: 14px;
+      color: #666;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .info-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 14px;
+      height: 14px;
+      border: 1px solid #999;
+      border-radius: 50%;
+      font-size: 10px;
+      color: #999;
+      font-weight: 600;
+    }
+    .status-due {
+      background: #f3f4f6;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #374151;
+    }
+
+    .noc-footer-left {
+      margin-top: auto;
+    }
+    .noc-details-btn {
+      background: #111;
+      color: #fff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .noc-details-btn:hover {
+      background: #333;
+    }
+
+    /* Detail View */
+    .od-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 24px;
+    }
+    .od-header-left {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+    .od-back-btn {
+      background: none;
+      border: none;
+      font-size: 20px;
+      color: #555;
+      cursor: pointer;
+      padding: 0;
+      margin-top: 2px;
+    }
+    .od-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #111;
+      margin: 0 0 4px 0;
+    }
+    .od-date {
+      font-size: 14px;
+      color: #666;
+      margin: 0;
+    }
+
+    .od-card {
+      background: #fff;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+      border: 1px solid #eee;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+    }
+    .od-card.p-0 {
+      padding: 0;
+    }
+    
+    .od-card-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #111;
+      margin: 0 0 6px 0;
+    }
+    .od-card-text {
+      font-size: 13px;
+      color: #666;
+      margin: 0;
+      line-height: 1.5;
+    }
+
+    /* Timeline */
+    .od-timeline {
+      margin-top: 16px;
+      position: relative;
+    }
+    .od-timeline::before {
+      content: '';
+      position: absolute;
+      left: 11px;
+      top: 10px;
+      bottom: 20px;
+      width: 2px;
+      background: #e5e7eb;
+      border-style: dashed;
+      border-color: #d1d5db;
+    }
+    .od-timeline-step {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 16px;
+      position: relative;
+    }
+    .od-timeline-step .icon {
+      width: 24px;
+      height: 24px;
+      background: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      z-index: 1;
+    }
+    .od-timeline-step.active .icon {
+      background: #fff;
+      border: 2px solid #111;
+    }
+    .od-timeline-step .icon.dot {
+      width: 10px;
+      height: 10px;
+      background: #111;
+      margin-left: 7px;
+      margin-top: 7px;
+      border: none;
+    }
+    .od-timeline-step .text {
+      font-size: 14px;
+      color: #111;
+      line-height: 1.4;
+    }
+    .od-timeline-step .text strong {
+      font-weight: 600;
+    }
+    .od-timeline-step .text span {
+      color: #666;
+      font-size: 13px;
+    }
+
+    /* Items */
+    .od-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .od-item-img {
+      position: relative;
+      width: 64px;
+      height: 64px;
+      border-radius: 8px;
+      border: 1px solid #eee;
+      background: #f9f9f9;
+    }
+    .od-item-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+    .od-item-qty {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: #111;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 600;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+    }
+    .od-item-info {
+      flex: 1;
+    }
+    .od-item-info h4 {
+      font-size: 14px;
+      font-weight: 600;
+      color: #111;
+      margin: 0 0 4px 0;
+    }
+    .od-item-info p {
+      font-size: 12px;
+      color: #666;
+      margin: 0;
+    }
+    .od-item-price {
+      font-size: 14px;
+      font-weight: 600;
+      color: #111;
+    }
+
+    .od-summary {
+      border-top: 1px solid #eee;
+      padding-top: 16px;
+    }
+    .od-summary-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+      color: #333;
+      margin-bottom: 12px;
+    }
+    .od-summary-row.total {
+      font-size: 18px;
+      font-weight: 700;
+      color: #111;
+      margin-top: 16px;
+      margin-bottom: 0;
+      align-items: center;
+    }
+    .od-summary-row.total small {
+      font-size: 12px;
+      color: #666;
+      margin-right: 4px;
+    }
+
+    /* Info table */
+    .od-info-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .od-info-table td {
+      padding: 20px;
+      border-bottom: 1px solid #eee;
+      vertical-align: top;
+    }
+    .od-info-table tr:last-child td {
+      border-bottom: none;
+    }
+    .od-info-table td:first-child {
+      width: 150px;
+      font-size: 14px;
+      color: #666;
+      font-weight: 500;
+    }
+    .od-info-table td:last-child {
+      font-size: 13px;
+      color: #111;
+      line-height: 1.5;
+    }
+
+    .orders-empty {
+      text-align: center;
+      padding: 80px 20px;
+      background: #fff;
+      border-radius: 16px;
+      border: 2px dashed #e2e8f0;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.02);
+      max-width: 500px;
+      margin: 40px auto;
+    }
+    .orders-empty-icon {
+      font-size: 56px;
+      margin-bottom: 24px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 120px;
+      height: 120px;
+      background: #f8fafc;
+      border-radius: 50%;
+      color: #64748b;
+    }
+    .orders-empty h2 {
+      font-size: 24px;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 12px;
+    }
+    .orders-empty p {
+      color: #64748b;
+      font-size: 15px;
+      margin-bottom: 32px;
+      line-height: 1.6;
+    }
+    .orders-empty-btn {
+      display: inline-flex;
+      background: #0f172a;
+      color: #fff;
+      text-decoration: none;
+      padding: 14px 36px;
+      border-radius: 9999px;
+      font-weight: 600;
+      font-size: 15px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.15);
+    }
+    .orders-empty-btn:hover {
+      background: #1e293b;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(15, 23, 42, 0.25);
+    }
+
+    @media (max-width: 768px) {
+      .account-layout {
+        flex-direction: column;
+        gap: 24px;
+        margin: 20px auto;
+      }
+      .account-sidebar {
+        flex-direction: row;
+        width: 100%;
+        gap: 24px;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 16px;
+      }
+      .od-info-table td {
+        display: block;
+        width: 100% !important;
+        padding: 16px 20px;
+      }
+      .od-info-table td:first-child {
+        padding-bottom: 4px;
+        border-bottom: none;
+      }
+    }
+
+    /* Final orders page polish */
+    body {
+      background:
+        radial-gradient(circle at top left, rgba(220, 38, 38, 0.06), transparent 30vw),
+        linear-gradient(180deg, #fafafa 0%, #f4f4f5 100%);
+      color: #111827;
+    }
+
+    .account-layout {
+      width: min(100% - 112px, 1680px);
+      max-width: none;
+      margin: 34px auto 72px;
+      padding: 0;
+      display: grid;
+      grid-template-columns: 240px minmax(0, 1fr);
+      gap: 30px;
+    }
+
+    .account-sidebar {
+      width: auto;
+      position: sticky;
+      top: 132px;
+      gap: 8px;
+      padding: 18px;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.86);
+      box-shadow: 0 14px 36px rgba(15,23,42,0.06);
+      backdrop-filter: blur(12px);
+    }
+
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      min-height: 46px;
+      padding: 0 15px;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 800;
+      color: #6b7280;
+    }
+
+    .sidebar-link:hover {
+      color: #111827;
+      background: #f3f4f6;
+    }
+
+    .sidebar-link.active {
+      color: #fff;
+      background: #111827;
+      box-shadow: 0 10px 22px rgba(17,24,39,0.18);
+    }
+
+    .account-main {
+      width: 100%;
+    }
+
+    .orders-page-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .orders-page-head h1 {
+      margin: 0 0 5px;
+      font-size: 30px;
+      line-height: 1.1;
+      letter-spacing: 0;
+      font-weight: 900;
+      color: #0f172a;
+    }
+
+    .orders-page-head p {
+      margin: 0;
+      color: #64748b;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .orders-count-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 36px;
+      padding: 0 14px;
+      border-radius: 999px;
+      background: #fee2e2;
+      color: #b91c1c;
+      font-size: 13px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .orders-list-stack {
+      display: grid;
+      gap: 16px;
+    }
+
+    .new-order-card {
+      position: relative;
+      display: grid;
+      grid-template-columns: 108px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 22px;
+      min-height: 142px;
+      padding: 18px 22px;
+      margin-bottom: 0;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      background: #fff;
+      box-shadow: 0 12px 28px rgba(15,23,42,0.06);
+      cursor: pointer;
+      overflow: hidden;
+      transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+    }
+
+    .new-order-card::before {
+      content: '';
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 4px;
+      background: linear-gradient(180deg, #ef4444, #111827);
+      opacity: 0;
+      transition: opacity 0.22s ease;
+    }
+
+    .new-order-card:hover {
+      transform: translateY(-2px);
+      border-color: #d1d5db;
+      box-shadow: 0 18px 38px rgba(15,23,42,0.11);
+    }
+
+    .new-order-card:hover::before {
+      opacity: 1;
+    }
+
+    .noc-image {
+      width: 108px;
+      height: 108px;
+      border-radius: 12px;
+      border: 1px solid #f1f5f9;
+      background: #f8fafc;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.9);
+    }
+
+    .noc-image img {
+      object-fit: cover;
+    }
+
+    .noc-info {
+      display: grid;
+      gap: 8px;
+    }
+
+    .noc-status {
+      margin: 0;
+      font-size: 21px;
+      line-height: 1.18;
+      font-weight: 900;
+      color: #0f172a;
+    }
+
+    .noc-meta {
+      margin: 0;
+      font-size: 13.5px;
+      color: #64748b;
+      font-weight: 600;
+    }
+
+    .noc-extra-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .noc-chip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 0 10px;
+      border-radius: 999px;
+      background: #f8fafc;
+      color: #475569;
+      border: 1px solid #e5e7eb;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .noc-chip--status {
+      background: #ecfdf5;
+      color: #047857;
+      border-color: #bbf7d0;
+    }
+
+    .noc-actions {
+      display: grid;
+      justify-items: end;
+      gap: 10px;
+      min-width: 180px;
+    }
+
+    .noc-total {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 900;
+      color: #111827;
+      white-space: nowrap;
+    }
+
+    .noc-details-btn {
+      min-height: 42px;
+      padding: 0 22px;
+      border: 1.5px solid #111827;
+      border-radius: 999px;
+      background: #111827;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 900;
+      cursor: pointer;
+      transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .noc-details-btn:hover {
+      transform: translateY(-1px);
+      background: #dc2626;
+      border-color: #dc2626;
+      box-shadow: 0 10px 18px rgba(220,38,38,0.18);
+    }
+
+    .od-header,
+    .od-card {
+      max-width: 960px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .od-card {
+      border-radius: 14px;
+      border-color: #e5e7eb;
+      box-shadow: 0 14px 32px rgba(15,23,42,0.06);
+    }
+
+    @media (max-width: 900px) {
+      .account-layout {
+        width: min(100% - 28px, 720px);
+        grid-template-columns: 1fr;
+        gap: 18px;
+        margin-top: 22px;
+      }
+
+      .account-sidebar {
+        position: static;
+        flex-direction: row;
+        padding: 8px;
+        overflow-x: auto;
+      }
+
+      .sidebar-link {
+        flex: 1;
+        justify-content: center;
+        white-space: nowrap;
+      }
+
+      .new-order-card {
+        grid-template-columns: 88px minmax(0, 1fr);
+        gap: 16px;
+        padding: 16px;
+      }
+
+      .noc-image {
+        width: 88px;
+        height: 88px;
+      }
+
+      .noc-actions {
+        grid-column: 1 / -1;
+        grid-template-columns: 1fr auto;
+        align-items: center;
+        justify-items: stretch;
+        min-width: 0;
+      }
+
+      .noc-details-btn {
+        justify-self: end;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .orders-page-head {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .orders-page-head h1 {
+        font-size: 25px;
+      }
+
+      .new-order-card {
+        grid-template-columns: 76px minmax(0, 1fr);
+        gap: 13px;
+        min-height: 0;
+      }
+
+      .noc-image {
+        width: 76px;
+        height: 76px;
+      }
+
+      .noc-status {
+        font-size: 17px;
+      }
+
+      .noc-actions {
+        grid-template-columns: 1fr;
+        justify-items: start;
+      }
+
+      .noc-details-btn {
+        width: 100%;
+      }
+    }
+
+    /* Account page back button/title consistency */
+    .account-back-btn,
+    .od-back-btn {
+      display: inline-flex !important;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      min-height: 36px;
+      padding: 0 14px !important;
+      margin: 0 0 12px !important;
+      border: 1px solid #e5e7eb !important;
+      border-radius: 10px;
+      background: #ffffff !important;
+      color: #334155 !important;
+      text-decoration: none;
+      font-size: 13px !important;
+      font-weight: 800 !important;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: color 0.18s ease, border-color 0.18s ease, background 0.18s ease, transform 0.18s ease;
+    }
+
+    .account-back-btn:hover,
+    .od-back-btn:hover {
+      color: #dc2626 !important;
+      border-color: rgba(220,38,38,0.35) !important;
+      background: #fff5f5 !important;
+      transform: translateX(-1px);
+    }
+
+    .od-header-left .od-back-btn {
+      flex: 0 0 auto;
+      margin-top: 0 !important;
+    }
+  </style>
+  <script type="module" crossorigin src="/assets/orders-DVTEdlEf.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/login-modal.js_v_1-DB14_tue.js">
+  <link rel="modulepreload" crossorigin href="/assets/profile-CSgqY9yl.js">
+  <link rel="modulepreload" crossorigin href="/assets/cart-sidebar-7vtdmx1r.js">
+  <link rel="stylesheet" crossorigin href="/assets/global-Dl61RGjd.css">
+</head>
+<body>
+  <!-- Global Preloader -->
+  <div id="global-ka-preloader" style="position: fixed; inset: 0; background: var(--bg-main, #f5f5f5); z-index: 999999; display: flex; align-items: center; justify-content: center; transition: opacity 0.5s ease, visibility 0.5s ease;">
+    <div class="ka-loader" style="min-height: 100vh; margin: 0;">
+      <div class="ka-loader__badge">
+        <div class="ka-loader__wordmark">KICKS<br>AURA</div>
+      </div>
+      <span class="ka-loader__text" style="font-size: 14px;">Loading...</span>
+    </div>
+  </div>
+  <script>
+    (function() {
+      const startTime = Date.now();
+      const minDelay = 0;
+      function hideLoader() {
+        const preloader = document.getElementById("global-ka-preloader");
+        if (!preloader) return;
+        const elapsed = Date.now() - startTime;
+        const remaining = Math.max(0, minDelay - elapsed);
+        setTimeout(() => {
+          preloader.style.opacity = "0";
+          preloader.style.visibility = "hidden";
+          setTimeout(() => preloader.remove(), 500);
+        }, remaining);
+      }
+      if (document.readyState === "complete") {
+        hideLoader();
+      } else {
+        window.addEventListener("load", hideLoader);
+      }
+    })();
+  </script>
+  <div id="navbar-container"></div>
+
+  <div class="account-layout">
+    <!-- Sidebar -->
+    <aside class="account-sidebar">
+      <a href="/orders" class="sidebar-link active">Orders</a>
+      <a href="/profile" class="sidebar-link">Profile</a>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="account-main">
+      <div id="orders-list-view">
+        <!-- Injected via JS -->
+      </div>
+
+      <div id="order-detail-view" style="display: none;">
+        <!-- Injected via JS -->
+      </div>
+    </main>
+  </div>
+
+</body>
+</html>

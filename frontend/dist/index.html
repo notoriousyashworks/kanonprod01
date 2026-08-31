@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sneakers & Fashion Accessories for Men & Women</title>
+  <link rel="icon" type="image/svg+xml" href="/assets/favicon-BtsTzBdj.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- HLS.js for Adaptive Bitrate Video Streaming -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.7/dist/hls.min.js"></script>
+  <script type="module" crossorigin src="/assets/main-Bgd1_xbh.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/login-modal.js_v_1-DB14_tue.js">
+  <link rel="modulepreload" crossorigin href="/assets/cart-sidebar-7vtdmx1r.js">
+  <link rel="modulepreload" crossorigin href="/assets/profile-CSgqY9yl.js">
+  <link rel="stylesheet" crossorigin href="/assets/main-BrgH2sI8.css">
+  <link rel="stylesheet" crossorigin href="/assets/product-card-DF6aD5-W.css">
+</head>
+<body>
+  <!-- Global Preloader -->
+  <div id="global-ka-preloader" style="position: fixed; inset: 0; background: var(--bg-main, #f5f5f5); z-index: 999999; display: flex; align-items: center; justify-content: center; transition: opacity 0.5s ease, visibility 0.5s ease;">
+    <div class="ka-loader" style="min-height: 100vh; margin: 0;">
+      <div class="ka-loader__badge">
+        <div class="ka-loader__wordmark">KICKS<br>AURA</div>
+      </div>
+      <span class="ka-loader__text" style="font-size: 14px;">Loading...</span>
+    </div>
+  </div>
+  <script>
+    (function() {
+      const startTime = Date.now();
+      const minDelay = 0;
+      function hideLoader() {
+        const preloader = document.getElementById("global-ka-preloader");
+        if (!preloader) return;
+        const elapsed = Date.now() - startTime;
+        const remaining = Math.max(0, minDelay - elapsed);
+        setTimeout(() => {
+          preloader.style.opacity = "0";
+          preloader.style.visibility = "hidden";
+          setTimeout(() => preloader.remove(), 500);
+        }, remaining);
+      }
+      if (document.readyState === "complete") {
+        hideLoader();
+      } else {
+        window.addEventListener("load", hideLoader);
+      }
+    })();
+  </script>
+  
+  <div id="navbar-container"></div>
+
+  <main>
+    <!-- Hero Banner -->
+    <style>
+      .hero-banner-wrapper {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 14px;
+        margin-top: 8px;
+        width: min(calc(100vw - 96px), 1500px);
+        max-width: 1500px;
+        overflow: hidden;
+        padding: 3px;
+        background: #000;
+        box-shadow: 0 10px 28px rgba(0,0,0,0.18);
+      }
+
+      .hero-banner-wrapper img {
+        position: relative;
+        width: 100%;
+        height: auto;
+        display: block;
+        border-radius: 11px; /* Slightly smaller than wrapper to fit perfectly */
+        z-index: 1;
+        background: #000; /* Prevent transparency bleeding */
+      }
+      .hero-carousel {
+        position: relative;
+        z-index: 1;
+        width: 100%;
+        overflow: hidden;
+        border-radius: 11px;
+        background: #000;
+        cursor: grab;
+        box-sizing: border-box;
+        aspect-ratio: 1280 / 480;
+        min-height: clamp(360px, 45vh, 500px);
+        max-height: min(55vh, 550px);
+        touch-action: pan-y;
+        user-select: none;
+      }
+      .hero-carousel.is-dragging {
+        cursor: grabbing;
+      }
+      .hero-carousel-track {
+        display: flex;
+        width: 100%;
+        height: 100%;
+        transition: transform 1.05s cubic-bezier(0.25, 0.74, 0.28, 0.99);
+        will-change: transform;
+      }
+      .hero-slide {
+        position: relative;
+        flex: 0 0 100%;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        border-radius: 11px;
+      }
+      .hero-slide::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: -2px;
+        width: 4px;
+        height: 100%;
+        z-index: 2;
+        background: rgba(255,255,255,0.18);
+        box-shadow: 0 0 18px rgba(255,255,255,0.3);
+      }
+      .hero-slide img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: 50% 55%;
+        pointer-events: none;
+      }
+      .hero-slide--poster img {
+        object-fit: cover;
+        object-position: 50% 55%;
+        transform: scale(1.02);
+        background: radial-gradient(circle at 50% 50%, #161616 0%, #050505 68%);
+      }
+      .hero-slide--glasses img {
+        object-fit: cover;
+        object-position: center;
+        background: #d9d1d1;
+      }
+      .hero-slide.is-active {
+        z-index: 1;
+      }
+      .hero-carousel::after {
+        content: "";
+        position: absolute;
+        inset: auto 0 0 0;
+        height: 34%;
+        z-index: 4;
+        pointer-events: none;
+        background: linear-gradient(to top, rgba(0,0,0,0.55), rgba(0,0,0,0));
+      }
+      .hero-carousel-dots {
+        position: absolute;
+        right: 22px;
+        bottom: 18px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        z-index: 5;
+        max-width: min(52%, 520px);
+        overflow: visible;
+        padding: 5px;
+      }
+      .hero-carousel-dot {
+        width: 92px;
+        height: 52px;
+        border: 2px solid rgba(255,255,255,0.62);
+        border-radius: 8px;
+        background: rgba(0,0,0,0.58);
+        cursor: pointer;
+        padding: 2px;
+        overflow: hidden;
+        opacity: 0.68;
+        position: relative;
+        box-shadow: 0 6px 18px rgba(0,0,0,0.34);
+        transition: transform 0.22s ease, opacity 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
+      }
+      .hero-carousel-dot::before {
+        content: "";
+        position: absolute;
+        inset: -1px;
+        z-index: 2;
+        border: 1px solid rgba(0,0,0,0.45);
+        border-radius: inherit;
+        pointer-events: none;
+      }
+      .hero-carousel-dot:hover {
+        opacity: 0.92;
+        transform: scale(1.03);
+        border-color: rgba(255,255,255,0.9);
+      }
+      .hero-carousel-dot.is-active {
+        opacity: 1;
+        transform: scale(1.05);
+        border-color: #ffffff;
+        box-shadow: 0 0 0 2px rgba(255,255,255,0.95), 0 10px 26px rgba(0,0,0,0.42);
+      }
+      .hero-carousel-dot:hover::before {
+        border-color: rgba(0,0,0,0.42);
+      }
+      .hero-carousel-dot.is-active::before {
+        border: 1px solid rgba(0,0,0,0.52);
+        box-shadow: inset 0 0 0 1px rgba(255,255,255,0.2);
+      }
+      .hero-carousel-dot::after {
+        content: "";
+        position: absolute;
+        left: 4px;
+        right: 4px;
+        bottom: 5px;
+        height: 3px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.26);
+        transform: scaleX(0);
+        transform-origin: left;
+        z-index: 3;
+      }
+      .hero-carousel-dot.is-active::after {
+        background: linear-gradient(90deg, #ffffff, #ef3340);
+        animation: heroThumbProgress 1.5s linear infinite;
+      }
+      .hero-carousel-dot img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+        background: #000;
+        border-radius: 5px;
+        display: block;
+      }
+      @keyframes heroThumbProgress {
+        from {
+          transform: scaleX(0);
+        }
+        to {
+          transform: scaleX(1);
+        }
+      }
+      .hero-carousel-arrow {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 3;
+        width: 42px;
+        height: 42px;
+        border: 1px solid rgba(255,255,255,0.3);
+        border-radius: 50%;
+        background: rgba(0,0,0,0.42);
+        color: #fff;
+        font-size: 30px;
+        line-height: 1;
+        display: grid;
+        place-items: center;
+        cursor: pointer;
+        opacity: 0.9;
+        transition: opacity 0.2s ease, background-color 0.2s ease;
+      }
+      .hero-carousel-arrow:hover {
+        opacity: 1;
+        background: rgba(0,0,0,0.68);
+      }
+      .hero-carousel-arrow--prev {
+        left: 20px;
+      }
+      .hero-carousel-arrow--next {
+        right: 20px;
+      }
+      .hero-banner-btn {
+        display: none;
+        position: absolute;
+        z-index: 10;
+        text-decoration: none;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      }
+      @media (max-width: 767px) {
+        .hero-banner-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+          padding: 7px 14px;
+          font-size: 11.5px;
+          font-weight: 700;
+          border-radius: 6px;
+          top: auto;
+          right: 12px;
+          transform: none;
+          bottom: 12px;
+          left: auto;
+          background: rgba(255, 255, 255, 0.85);
+          backdrop-filter: blur(8px);
+          -webkit-backdrop-filter: blur(8px);
+          border: 1px solid rgba(255, 255, 255, 0.4);
+          color: #111;
+          box-shadow: 0 4px 16px rgba(0,0,0,0.12), inset 0 0 0 1px rgba(255,255,255,0.2);
+          letter-spacing: 0.5px;
+        }
+        .hero-banner-btn:hover {
+          background: #111;
+          color: #fff;
+          border-color: #111;
+          box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+          transform: translateY(-2px);
+        }
+        .hero-banner-wrapper {
+          width: min(calc(100vw - 24px), 100%);
+          margin-top: 14px;
+        }
+
+        .hero-carousel {
+          aspect-ratio: 16 / 9;
+          min-height: auto;
+          max-height: none;
+        }
+        .hero-carousel-arrow {
+          display: none;
+        }
+        .hero-carousel-dots {
+          right: 10px;
+          bottom: 10px;
+          max-width: 64%;
+          gap: 6px;
+        }
+        .hero-carousel-dot {
+          width: 54px;
+          height: 32px;
+        }
+      }
+    </style>
+    <section class="hero-banner">
+      <div class="container" style="padding: 0; text-align: center;">
+        <div class="hero-banner-wrapper">
+          <div class="hero-carousel" id="hero-carousel" aria-roledescription="banner" aria-label="Featured offers">
+            <div class="hero-carousel-track">
+              <div class="hero-slide hero-slide--poster is-active" aria-label="Offer 1" data-href="/products?categories=SNEAKERS" style="cursor: pointer;">
+                <img src="/images/banner_01.png" alt="Kicks Aura Banner 1">
+              </div>
+              <div class="hero-slide hero-slide--poster" aria-label="Offer 2" data-href="/products?categories=WATCHES" style="cursor: pointer;">
+                <img src="/images/banner_02.png" alt="Kicks Aura Banner 2">
+              </div>
+              <div class="hero-slide hero-slide--poster" aria-label="Offer 3" data-href="/products?categories=SUNGLASSES" style="cursor: pointer;">
+                <img src="/images/banner_03.png" alt="Kicks Aura Banner 3">
+              </div>
+            </div>
+            
+            <button class="hero-carousel-arrow hero-carousel-arrow--prev" aria-label="Previous slide">&lsaquo;</button>
+            <button class="hero-carousel-arrow hero-carousel-arrow--next" aria-label="Next slide">&rsaquo;</button>
+
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- New Arrivals -->
+    <section id="new-arrivals" class="new-arrivals">
+      <div class="container">
+        <h2 class="section-title">NEW ARRIVALS</h2>
+        <div id="new-arrivals-grid" class="new-arrivals-grid">
+          <!-- Skeleton placeholders -->
+          <div class="product-card skeleton"></div>
+          <div class="product-card skeleton"></div>
+          <div class="product-card skeleton"></div>
+          <div class="product-card skeleton"></div>
+          <div class="product-card skeleton"></div>
+          <div class="product-card skeleton"></div>
+          <div class="product-card skeleton"></div>
+          <div class="product-card skeleton"></div>
+        </div>
+        <div id="new-arrivals-more-wrap" style="display:none; text-align:center; margin-top: 40px;">
+          <button id="new-arrivals-view-more" class="btn-explore" style="cursor:pointer;">View More</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Why Kicks Aura -->
+    <section class="why-kicksaura">
+      <div class="container">
+        <h2 class="section-title">WHY KICKS AURA?</h2>
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+            </div>
+            <h3>Prepaid Order Off</h3>
+            <p>Get instant ₹ 200 off on all prepaid orders.</p>
+          </div>
+          <div class="feature-card feature-card--ribbon">
+            <div class="feature-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+            </div>
+            <h3>COD Available Pan India</h3>
+            <p>Pay conveniently on delivery with just ₹ 99 advance.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+            </div>
+            <h3>24/7 WhatsApp Support</h3>
+            <p>Our captains respond in less than 10 minutes.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+            </div>
+            <h3>Easy Return & Exchange</h3>
+            <p>Hassle-free returns &amp; exchanges. Contact us in case of any issue.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+            </div>
+            <h3>Fast Delivery</h3>
+            <p>Delivery across Pan India within 4–5 working days.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
+            </div>
+            <h3>Live Video Call Before Dispatch</h3>
+            <p>Check quality on video call before dispatch</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Shop By Category -->
+    <section id="shop-category" class="shop-category">
+      <div class="container">
+        <h2 class="section-title">SHOP BY CATEGORY</h2>
+        <div class="category-grid" id="category-grid">
+          <!-- Populated dynamically from the database via /api/v1/categories -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Customer Reviews -->
+    <section id="customer-reviews" class="customer-reviews">
+      <div class="container">
+        <h2 class="section-title">CUSTOMER REVIEWS</h2>
+      </div>
+      <div class="reviews-carousel">
+        <button class="review-arrow review-arrow--prev" type="button" aria-label="Previous reviews">&lsaquo;</button>
+        <div class="reviews-track">
+          <!-- Skeleton loaders -->
+          <div class="review-card skeleton"></div>
+          <div class="review-card skeleton"></div>
+          <div class="review-card skeleton"></div>
+          <div class="review-card skeleton"></div>
+        </div>
+        <button class="review-arrow review-arrow--next" type="button" aria-label="Next reviews">&rsaquo;</button>
+      </div>
+    </section>
+
+  </main>
+
+  <div id="footer-container"></div>
+
+</body>
+</html>

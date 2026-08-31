@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/svg+xml" href="/assets/favicon-BtsTzBdj.svg">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Product Details — KicksAura</title>
+  <meta name="description" content="View product details, select your size, and add to cart on KicksAura." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script type="module" crossorigin src="/assets/productDetails-4RSzYWuK.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/login-modal.js_v_1-DB14_tue.js">
+  <link rel="modulepreload" crossorigin href="/assets/cart-sidebar-7vtdmx1r.js">
+  <link rel="modulepreload" crossorigin href="/assets/profile-CSgqY9yl.js">
+  <link rel="stylesheet" crossorigin href="/assets/productDetails-BevmE4V4.css">
+  <link rel="stylesheet" crossorigin href="/assets/product-card-DF6aD5-W.css">
+</head>
+<body>
+  <!-- Global Preloader -->
+  <div id="global-ka-preloader" style="position: fixed; inset: 0; background: var(--bg-main, #f5f5f5); z-index: 999999; display: flex; align-items: center; justify-content: center; transition: opacity 0.5s ease, visibility 0.5s ease;">
+    <div class="ka-loader" style="min-height: 100vh; margin: 0;">
+      <div class="ka-loader__badge">
+        <div class="ka-loader__wordmark">KICKS<br>AURA</div>
+      </div>
+      <span class="ka-loader__text" style="font-size: 14px;">Loading...</span>
+    </div>
+  </div>
+  <script>
+    (function() {
+      const startTime = Date.now();
+      const minDelay = 0;
+      function hideLoader() {
+        const preloader = document.getElementById("global-ka-preloader");
+        if (!preloader) return;
+        const elapsed = Date.now() - startTime;
+        const remaining = Math.max(0, minDelay - elapsed);
+        setTimeout(() => {
+          preloader.style.opacity = "0";
+          preloader.style.visibility = "hidden";
+          setTimeout(() => preloader.remove(), 500);
+        }, remaining);
+      }
+      if (document.readyState === "complete") {
+        hideLoader();
+      } else {
+        window.addEventListener("load", hideLoader);
+      }
+    })();
+  </script>
+  <div id="navbar-container"></div>
+  
+  <main class="product-page">
+    <div class="product-container" id="product-container">
+      <!-- Loading state -->
+      <div id="product-loading" style="grid-column: 1/-1;">
+        <div class="ka-loader">
+          <div class="ka-loader__badge">
+            <div class="ka-loader__wordmark">KICKS<br>AURA</div>
+          </div>
+          <span class="ka-loader__text">Loading product…</span>
+        </div>
+      </div>
+    </div>
+  </main>
+  
+  <div id="footer-container"></div>
+  
+</body>
+</html>

@@ -49,13 +49,13 @@ public class ImageKitAuthService {
         return new AuthParams(token, expire, signature, publicKey, urlEndpoint);
     }
 
-    /** HMAC-SHA256( privateKey, token + expire ) — returns lowercase hex. */
+    /** HMAC-SHA1( privateKey, token + expire ) — returns lowercase hex. */
     private String sign(String token, long expire) {
         try {
             String message = token + expire;
-            Mac mac = Mac.getInstance("HmacSHA256");
+            Mac mac = Mac.getInstance("HmacSHA1");
             SecretKeySpec keySpec = new SecretKeySpec(
-                    privateKey.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+                    privateKey.getBytes(StandardCharsets.UTF_8), "HmacSHA1");
             mac.init(keySpec);
             byte[] raw = mac.doFinal(message.getBytes(StandardCharsets.UTF_8));
             return HexFormat.of().formatHex(raw);

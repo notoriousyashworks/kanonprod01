@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/svg+xml" href="/assets/favicon-BtsTzBdj.svg">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Checkout — KicksAura</title>
+  <meta name="description" content="Complete your order securely at KicksAura." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    /* Prevent flashing of checkout page for guests */
+    .co-wrap { opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+    .co-wrap.auth-ready { opacity: 1; pointer-events: auto; }
+  </style>
+  <script type="module" crossorigin src="/assets/checkout-B0FNLPte.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/login-modal.js_v_1-DB14_tue.js">
+  <link rel="modulepreload" crossorigin href="/assets/profile.js_v_1-EN4aDfbm.js">
+  <link rel="stylesheet" crossorigin href="/assets/checkout-BXkh27k_.css">
+</head>
+<body class="co-body">
+  <!-- Global Preloader -->
+  <div id="global-ka-preloader" style="position: fixed; inset: 0; background: var(--bg-main, #f5f5f5); z-index: 999999; display: flex; align-items: center; justify-content: center; transition: opacity 0.5s ease, visibility 0.5s ease;">
+    <div class="ka-loader" style="min-height: 100vh; margin: 0;">
+      <div class="ka-loader__badge">
+        <div class="ka-loader__wordmark">KICKS<br>AURA</div>
+      </div>
+      <span class="ka-loader__text" style="font-size: 14px;">Loading...</span>
+    </div>
+  </div>
+  <script>
+    (function() {
+      const startTime = Date.now();
+      const minDelay = 0;
+      function hideLoader() {
+        const preloader = document.getElementById("global-ka-preloader");
+        if (!preloader) return;
+        const elapsed = Date.now() - startTime;
+        const remaining = Math.max(0, minDelay - elapsed);
+        setTimeout(() => {
+          preloader.style.opacity = "0";
+          preloader.style.visibility = "hidden";
+          setTimeout(() => preloader.remove(), 500);
+        }, remaining);
+      }
+      if (document.readyState === "complete") {
+        hideLoader();
+      } else {
+        window.addEventListener("load", hideLoader);
+      }
+    })();
+  </script>
+
+  <!-- ══════════════════════════════════════════════
+       CHECKOUT LAYOUT: LEFT + RIGHT PANEL
+  ══════════════════════════════════════════════ -->
+  <div class="co-wrap">
+
+    <!-- ── LEFT PANEL ──────────────────────────── -->
+    <div class="co-left">
+      <div class="co-left-inner">
+
+        <!-- Brand -->
+        <a href="/" class="co-brand" aria-label="KICKS AURA Home" style="display: inline-block;">
+          <img src="/logos/headlogo.png" alt="KICKS AURA" style="height: 48px; width: auto; display: block; border-radius: 8px; object-fit: contain;" />
+        </a>
+
+        <form id="checkout-form" class="co-form" novalidate>
+
+          <!-- Contact -->
+          <section class="co-section">
+            <div id="contact-summary-container" style="display: none;" class="co-summary-card"></div>
+            
+            <div id="contact-form-container">
+              <h2 class="co-section-title">Contact</h2>
+              <div class="co-field-group">
+                <div class="co-field-row co-field-row--phone">
+                  <div class="co-field co-field--country">
+                    <select class="co-select" id="countryCode" name="countryCode" aria-label="Country Code">
+                      <option value="+91" selected>🇮🇳 India (+91)</option>
+                    </select>
+                    <label class="co-label co-label--static" for="countryCode">Country</label>
+                  </div>
+                <div class="co-field co-field--phone-input">
+                  <input type="tel" class="co-input" id="contactPhone" name="contactPhone"
+                         placeholder=" " maxlength="10" autocomplete="tel" inputmode="numeric" />
+                  <label class="co-label" for="contactPhone">Phone Number (Please do not add +91 here)</label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Shipping address -->
+        <section class="co-section">
+          <h2 class="co-section-title">Shipping address</h2>
+          
+          <div id="saved-addresses-container" style="display: none; margin-bottom: 24px;">
+            <div id="saved-addresses-list"></div>
+            <button id="add-new-address-btn" class="co-add-address-btn" type="button">+ Use a different address</button>
+          </div>
+
+          <div class="co-field-group" id="shipping-form-container">
+
+            <div class="co-field-row">
+              <div class="co-field">
+                <input type="text" class="co-input" id="firstName" name="firstName"
+                       placeholder=" " autocomplete="given-name" />
+                <label class="co-label" for="firstName">First name</label>
+                <div id="firstNameError" class="co-error-text" style="display:none;color:#ef4444;font-size:11px;margin-top:4px;">This is required</div>
+              </div>
+              <div class="co-field">
+                <input type="text" class="co-input" id="lastName" name="lastName"
+                       placeholder=" " autocomplete="family-name" />
+                <label class="co-label" for="lastName">Last name</label>
+              </div>
+            </div>
+
+            <div class="co-field">
+              <input type="text" class="co-input" id="address" name="address"
+                     placeholder=" " autocomplete="street-address" />
+              <label class="co-label" for="address">House No., Apartment, Hostel or Street Address</label>
+              <div id="addressError" class="co-error-text" style="display:none;color:#ef4444;font-size:11px;margin-top:4px;">This is required</div>
+            </div>
+
+            <div class="co-field">
+              <input type="text" class="co-input" id="landmark" name="landmark"
+                     placeholder=" " />
+              <label class="co-label" for="landmark">Landmark (optional)</label>
+            </div>
+
+            <div class="co-field-row co-field-row--3">
+              <div class="co-field">
+                <input type="text" class="co-input" id="city" name="city"
+                       placeholder=" " autocomplete="address-level2" />
+                <label class="co-label" for="city">City</label>
+                <div id="cityError" class="co-error-text" style="display:none;color:#ef4444;font-size:11px;margin-top:4px;">This is required</div>
+              </div>
+              <div class="co-field">
+                <select class="co-select" id="state" name="state" autocomplete="address-level1" style="color: #000;">
+                  <option value="" disabled selected hidden>Select a State...</option>
+                  <option value="Andhra Pradesh">Andhra Pradesh</option>
+                  <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+                  <option value="Assam">Assam</option>
+                  <option value="Bihar">Bihar</option>
+                  <option value="Chandigarh">Chandigarh</option>
+                  <option value="Chhattisgarh">Chhattisgarh</option>
+                  <option value="Dadra and Nagar Haveli and Daman and Diu">Dadra and Nagar Haveli</option>
+                  <option value="Delhi">Delhi</option>
+                  <option value="Goa">Goa</option>
+                  <option value="Gujarat">Gujarat</option>
+                  <option value="Haryana">Haryana</option>
+                  <option value="Himachal Pradesh">Himachal Pradesh</option>
+                  <option value="Jammu and Kashmir">Jammu and Kashmir</option>
+                  <option value="Jharkhand">Jharkhand</option>
+                  <option value="Karnataka">Karnataka</option>
+                  <option value="Kerala">Kerala</option>
+                  <option value="Ladakh">Ladakh</option>
+                  <option value="Lakshadweep">Lakshadweep</option>
+                  <option value="Madhya Pradesh">Madhya Pradesh</option>
+                  <option value="Maharashtra">Maharashtra</option>
+                  <option value="Manipur">Manipur</option>
+                  <option value="Meghalaya">Meghalaya</option>
+                  <option value="Mizoram">Mizoram</option>
+                  <option value="Nagaland">Nagaland</option>
+                  <option value="Odisha">Odisha</option>
+                  <option value="Puducherry">Puducherry</option>
+                  <option value="Punjab">Punjab</option>
+                  <option value="Rajasthan">Rajasthan</option>
+                  <option value="Sikkim">Sikkim</option>
+                  <option value="Tamil Nadu">Tamil Nadu</option>
+                  <option value="Telangana">Telangana</option>
+                  <option value="Tripura">Tripura</option>
+                  <option value="Uttar Pradesh">Uttar Pradesh</option>
+                  <option value="Uttarakhand">Uttarakhand</option>
+                  <option value="West Bengal">West Bengal</option>
+                </select>
+                <label class="co-label co-label--static" for="state">State</label>
+                <div id="stateError" class="co-error-text" style="display:none;color:#ef4444;font-size:11px;margin-top:4px;">This is required</div>
+              </div>
+              <div class="co-field co-field--pin">
+                <input type="text" class="co-input" id="pinCode" name="pinCode"
+                       placeholder=" " maxlength="6" pattern="\d{6}" autocomplete="postal-code" inputmode="numeric" />
+                <label class="co-label" for="pinCode">PIN code</label>
+                <div class="pin-spinner" id="pin-spinner" aria-hidden="true"></div>
+                <div id="pinCodeError" class="co-error-text" style="display:none;color:#ef4444;font-size:11px;margin-top:4px;">This is required</div>
+              </div>
+            </div>
+            <div class="co-field">
+              <input type="email" class="co-input" id="email" name="email"
+                     placeholder=" " autocomplete="email" />
+              <label class="co-label" for="email">Email (optional)</label>
+            </div>
+
+          </div>
+        </section>
+
+        </form>
+
+      </div><!-- /co-left-inner -->
+    </div><!-- /co-left -->
+
+    <!-- ── RIGHT PANEL ─────────────────────────── -->
+    <div class="co-right">
+      <div class="co-right-inner">
+        <div class="co-order-items" id="summary-items-list">
+          <!-- Populated by checkout.js -->
+        </div>
+        <div class="co-coupon-row">
+          <input type="text" class="co-coupon-input" id="coupon-input" placeholder="Coupon code" autocomplete="off" />
+          <button class="co-coupon-btn btn-apply" type="button">Apply</button>
+        </div>
+        <p id="coupon-msg" style="display:none; margin: -12px 0 14px; font-size: 12px; font-weight: 600;"></p>
+        <div id="available-coupons-container" class="available-coupons-container" style="display:none; margin: 0 0 16px;"></div>
+        <div class="co-totals">
+          <div class="co-totals-row">
+            <span class="co-totals-label">Subtotal</span>
+            <span class="co-totals-value" id="summary-subtotal">₹0</span>
+          </div>
+          <div class="co-totals-row" id="summary-discount-row" style="display:none;">
+            <span class="co-totals-label co-totals-label--discount" style="color: #16a34a;">Prepaid Discount</span>
+            <span class="co-totals-value co-totals-value--discount" id="summary-discount" style="color: #16a34a;"></span>
+          </div>
+          <div class="co-totals-row" id="summary-coupon-row" style="display:none;">
+            <span class="co-totals-label" style="color: #16a34a;" id="summary-coupon-label">Coupon Discount</span>
+            <span class="co-totals-value" id="summary-coupon-discount" style="color: #16a34a;"></span>
+          </div>
+          <div class="co-totals-row">
+            <span class="co-totals-label" data-policy="shipping" style="cursor: pointer;" title="Click to view Shipping Policy">
+              Shipping
+              <svg class="co-info-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="8" cy="8" r="7"/><path d="M8 7v5M8 5v.5"/>
+              </svg>
+            </span>
+            <span class="co-totals-value co-totals-value--muted" id="summary-shipping">Enter shipping address</span>
+          </div>
+        </div>
+        <div class="co-grand-total">
+          <span class="co-grand-label">Total</span>
+          <span class="co-grand-value">
+            <span class="co-grand-currency">INR</span>
+            <span id="summary-total">₹0</span>
+          </span>
+        </div>
+      </div><!-- /co-right-inner -->
+    </div><!-- /co-right -->
+
+    <!-- LEFT BOTTOM: Payment + Button + Footer -->
+    <div class="co-left-bottom">
+      <div class="co-left-inner">
+        <section class="co-section">
+          <h2 class="co-section-title">Payment</h2>
+          <p class="co-section-sub">All transactions are secure and encrypted.</p>
+          <div class="co-payment-list">
+            <label class="co-payment-option co-payment-option--selected" id="pay-prepaid-label">
+              <input type="radio" name="paymentMethod" value="prepaid" checked />
+              <span class="co-radio-dot"></span>
+              <span class="co-payment-text">
+                <span class="co-payment-name">Prepaid</span>
+                <span class="co-payment-desc">Payment will be collected by Sales Team via WhatsApp</span>
+              </span>
+            </label>
+            <label class="co-payment-option" id="pay-cod-label">
+              <input type="radio" name="paymentMethod" value="cod" />
+              <span class="co-radio-dot"></span>
+              <span class="co-payment-text">
+                <span class="co-payment-name">Cash on Delivery (COD)</span>
+                <span class="co-payment-desc">₹99 advance collected by Sales Team via WhatsApp</span>
+              </span>
+            </label>
+          </div>
+        </section>
+        <button type="button" class="co-submit-btn" id="place-order-btn">
+          <span class="btn-main-text">Complete order</span>
+          <span class="btn-sub-text" id="place-order-subtitle"></span>
+        </button>
+        <nav class="co-footer-links">
+          <a href="/shipping-policy" target="_blank">Shipping &amp; Delivery Policy</a>
+          <a href="/return-exchange" target="_blank">Return, Exchange &amp; Refund</a>
+          <a href="https://wa.me/916239379751" target="_blank" rel="noopener">Contact Us</a>
+        </nav>
+      </div><!-- /co-left-inner -->
+    </div><!-- /co-left-bottom -->
+
+  </div><!-- /co-wrap -->
+
+  <!-- ── ORDER CONFIRMATION MODAL ─────────────── -->
+  <div class="order-confirm-overlay" id="order-confirm-overlay" role="dialog" aria-modal="true" aria-labelledby="order-confirm-title">
+    <div class="order-confirm-modal" id="order-confirm-modal">
+      <div class="order-confirm-icon-wrapper">
+        <div class="order-confirm-icon">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+      </div>
+      
+      <h2 class="order-confirm-title" id="order-confirm-title">
+        Order Placed 
+        <svg class="verified-badge" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M11.9992 2L14.071 4.29828L17.1519 3.96168L18.4239 6.84061L21.3283 8.35821L20.5284 11.391L22.1884 13.9926L19.9808 16.2751L20.5053 19.3496L17.5857 20.3016L15.6563 22.8465L12.8277 21.6853L9.9992 22.8465L8.06979 20.3016L5.15024 19.3496L5.67472 16.2751L3.46708 13.9926L5.12705 11.391L4.32717 8.35821L7.23165 6.84061L8.50361 3.96168L11.5845 4.29828L13.6563 2H11.9992Z" fill="#25A352"/>
+          <path d="M10.8333 15.3333L7.5 12L8.66667 10.8333L10.8333 13L15.3333 8.5L16.5 9.66667L10.8333 15.3333Z" fill="white"/>
+        </svg>
+      </h2>
+      
+      <div class="order-divider">
+        <svg class="star-icon" viewBox="0 0 24 24" fill="#27ae60"><path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"/></svg>
+      </div>
+      
+      <p class="order-confirm-subtitle">
+        Thank you! Your order has been placed successfully.
+      </p>
+      
+      <div class="order-confirm-whatsapp">
+        <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="32" height="32" rx="16" fill="#25D366"/>
+          <path d="M22.5 9.5A8.9 8.9 0 0 0 16 7a9 9 0 0 0-7.8 13.5L7 25l4.6-1.2A9 9 0 0 0 25 16a8.9 8.9 0 0 0-2.5-6.5zm-6.5 13.8a7.5 7.5 0 0 1-3.8-1l-.3-.2-2.7.7.7-2.7-.2-.3A7.5 7.5 0 1 1 16 23.3zm4.1-5.6c-.2-.1-1.3-.6-1.5-.7-.2-.1-.3-.1-.5.1l-.6.8c-.1.1-.2.1-.4 0a5.5 5.5 0 0 1-1.6-1 6 6 0 0 1-1.1-1.4c-.1-.2 0-.3.1-.4l.4-.4.2-.3v-.3l-.7-1.6c-.2-.4-.4-.3-.5-.3h-.5a.9.9 0 0 0-.7.3 2.9 2.9 0 0 0-.9 2.2 5 5 0 0 0 1.1 2.7 11.4 11.4 0 0 0 4.4 3.8c.6.3 1.1.4 1.5.3a2.6 2.6 0 0 0 1.7-1.2c.2-.4.2-.8 0-.9z" fill="#fff"/>
+        </svg>
+        <span class="order-confirm-whatsapp-text">
+          Our Sales Team will connect with you on <strong>WhatsApp within 15 minutes</strong> to confirm your order details.
+        </span>
+      </div>
+      
+      <a href="/orders" class="new-view-orders-btn">View Orders &rarr;</a>
+      
+      <div class="order-divider">
+        <svg class="shield-icon" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </div>
+      
+      <p class="order-confirm-countdown" id="order-confirm-countdown">Redirecting you in 5 seconds…</p>
+    </div>
+  </div>
+  <!-- ── ADD ADDRESS MODAL ─────────────── -->
+  <div class="address-modal-overlay" id="add-address-modal-overlay" style="display: none;">
+    <div class="address-modal">
+      <div class="address-modal-header">
+        <h2 class="address-modal-title">Add address</h2>
+        <button type="button" class="address-modal-close" id="add-address-close">✕</button>
+      </div>
+      <div class="address-modal-body">
+        <div class="co-field-group">
+          <div class="co-field-row">
+            <div class="co-field">
+              <input type="text" class="co-input" id="new-firstName" placeholder=" " required />
+              <label class="co-label" for="new-firstName">First name <span style="color:#ef4444;">*</span></label>
+              <div id="new-firstNameError" class="co-error-text" style="display:none;color:#ef4444;font-size:11px;margin-top:4px;">This is required</div>
+            </div>
+            <div class="co-field">
+              <input type="text" class="co-input" id="new-lastName" placeholder=" " />
+              <label class="co-label" for="new-lastName">Last name</label>
+            </div>
+          </div>
+          <div class="co-field">
+            <input type="text" class="co-input" id="new-address" placeholder=" " />
+            <label class="co-label" for="new-address">House No., Apartment, Hostel or Street Address</label>
+            <div id="new-addressError" class="co-error-text" style="display:none;color:#ef4444;font-size:11px;margin-top:4px;">This is required</div>
+          </div>
+          <div class="co-field">
+            <input type="text" class="co-input" id="new-landmark" placeholder=" " />
+            <label class="co-label" for="new-landmark">Apartment, suite, etc. (optional)</label>
+          </div>
+          <div class="co-field-row co-field-row--3">
+            <div class="co-field">
+              <input type="text" class="co-input" id="new-city" placeholder=" " />
+              <label class="co-label" for="new-city">City</label>
+              <div id="new-cityError" class="co-error-text" style="display:none;color:#ef4444;font-size:11px;margin-top:4px;">This is required</div>
+            </div>
+            <div class="co-field">
+              <select class="co-select" id="new-state" style="color: #000;">
+                <option value="" disabled selected hidden>State</option>
+                <option value="Andhra Pradesh">Andhra Pradesh</option>
+                <option value="Haryana">Haryana</option>
+                <option value="Maharashtra">Maharashtra</option>
+                <!-- Simplified for brevity in HTML, will populate via JS if needed or just hardcode some common ones. Wait, user said all states. Let me just copy the full list! -->
+                <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+                <option value="Assam">Assam</option>
+                <option value="Bihar">Bihar</option>
+                <option value="Chandigarh">Chandigarh</option>
+                <option value="Chhattisgarh">Chhattisgarh</option>
+                <option value="Dadra and Nagar Haveli and Daman and Diu">Dadra and Nagar Haveli</option>
+                <option value="Delhi">Delhi</option>
+                <option value="Goa">Goa</option>
+                <option value="Gujarat">Gujarat</option>
+                <option value="Himachal Pradesh">Himachal Pradesh</option>
+                <option value="Jammu and Kashmir">Jammu and Kashmir</option>
+                <option value="Jharkhand">Jharkhand</option>
+                <option value="Karnataka">Karnataka</option>
+                <option value="Kerala">Kerala</option>
+                <option value="Ladakh">Ladakh</option>
+                <option value="Lakshadweep">Lakshadweep</option>
+                <option value="Madhya Pradesh">Madhya Pradesh</option>
+                <option value="Manipur">Manipur</option>
+                <option value="Meghalaya">Meghalaya</option>
+                <option value="Mizoram">Mizoram</option>
+                <option value="Nagaland">Nagaland</option>
+                <option value="Odisha">Odisha</option>
+                <option value="Puducherry">Puducherry</option>
+                <option value="Punjab">Punjab</option>
+                <option value="Rajasthan">Rajasthan</option>
+                <option value="Sikkim">Sikkim</option>
+                <option value="Tamil Nadu">Tamil Nadu</option>
+                <option value="Telangana">Telangana</option>
+                <option value="Tripura">Tripura</option>
+                <option value="Uttar Pradesh">Uttar Pradesh</option>
+                <option value="Uttarakhand">Uttarakhand</option>
+                <option value="West Bengal">West Bengal</option>
+              </select>
+              <label class="co-label co-label--static" for="new-state">State</label>
+              <div id="new-stateError" class="co-error-text" style="display:none;color:#ef4444;font-size:11px;margin-top:4px;">This is required</div>
+            </div>
+            <div class="co-field co-field--pin" style="position: relative;">
+              <input type="text" class="co-input" id="new-pinCode" placeholder=" " maxlength="6" pattern="\d{6}" inputmode="numeric" />
+              <label class="co-label" for="new-pinCode">PIN code</label>
+              <div class="pin-spinner" id="new-pin-spinner" aria-hidden="true" style="right: 12px; top: 12px;"></div>
+              <div id="new-pinCodeError" class="co-error-text" style="display:none;color:#ef4444;font-size:11px;margin-top:4px;">This is required</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="address-modal-footer">
+        <button type="button" class="address-modal-cancel" id="add-address-cancel">Cancel</button>
+        <button type="button" class="address-modal-save" id="add-address-save">Save address</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── POLICY MODAL POPUP ─────────────── -->
+  <div class="policy-modal-overlay" id="policy-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="policy-modal-title">
+    <div class="policy-modal" id="policy-modal">
+      <div class="policy-modal-header">
+        <h2 class="policy-modal-title" id="policy-modal-title">Refund Policy</h2>
+        <button type="button" class="policy-modal-close" id="policy-modal-close" aria-label="Close modal">✕</button>
+      </div>
+      <div class="policy-modal-body" id="policy-modal-body"></div>
+      <div class="policy-modal-footer">
+        <button type="button" class="policy-modal-close-btn" id="policy-modal-close-btn">Close</button>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

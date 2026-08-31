@@ -634,6 +634,7 @@ function getRandomName() {
 }
 
 export async function initPurchaseNotifications() {
+  return; // Disabled
   try {
     const products = await getAllProducts();
     if (!products || products.length === 0) return;
@@ -794,7 +795,7 @@ export function initMobileMenu() {
 // Automatically initialize when DOM is ready
 function initializeUI() {
   injectFooter();
-  initPurchaseNotifications();
+  // initPurchaseNotifications(); // Disabled
 }
 
 if (document.readyState === 'loading') {
