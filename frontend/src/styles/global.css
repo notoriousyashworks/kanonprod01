@@ -2587,7 +2587,8 @@ body.sidebar-lock #wishlist-sidebar {
 @media (min-width: 768px) {
   .mobile-nav-drawer,
   .mobile-nav-overlay,
-  .mobile-menu-btn {
+  .mobile-menu-btn,
+  .mobile-left-actions {
     display: none !important;
   }
 }
@@ -2638,5 +2639,32 @@ body.sidebar-lock #wishlist-sidebar {
 @media (pointer: coarse), (max-width: 768px) {
   .center-play-btn {
     display: none !important;
+  }
+}
+/* WhatsApp Inquiry Button on Product Details */
+.pd-whatsapp-inquiry-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background-color: #25D366;
+  color: #fff;
+  font-weight: 600;
+  font-size: 16px;
+  padding: 12px 24px;
+  border-radius: 10px;
+  text-decoration: none;
+  margin-bottom: 24px;
+  transition: background-color 0.2s;
+  width: auto;
+  min-width: 200px;
+}
+.pd-whatsapp-inquiry-btn:hover {
+  background-color: #128C7E;
+  color: #fff;
+}
+@media (max-width: 767px) {
+  .pd-whatsapp-inquiry-btn {
+    width: 100%;
   }
 }
