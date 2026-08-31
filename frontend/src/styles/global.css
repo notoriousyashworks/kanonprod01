@@ -2511,9 +2511,9 @@ body.sidebar-lock #wishlist-sidebar {
   margin-left: 28px !important;
   margin-right: 28px !important;
   display: grid !important;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   align-items: center;
-  gap: 10px !important;
+  gap: 12px !important;
 }
 
 .nav-link {
@@ -2564,7 +2564,7 @@ body.sidebar-lock #wishlist-sidebar {
     min-width: 100%;
     margin-left: 16px !important;
     margin-right: 16px !important;
-    grid-template-columns: repeat(6, max-content);
+    grid-template-columns: repeat(5, max-content);
     justify-content: center;
     gap: 18px !important;
   }
