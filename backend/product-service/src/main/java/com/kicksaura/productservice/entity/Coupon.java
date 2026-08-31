@@ -26,12 +26,14 @@ public class Coupon {
     @Column(name = "discount_percent", nullable = false)
     private Double discountPercent;
 
-    @Column(name = "discount_amount", columnDefinition = "double precision default 0")
+    @Column(name = "discount_amount")
+    @org.hibernate.annotations.ColumnDefault("0")
     @Builder.Default
     private Double discountAmount = 0.0;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "discount_type", nullable = false, columnDefinition = "varchar(20) default 'PERCENTAGE'")
+    @Column(name = "discount_type", nullable = false)
+    @org.hibernate.annotations.ColumnDefault("'PERCENTAGE'")
     @Builder.Default
     private DiscountType discountType = DiscountType.PERCENTAGE;
 
@@ -45,7 +47,8 @@ public class Coupon {
     @Builder.Default
     private boolean isActive = true;
 
-    @Column(name = "show_on_checkout", nullable = false, columnDefinition = "boolean default false")
+    @Column(name = "show_on_checkout", nullable = false)
+    @org.hibernate.annotations.ColumnDefault("false")
     @Builder.Default
     private boolean showOnCheckout = false;
 }

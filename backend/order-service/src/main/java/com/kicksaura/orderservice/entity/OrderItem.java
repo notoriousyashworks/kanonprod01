@@ -33,7 +33,8 @@ public class OrderItem {
     @Builder.Default
     private String status = "PENDING";
 
-    @Column(name = "live_video_call", columnDefinition = "boolean default false")
+    @Column(name = "live_video_call")
+    @org.hibernate.annotations.ColumnDefault("false")
     @Builder.Default
     private Boolean liveVideoCall = false;
 

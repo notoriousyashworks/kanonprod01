@@ -68,31 +68,38 @@ public class Product {
     @Builder.Default
     private boolean isVisible = true;
 
-    @Column(name = "is_sale_visible", nullable = false, columnDefinition = "boolean default false")
+    @Column(name = "is_sale_visible", nullable = false)
+    @org.hibernate.annotations.ColumnDefault("false")
     @Builder.Default
     private boolean isSaleVisible = false;
 
-    @Column(name = "is_new_arrival", nullable = false, columnDefinition = "boolean default false")
+    @Column(name = "is_new_arrival", nullable = false)
+    @org.hibernate.annotations.ColumnDefault("false")
     @Builder.Default
     private boolean isNewArrival = false;
 
-    @Column(name = "is_trending", nullable = false, columnDefinition = "boolean default false")
+    @Column(name = "is_trending", nullable = false)
+    @org.hibernate.annotations.ColumnDefault("false")
     @Builder.Default
     private boolean isTrending = false;
 
-    @Column(name = "is_video_visible", nullable = false, columnDefinition = "boolean default false")
+    @Column(name = "is_video_visible", nullable = false)
+    @org.hibernate.annotations.ColumnDefault("false")
     @Builder.Default
     private boolean isVideoVisible = false;
 
-    @Column(name = "with_og_box", nullable = false, columnDefinition = "boolean default false")
+    @Column(name = "with_og_box", nullable = false)
+    @org.hibernate.annotations.ColumnDefault("false")
     @Builder.Default
     private boolean withOgBox = false;
 
-    @Column(name = "is_in_stock_flag", nullable = false, columnDefinition = "boolean default true")
+    @Column(name = "is_in_stock_flag", nullable = false)
+    @org.hibernate.annotations.ColumnDefault("true")
     @Builder.Default
     private boolean isInStockFlag = true;
 
-    @Column(name = "is_limited_stock", nullable = false, columnDefinition = "boolean default false")
+    @Column(name = "is_limited_stock", nullable = false)
+    @org.hibernate.annotations.ColumnDefault("false")
     @Builder.Default
     private boolean isLimitedStock = false;
 

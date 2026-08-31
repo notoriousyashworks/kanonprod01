@@ -381,6 +381,36 @@ function showLoading(msg = 'Loading...') {
     <div class="loading-state"><div class="spinner"></div><p>${msg}</p></div>`;
 }
 
+function setHtmlPreservingFocus(containerId, html) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+
+  const activeElement = document.activeElement;
+  let activeId = null;
+  let selectionStart = 0;
+  let selectionEnd = 0;
+
+  if (activeElement && container.contains(activeElement)) {
+    activeId = activeElement.id;
+    if (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA') {
+      selectionStart = activeElement.selectionStart;
+      selectionEnd = activeElement.selectionEnd;
+    }
+  }
+
+  container.innerHTML = html;
+
+  if (activeId) {
+    const el = document.getElementById(activeId);
+    if (el) {
+      el.focus();
+      if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+        el.setSelectionRange(selectionStart, selectionEnd);
+      }
+    }
+  }
+}
+
 // ── Toast ──────────────────────────────────────────────────
 function toast(msg, type = 'success') {
   const tc = document.getElementById('toast-container');
@@ -579,7 +609,7 @@ function _renderProductsUI() {
 
   document.getElementById('page-actions').innerHTML = `<button class="btn btn-primary" id="btn-add-product">+ Add Product</button>`;
 
-  document.getElementById('content-body').innerHTML = `
+  setHtmlPreservingFocus('content-body', `
     <div class="toolbar">
       <div class="toolbar-left">
         <div class="search-box">
@@ -644,7 +674,7 @@ function _renderProductsUI() {
         </table>
       </div>
       ${pagination(total, page, PER_PAGE)}
-    </div>`;
+    </div>`);
 
   // Bind events
   document.getElementById('btn-add-product').addEventListener('click', () => showProductForm());
@@ -1252,7 +1282,7 @@ function _renderOrdersUI() {
   const total = filtered.length;
   const paged = paginate(filtered, page, PER_PAGE);
 
-  document.getElementById('content-body').innerHTML = `
+  setHtmlPreservingFocus('content-body', `
     <div class="toolbar">
       <div class="toolbar-left">
         <div class="search-box">
@@ -1302,7 +1332,7 @@ function _renderOrdersUI() {
         </table>
       </div>
       ${pagination(total, page, PER_PAGE)}
-    </div>`;
+    </div>`);
 
   document.getElementById('ord-search').addEventListener('input', e => { S.of.search = e.target.value; S.of.page = 1; _renderOrdersUI(); });
   document.getElementById('ord-status').addEventListener('change', e => { S.of.status = e.target.value; S.of.page = 1; _renderOrdersUI(); });
@@ -1716,7 +1746,7 @@ function _renderCustomersUI() {
   const total = filtered.length;
   const paged = paginate(filtered, page, PER_PAGE);
 
-  document.getElementById('content-body').innerHTML = `
+  setHtmlPreservingFocus('content-body', `
     <div class="toolbar">
       <div class="toolbar-left">
         <div class="search-box">
@@ -1757,7 +1787,7 @@ function _renderCustomersUI() {
         </table>
       </div>
       ${pagination(total, page, PER_PAGE)}
-    </div>`;
+    </div>`);
 
   document.getElementById('cust-search').addEventListener('input', e => { S.cf.search = e.target.value; S.cf.page = 1; _renderCustomersUI(); });
   document.querySelectorAll('.view-cust').forEach(btn => btn.addEventListener('click', () => {

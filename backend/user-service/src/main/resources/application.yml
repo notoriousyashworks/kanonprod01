@@ -23,7 +23,7 @@ spring:
       mode: always
 
 jwt:
-  secret: ${JWT_SECRET}
+  secret: ${JWT_SECRET:}
   expiration: 1296000000 # 15 days in milliseconds
 
 app:
@@ -32,6 +32,6 @@ app:
       secure: ${COOKIE_SECURE:false}
 
 msg91:
-  widget-id: ${MSG91_WIDGET_ID}
-  widget-token: ${MSG91_WIDGET_TOKEN}
-  authkey: ${MSG91_AUTHKEY}
+  widget-id: ${MSG91_WIDGET_ID:}
+  widget-token: ${MSG91_WIDGET_TOKEN:}
+  authkey: ${MSG91_AUTHKEY:}
