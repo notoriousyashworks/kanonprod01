@@ -41,9 +41,14 @@ img, video, iframe, embed, object {
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    padding: 8px 12px 6px;
+    padding: 14px 12px 6px; /* extra top padding so badges aren't clipped */
     gap: 0;
     position: relative;
+    overflow: visible;
+  }
+
+  .header__top {
+    overflow: visible;
   }
 
   /* Hamburger: far left, row 1 */
