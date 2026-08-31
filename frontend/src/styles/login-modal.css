@@ -471,6 +471,9 @@
 }
 
 .login-modal-footer-links {
+  position: relative;
+  z-index: 10;
+  pointer-events: auto;
   display: flex;
   align-items: center;
   justify-content: center;

@@ -38,9 +38,13 @@ const STATUS_COLORS = {
 };
 const PER_PAGE = 10;
 
-// ── Cloudinary ─────────────────────────────────────────────
+// ── Cloudinary (categories/reviews remain on Cloudinary) ───
 const CLOUDINARY_CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME_ADMIN;
 const CLOUDINARY_UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+
+// ── ImageKit (new product image/video uploads) ──────────────
+const IMAGEKIT_PUBLIC_KEY   = import.meta.env.VITE_IMAGEKIT_PUBLIC_KEY;
+const IMAGEKIT_URL_ENDPOINT = import.meta.env.VITE_IMAGEKIT_URL_ENDPOINT;
 
 // ── State ──────────────────────────────────────────────────
 const S = {
@@ -149,7 +153,64 @@ async function uploadToCloudinary(file, resourceType = 'image', folder = null) {
 // _uploaderState stores per-uploader URL arrays and active upload status
 const _uploaderState = { images: [], videos: [], activeUploads: 0 };
 
-function initMediaUploader(containerId, key, resourceType, accept, folder = null) {
+// ── ImageKit Upload Helpers ─────────────────────────────────
+
+/**
+ * Fetch a short-lived signed auth token from our backend.
+ * The private key NEVER leaves the server.
+ * @returns {{ token, expire, signature, publicKey, urlEndpoint }}
+ */
+async function fetchImageKitAuth() {
+  const res = await api.req('/api/v1/admin/imagekit/auth');
+  if (!res || !res.token) throw new Error('Failed to obtain ImageKit auth token');
+  return res;
+}
+
+/**
+ * Upload a single file directly to ImageKit using server-signed credentials.
+ * File bytes go browser → ImageKit directly (never through our backend).
+ *
+ * @param {File}   file         - The file to upload
+ * @param {string} resourceType - 'image' or 'video' (informational; ImageKit auto-detects)
+ * @param {string} [folder]     - Target folder path in ImageKit
+ * @returns {Promise<string>}   - Absolute ImageKit delivery URL
+ */
+async function uploadToImageKit(file, resourceType = 'image', folder = null) {
+  const auth = await fetchImageKitAuth();
+
+  // Generate a unique filename to avoid collisions across uploads.
+  // Pattern: {timestamp}-{random}-{sanitized-original-name}
+  const ext         = file.name.split('.').pop() || '';
+  const safeName    = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+  const uniqueName  = `${Date.now()}-${Math.random().toString(36).slice(2)}-${safeName}`;
+
+  const fd = new FormData();
+  fd.append('file',       file);
+  fd.append('fileName',   uniqueName);
+  fd.append('publicKey',  auth.publicKey);
+  fd.append('signature',  auth.signature);
+  fd.append('expire',     String(auth.expire));
+  fd.append('token',      auth.token);
+  if (folder) fd.append('folder', folder);
+
+  const res = await fetch('https://upload.imagekit.io/api/v1/files/upload', {
+    method: 'POST',
+    body: fd,
+  });
+
+  if (!res.ok) {
+    let errMsg = `ImageKit upload failed (HTTP ${res.status})`;
+    try { const e = await res.json(); errMsg = e.message || errMsg; } catch (_) {}
+    throw new Error(errMsg);
+  }
+
+  const data = await res.json();
+  // data.url is the full delivery URL, e.g. https://ik.imagekit.io/your_id/path/file.jpg
+  if (!data.url) throw new Error('ImageKit returned no URL');
+  return data.url;
+}
+
+function initMediaUploader(containerId, key, resourceType, accept, folder = null, useCloudinary = false) {
   const container = document.getElementById(containerId);
   if (!container) return;
 
@@ -196,7 +257,7 @@ function initMediaUploader(containerId, key, resourceType, accept, folder = null
         <div class="upload-dropzone-inner">
           <span class="upload-icon">${isUploading ? '⏳' : '☁'}</span>
           ${dropzoneHint}
-          <span class="upload-sub">Uploads directly to Cloudinary (auto-converts HEIC/high-res)</span>
+          <span class="upload-sub">Uploads directly to ${useCloudinary ? 'Cloudinary' : 'ImageKit'}</span>
         </div>
       </label>
       <div class="upload-progress-bar" id="${containerId}-bar" style="${isUploading ? 'display:block;' : 'display:none;'}">
@@ -259,7 +320,9 @@ function initMediaUploader(containerId, key, resourceType, accept, folder = null
     for (const file of files) {
       try {
         if (fill) fill.style.width = Math.round((done / files.length) * 100) + '%';
-        const url = await uploadToCloudinary(file, resourceType, folder);
+        const url = useCloudinary
+          ? await uploadToCloudinary(file, resourceType, folder)
+          : await uploadToImageKit(file, resourceType, folder);
         _uploaderState[key].push(url);
         done++;
         if (fill) fill.style.width = Math.round((done / files.length) * 100) + '%';
@@ -802,8 +865,8 @@ async function showProductForm(product = null) {
 
   // Bind size grid checkbox toggling
   requestAnimationFrame(() => {
-    initMediaUploader('img-uploader', 'images', 'image', 'image/*', 'kicks-aura/products');
-    initMediaUploader('vid-uploader', 'videos', 'video', 'video/*', 'kicks-aura/products');
+    initMediaUploader('img-uploader', 'images', 'image', 'image/*', 'kicks-aura/products/images');
+    initMediaUploader('vid-uploader', 'videos', 'video', 'video/*', 'kicks-aura/products/videos');
     initCategoryPicker();
     initBrandPicker();
 
@@ -2279,7 +2342,7 @@ function showReviewForm() {
 
   // Initialize the Cloudinary uploader widget
   setTimeout(() => {
-    initMediaUploader('review-image-upload', 'new-review', 'image', 'image/*', 'kicks-aura/reviews');
+    initMediaUploader('review-image-upload', 'new-review', 'image', 'image/*', 'kicks-aura/reviews', true);
   }, 10);
 }
 

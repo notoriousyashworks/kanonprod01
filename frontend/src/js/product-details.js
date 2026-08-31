@@ -2,7 +2,7 @@
    Product Details Page
    ============================================ */
 import { getProductById, getRelatedProducts } from './api.js';
-import { getNavbarHTML, getFooterHTML, showToast, formatCloudinaryUrl, formatCloudinaryVideoPoster, formatCloudinaryVideoHls, formatCloudinaryVideoMp4, initSearch, initMobileMenu, createProductCard } from './ui.js';
+import { getNavbarHTML, getFooterHTML, showToast, formatCloudinaryUrl, formatCloudinaryVideoPoster, formatCloudinaryVideoHls, formatCloudinaryVideoMp4, formatMediaUrl, formatVideoPoster, formatVideoHls, formatVideoMp4, formatVideoHoverPreview, initSearch, initMobileMenu, createProductCard } from './ui.js';
 import { addToCart, updateCartBadge } from './cart.js';
 import { initWishlistSidebar, updateWishlistBadge, isWishlisted, toggleWishlistItem } from './wishlist.js';
 import { initCartSidebar, openShippingPolicyModal } from './cart-sidebar.js';
@@ -310,7 +310,9 @@ function renderProduct(product) {
   // Update page title
   document.title = `${product.name} — KicksAura`;
 
-  const images = (product.imageUrls?.length > 0 ? product.imageUrls : []).map(formatCloudinaryUrl);
+  // formatMediaUrl routes Cloudinary URLs through Cloudinary transforms and
+  // ImageKit URLs through ImageKit transforms transparently.
+  const images = (product.imageUrls?.length > 0 ? product.imageUrls : []).map(formatMediaUrl);
   const videos = product.videoUrls?.length > 0 ? product.videoUrls : [];
   const mediaItems = [
     ...images.map(url => ({ type: 'image', url })),
@@ -378,9 +380,9 @@ function renderProduct(product) {
         ${item.type === 'video'
         ? `<video
                id="main-video-${idx}"
-               poster="${formatCloudinaryVideoPoster(item.url)}"
-               data-hls-src="${formatCloudinaryVideoHls(item.url)}"
-               data-mp4-src="${formatCloudinaryVideoMp4(item.url)}"
+               poster="${formatVideoPoster(item.url)}"
+               data-hls-src="${formatVideoHls(item.url)}"
+               data-mp4-src="${formatVideoMp4(item.url)}"
                controls
                controlsList="nofullscreen nodownload noplaybackrate"
                disablePictureInPicture

@@ -243,19 +243,25 @@ function injectModalDOM(context = null) {
   bindModalEvents();
   
   // Bind Policy Links
-  document.getElementById('login-about-link').addEventListener('click', (e) => {
-    e.preventDefault();
-    document.getElementById('policy-modal-title').textContent = 'About Us';
-    document.getElementById('policy-modal-content').innerHTML = aboutUsContent;
-    document.getElementById('policy-modal-overlay').classList.add('open');
-  });
+  const aboutLink = document.getElementById('login-about-link');
+  if (aboutLink) {
+    aboutLink.onclick = (e) => {
+      e.preventDefault();
+      document.getElementById('policy-modal-title').textContent = 'About Us';
+      document.getElementById('policy-modal-content').innerHTML = aboutUsContent;
+      document.getElementById('policy-modal-overlay').classList.add('open');
+    };
+  }
   
-  document.getElementById('login-shipping-link').addEventListener('click', (e) => {
-    e.preventDefault();
-    document.getElementById('policy-modal-title').textContent = 'Shipping & Delivery Policy';
-    document.getElementById('policy-modal-content').innerHTML = shippingPolicyContent;
-    document.getElementById('policy-modal-overlay').classList.add('open');
-  });
+  const shippingLink = document.getElementById('login-shipping-link');
+  if (shippingLink) {
+    shippingLink.onclick = (e) => {
+      e.preventDefault();
+      document.getElementById('policy-modal-title').textContent = 'Shipping & Delivery Policy';
+      document.getElementById('policy-modal-content').innerHTML = shippingPolicyContent;
+      document.getElementById('policy-modal-overlay').classList.add('open');
+    };
+  }
 }
 
 // ─── Event Binding ─────────────────────────────────────────────────────────────

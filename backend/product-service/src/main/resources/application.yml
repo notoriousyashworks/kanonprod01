@@ -22,6 +22,11 @@ spring:
 cloudinary:
   cloud-name-admin: ${CLOUDINARY_CLOUD_NAME_ADMIN}
 
+imagekit:
+  private-key: ${IMAGEKIT_PRIVATE_KEY}
+  public-key: ${IMAGEKIT_PUBLIC_KEY}
+  url-endpoint: ${IMAGEKIT_URL_ENDPOINT}
+
 management:
   endpoints:
     web:
