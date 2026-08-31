@@ -434,8 +434,8 @@
 }
 
 .hero-banner-wrapper {
-  width: min(calc(100vw - 48px), 1360px) !important;
-  max-width: 1360px !important;
+  width: min(calc(100vw - 48px), 1180px) !important;
+  max-width: 1180px !important;
   display: flex !important;
   margin-left: auto;
   margin-right: auto;
