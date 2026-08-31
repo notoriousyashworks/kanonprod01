@@ -2656,15 +2656,10 @@ body.sidebar-lock #wishlist-sidebar {
   text-decoration: none;
   margin-bottom: 24px;
   transition: background-color 0.2s;
-  width: auto;
+  width: max-content;
   min-width: 200px;
 }
 .pd-whatsapp-inquiry-btn:hover {
   background-color: #128C7E;
   color: #fff;
-}
-@media (max-width: 767px) {
-  .pd-whatsapp-inquiry-btn {
-    width: 100%;
-  }
 }
