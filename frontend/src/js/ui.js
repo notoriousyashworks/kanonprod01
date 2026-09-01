@@ -316,14 +316,7 @@ export function createProductCard(product) {
     mediaHTML = `<div class="pc-no-image">👟</div>`;
   }
 
-  const saleBadgeHTML = product.saleVisible ? '<div class="pc-sale-badge" style="position: static;">Sale</div>' : '';
-  const videoBadgeHTML = product.videoVisible ? '<div class="pc-sale-badge" style="position: static; background-color: #2563eb;">Video Available</div>' : '';
-  const badgesContainer = (saleBadgeHTML || videoBadgeHTML)
-    ? `<div style="position:absolute; top:8px; left:0; display:flex; gap:8px; z-index:2; align-items:center;">
-         ${saleBadgeHTML}
-         ${videoBadgeHTML}
-       </div>`
-    : '';
+  const badgesContainer = '';
 
   const safeProductName = (product.name || '').replace(/"/g, '&quot;');
 
