@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 @Data
 @NoArgsConstructor
@@ -17,6 +18,9 @@ public class ProductResponseDTO {
 
     private String id;
     private String name;
+    
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String originalName;
     private String searchName;
     private String brand;
     private String searchBrand;

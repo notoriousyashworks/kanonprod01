@@ -24,6 +24,9 @@ public class Product {
     @Column(nullable = false)
     private String name;
 
+    @Column(name = "original_name")
+    private String originalName;
+
     @Column(name = "search_name")
     private String searchName;
 

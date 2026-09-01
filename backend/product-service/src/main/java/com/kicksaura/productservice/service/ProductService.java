@@ -82,14 +82,14 @@ public class ProductService {
     public Page<ProductResponseDTO> getAllProducts(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return productRepository.findAll(pageable)
-                .map(this::mapToResponseDTO);
+                .map(this::mapToAdminResponseDTO);
     }
 
     @Transactional(readOnly = true)
     public ProductResponseDTO getProductById(String id) {
         Product product = productRepository.findById(UUID.fromString(id))
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
-        return mapToResponseDTO(product);
+        return mapToAdminResponseDTO(product);
     }
 
 
@@ -97,6 +97,7 @@ public class ProductService {
     public ProductResponseDTO createProduct(ProductRequestDTO request) {
         Product product = Product.builder()
                 .name(request.getName())
+                .originalName(request.getOriginalName())
                 .searchName(request.getSearchName())
                 .brand(request.getBrand())
                 .searchBrand(request.getSearchBrand())
@@ -135,7 +136,7 @@ public class ProductService {
         productRepository.flush();
         Product verifiedFromDb = productRepository.findById(savedProduct.getId()).orElse(savedProduct);
         System.out.println("[STEP 8 - PostgreSQL] Verified reading from DB right after save. product_images table contains imageUrls: " + verifiedFromDb.getImageUrls());
-        return mapToResponseDTO(savedProduct);
+        return mapToAdminResponseDTO(savedProduct);
     }
 
     @Transactional
@@ -144,6 +145,7 @@ public class ProductService {
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
 
         product.setName(request.getName());
+        product.setOriginalName(request.getOriginalName());
         product.setSearchName(request.getSearchName());
         product.setBrand(request.getBrand());
         product.setSearchBrand(request.getSearchBrand());
@@ -205,7 +207,7 @@ public class ProductService {
         productRepository.flush();
         Product verifiedFromDb = productRepository.findById(updatedProduct.getId()).orElse(updatedProduct);
         System.out.println("[STEP 8 - PostgreSQL] Verified reading from DB right after update. product_images table contains imageUrls: " + verifiedFromDb.getImageUrls());
-        return mapToResponseDTO(updatedProduct);
+        return mapToAdminResponseDTO(updatedProduct);
     }
 
     @Transactional
@@ -222,7 +224,7 @@ public class ProductService {
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
         product.setVisible(isVisible);
         Product savedProduct = productRepository.save(product);
-        return mapToResponseDTO(savedProduct);
+        return mapToAdminResponseDTO(savedProduct);
     }
 
     @Transactional
@@ -263,6 +265,14 @@ public class ProductService {
     // ----- Helper Mappers -----
 
     private ProductResponseDTO mapToResponseDTO(Product product) {
+        return mapToResponseDTOInternal(product, false);
+    }
+
+    private ProductResponseDTO mapToAdminResponseDTO(Product product) {
+        return mapToResponseDTOInternal(product, true);
+    }
+
+    private ProductResponseDTO mapToResponseDTOInternal(Product product, boolean isAdmin) {
         List<VariantDTO> variantDTOs = product.getVariants().stream().map(v ->
                 VariantDTO.builder()
                         .id(v.getId().toString())
@@ -294,6 +304,7 @@ public class ProductService {
                 .isInStockFlag(product.isInStockFlag())
                 .limitedStock(product.isLimitedStock())
                 .createdAt(product.getCreatedAt())
+                .originalName(isAdmin ? product.getOriginalName() : null)
                 .variants(variantDTOs)
                 .build();
     }
