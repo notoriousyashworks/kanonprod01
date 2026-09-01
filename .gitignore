@@ -6,3 +6,12 @@ node_modules/
 # Mac OS files
 .DS_Store
 **/.DS_Store
+
+# Ignore importer assets/temp files
+importer/tmp/
+*.jpg
+*.jpeg
+*.png
+*.gif
+importer/scratch/
+importer/test*.js
