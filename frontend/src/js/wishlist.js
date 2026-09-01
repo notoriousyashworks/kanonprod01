@@ -158,7 +158,7 @@ export function renderWishlistSidebar() {
       if (e.target.closest('.remove-wishlist-btn')) return;
       const id = itemEl.dataset.id;
       if (id) {
-        window.location.href = `/product-details?id=${id}`;
+        window.open(`/product-details?id=${id}`, '_blank');
       }
     });
   });

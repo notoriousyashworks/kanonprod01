@@ -328,7 +328,7 @@ export function createProductCard(product) {
   const safeProductName = (product.name || '').replace(/"/g, '&quot;');
 
   return `
-    <a href="/product-details?id=${product.id}" class="product-card-link" aria-label="${product.name}">
+    <a href="/product-details?id=${product.id}" target="_blank" class="product-card-link" aria-label="${product.name}">
       <article class="product-card product-card-new" data-product-id="${product.id}">
         <div class="pc-image-wrap">
           ${badgesContainer}
@@ -682,7 +682,7 @@ export async function initPurchaseNotifications() {
         <div class="live-toast-banner__content">
           <div class="live-toast-banner__text">
             <strong>${name}</strong> from 🇮🇳 <strong>India</strong> purchased
-            <a href="/product-details?id=${product.id}" class="live-toast-banner__product-link">${product.name}</a>
+            <a href="/product-details?id=${product.id}" target="_blank" class="live-toast-banner__product-link">${product.name}</a>
           </div>
           <div class="live-toast-banner__price">${price}</div>
         </div>
@@ -694,7 +694,7 @@ export async function initPurchaseNotifications() {
       });
 
       notificationEl.onclick = () => {
-        window.location.href = `/product-details?id=${product.id}`;
+        window.open(`/product-details?id=${product.id}`, '_blank');
       };
 
       // ── Swipe-to-dismiss (mobile touch) ────────────────

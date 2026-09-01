@@ -74,14 +74,14 @@ export function renderCartSidebar() {
     return `
       <div class="cart-sidebar-item modern-cart-item" data-product-id="${item.productId}" data-variant-id="${item.variantId}">
         <div class="cart-sidebar-img modern-item-img">
-          <a href="/product-details?id=${item.productId}" style="display: block; width: 100%; height: 100%; text-decoration: none;">
+          <a href="/product-details?id=${item.productId}" target="_blank" style="display: block; width: 100%; height: 100%; text-decoration: none;">
             ${imageUrl
               ? `<img src="${imageUrl}" alt="${item.productName}" />`
               : `<div class="cart-sidebar-img-placeholder" style="color: #111;">👟</div>`}
           </a>
         </div>
         <div class="cart-sidebar-details modern-item-details">
-          <a href="/product-details?id=${item.productId}" style="text-decoration: none;">
+          <a href="/product-details?id=${item.productId}" target="_blank" style="text-decoration: none;">
             <p class="modern-item-name" style="margin-top: 0; font-weight: 600; font-size: 15px; color: #111;">${item.productName || 'Product'}</p>
           </a>
           <p class="modern-item-unit-meta" style="margin-bottom: 6px;">${priceRowHTML}${sizeMeta}</p>
