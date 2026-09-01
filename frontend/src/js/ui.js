@@ -208,7 +208,7 @@ export function formatImageKitUrl(url) {
 export function formatImageKitVideoPoster(url) {
   if (!isImageKitUrl(url)) return url;
   if (url.includes('tr=') || url.includes('/tr:')) return url;
-  return url + (url.includes('?') ? '&' : '?') + 'tr=so-0,f-jpg,w-800,q-auto';
+  return url + (url.includes('?') ? '&' : '?') + 'tr=orig';
 }
 
 /**
@@ -219,14 +219,14 @@ export function formatImageKitVideoPoster(url) {
 export function formatImageKitVideoMp4(url) {
   if (!isImageKitUrl(url)) return url;
   if (url.includes('tr=') || url.includes('/tr:')) return url;
-  return url + (url.includes('?') ? '&' : '?') + 'tr=f-mp4,q-auto';
+  return url + (url.includes('?') ? '&' : '?') + 'tr=orig';
 }
 
 /** ImageKit hover-preview video (low-width for product cards). */
 export function formatImageKitHoverPreview(url) {
   if (!isImageKitUrl(url)) return url;
   if (url.includes('tr=') || url.includes('/tr:')) return url;
-  return url + (url.includes('?') ? '&' : '?') + 'tr=f-mp4,q-auto,w-400';
+  return url + (url.includes('?') ? '&' : '?') + 'tr=orig';
 }
 
 // ── Provider-agnostic Dispatch Functions ────────────────────────────────
