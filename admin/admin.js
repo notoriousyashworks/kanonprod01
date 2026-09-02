@@ -75,7 +75,7 @@ const api = {
     return d;
   },
   // Products
-  getAdminProducts: () => api.req('/api/v1/admin/products?size=1000').then(d => d.content || d),
+  getAdminProducts: () => api.req('/api/v1/admin/products?size=2000').then(d => d.content || d),
   createProduct: (d) => api.req('/api/v1/admin/products', { method: 'POST', body: JSON.stringify(d) }),
   updateProduct: (id, d) => api.req(`/api/v1/admin/products/${id}`, { method: 'PUT', body: JSON.stringify(d) }),
   deleteProduct: (id) => api.req(`/api/v1/admin/products/${id}`, { method: 'DELETE' }),
