@@ -61,4 +61,7 @@ public class ProductRequestDTO {
 
     @Valid
     private List<VariantDTO> variants;
+
+    private String sourceSite;
+    private String sourceProductId;
 }

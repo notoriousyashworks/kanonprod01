@@ -31,4 +31,7 @@ public interface ProductRepository extends JpaRepository<Product, UUID>, JpaSpec
     Page<Product> searchProductsByQuery(@Param("query") String query, Pageable pageable);
 
     Page<Product> findByCategoryIgnoreCaseAndIsVisibleTrue(String category, Pageable pageable);
+
+    @Query("SELECT p.sourceProductId FROM Product p WHERE p.sourceSite = :sourceSite AND p.sourceProductId IN :sourceProductIds")
+    List<String> findExistingSourceProductIds(@Param("sourceSite") String sourceSite, @Param("sourceProductIds") List<String> sourceProductIds);
 }

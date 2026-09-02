@@ -10,7 +10,9 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "products")
+@Table(name = "products", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"source_site", "source_product_id"})
+})
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -66,6 +68,12 @@ public class Product {
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
+
+    @Column(name = "source_site")
+    private String sourceSite;
+
+    @Column(name = "source_product_id")
+    private String sourceProductId;
 
     @Column(name = "is_visible", nullable = false)
     @Builder.Default

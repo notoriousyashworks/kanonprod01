@@ -80,6 +80,11 @@ public class ProductService {
     // ----- Admin Methods -----
 
     @Transactional(readOnly = true)
+    public List<String> findExistingSourceProductIds(String sourceSite, List<String> sourceProductIds) {
+        return productRepository.findExistingSourceProductIds(sourceSite, sourceProductIds);
+    }
+
+    @Transactional(readOnly = true)
     public Page<ProductResponseDTO> getAllProducts(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return productRepository.findAll(pageable)
@@ -116,6 +121,8 @@ public class ProductService {
                 .withOgBox(request.isWithOgBox())
                 .isInStockFlag(request.isInStockFlag())
                 .isLimitedStock(request.isLimitedStock())
+                .sourceSite(request.getSourceSite())
+                .sourceProductId(request.getSourceProductId())
                 .build();
 
         if (request.getVariants() != null) {
@@ -133,10 +140,15 @@ public class ProductService {
         System.out.println(
                 "[STEP 6 - Entity] Product entity field imageUrls mapped to @ElementCollection product_images table with @Column(name=\"image_url\"). Value: "
                         + product.getImageUrls());
-        Product savedProduct = productRepository.save(product);
+        Product savedProduct;
+        try {
+            savedProduct = productRepository.save(product);
+            productRepository.flush();
+        } catch (org.springframework.dao.DataIntegrityViolationException e) {
+            throw new IllegalArgumentException("Product already imported");
+        }
         System.out.println("[STEP 7 - Repository] productRepository.save() completed for ID: " + savedProduct.getId()
                 + " with imageUrls: " + savedProduct.getImageUrls());
-        productRepository.flush();
         Product verifiedFromDb = productRepository.findById(savedProduct.getId()).orElse(savedProduct);
         System.out.println(
                 "[STEP 8 - PostgreSQL] Verified reading from DB right after save. product_images table contains imageUrls: "
@@ -171,6 +183,8 @@ public class ProductService {
         product.setWithOgBox(request.isWithOgBox());
         product.setInStockFlag(request.isInStockFlag());
         product.setLimitedStock(request.isLimitedStock());
+        product.setSourceSite(request.getSourceSite());
+        product.setSourceProductId(request.getSourceProductId());
 
         // Merge strategy: match by SKU to preserve existing UUIDs.
         // This prevents breaking order_items.variant_id references on every product
@@ -317,6 +331,8 @@ public class ProductService {
                 .createdAt(product.getCreatedAt())
                 .originalName(isAdmin ? product.getOriginalName() : null)
                 .variants(variantDTOs)
+                .sourceSite(product.getSourceSite())
+                .sourceProductId(product.getSourceProductId())
                 .build();
     }
 }

@@ -42,4 +42,7 @@ public class ProductResponseDTO {
     private LocalDateTime createdAt;
 
     private List<VariantDTO> variants;
+
+    private String sourceSite;
+    private String sourceProductId;
 }
