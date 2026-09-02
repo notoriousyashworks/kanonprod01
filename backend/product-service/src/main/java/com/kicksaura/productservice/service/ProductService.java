@@ -31,7 +31,8 @@ public class ProductService {
     // ----- Public Methods -----
 
     @Transactional(readOnly = true)
-    public Page<ProductResponseDTO> filterProducts(String query, List<String> categories, List<String> brands, Double minPrice, Double maxPrice, List<String> sizes, int page, int size) {
+    public Page<ProductResponseDTO> filterProducts(String query, List<String> categories, List<String> brands,
+            Double minPrice, Double maxPrice, List<String> sizes, int page, int size) {
         Specification<Product> spec = Specification.where(ProductSpecification.isVisible())
                 .and(ProductSpecification.hasSearchQuery(query))
                 .and(ProductSpecification.hasCategoryIn(categories))
@@ -92,7 +93,6 @@ public class ProductService {
         return mapToAdminResponseDTO(product);
     }
 
-
     @Transactional
     public ProductResponseDTO createProduct(ProductRequestDTO request) {
         Product product = Product.builder()
@@ -130,12 +130,17 @@ public class ProductService {
         }
 
         System.out.println("[STEP 5 - Service] Mapped Product entity imageUrls: " + product.getImageUrls());
-        System.out.println("[STEP 6 - Entity] Product entity field imageUrls mapped to @ElementCollection product_images table with @Column(name=\"image_url\"). Value: " + product.getImageUrls());
+        System.out.println(
+                "[STEP 6 - Entity] Product entity field imageUrls mapped to @ElementCollection product_images table with @Column(name=\"image_url\"). Value: "
+                        + product.getImageUrls());
         Product savedProduct = productRepository.save(product);
-        System.out.println("[STEP 7 - Repository] productRepository.save() completed for ID: " + savedProduct.getId() + " with imageUrls: " + savedProduct.getImageUrls());
+        System.out.println("[STEP 7 - Repository] productRepository.save() completed for ID: " + savedProduct.getId()
+                + " with imageUrls: " + savedProduct.getImageUrls());
         productRepository.flush();
         Product verifiedFromDb = productRepository.findById(savedProduct.getId()).orElse(savedProduct);
-        System.out.println("[STEP 8 - PostgreSQL] Verified reading from DB right after save. product_images table contains imageUrls: " + verifiedFromDb.getImageUrls());
+        System.out.println(
+                "[STEP 8 - PostgreSQL] Verified reading from DB right after save. product_images table contains imageUrls: "
+                        + verifiedFromDb.getImageUrls());
         return mapToAdminResponseDTO(savedProduct);
     }
 
@@ -154,8 +159,10 @@ public class ProductService {
         product.setDescription(request.getDescription());
         product.setBasePrice(request.getBasePrice());
         product.setDiscountedPrice(request.getDiscountedPrice());
-        product.setImageUrls(request.getImageUrls() != null ? new ArrayList<>(request.getImageUrls()) : new ArrayList<>());
-        product.setVideoUrls(request.getVideoUrls() != null ? new ArrayList<>(request.getVideoUrls()) : new ArrayList<>());
+        product.setImageUrls(
+                request.getImageUrls() != null ? new ArrayList<>(request.getImageUrls()) : new ArrayList<>());
+        product.setVideoUrls(
+                request.getVideoUrls() != null ? new ArrayList<>(request.getVideoUrls()) : new ArrayList<>());
         product.setVisible(request.isVisible());
         product.setSaleVisible(request.isSaleVisible());
         product.setNewArrival(request.isNewArrival());
@@ -166,7 +173,8 @@ public class ProductService {
         product.setLimitedStock(request.isLimitedStock());
 
         // Merge strategy: match by SKU to preserve existing UUIDs.
-        // This prevents breaking order_items.variant_id references on every product update.
+        // This prevents breaking order_items.variant_id references on every product
+        // update.
         if (request.getVariants() != null) {
             // Map of SKU -> existing variant (from DB)
             java.util.Map<String, ProductVariant> existingBySku = product.getVariants().stream()
@@ -201,12 +209,17 @@ public class ProductService {
         }
 
         System.out.println("[STEP 5 - Service] Mapped Product entity imageUrls on update: " + product.getImageUrls());
-        System.out.println("[STEP 6 - Entity] Product entity field imageUrls mapped to @ElementCollection product_images table with @Column(name=\"image_url\"). Value: " + product.getImageUrls());
+        System.out.println(
+                "[STEP 6 - Entity] Product entity field imageUrls mapped to @ElementCollection product_images table with @Column(name=\"image_url\"). Value: "
+                        + product.getImageUrls());
         Product updatedProduct = productRepository.save(product);
-        System.out.println("[STEP 7 - Repository] productRepository.save() completed for ID: " + updatedProduct.getId() + " with imageUrls: " + updatedProduct.getImageUrls());
+        System.out.println("[STEP 7 - Repository] productRepository.save() completed for ID: " + updatedProduct.getId()
+                + " with imageUrls: " + updatedProduct.getImageUrls());
         productRepository.flush();
         Product verifiedFromDb = productRepository.findById(updatedProduct.getId()).orElse(updatedProduct);
-        System.out.println("[STEP 8 - PostgreSQL] Verified reading from DB right after update. product_images table contains imageUrls: " + verifiedFromDb.getImageUrls());
+        System.out.println(
+                "[STEP 8 - PostgreSQL] Verified reading from DB right after update. product_images table contains imageUrls: "
+                        + verifiedFromDb.getImageUrls());
         return mapToAdminResponseDTO(updatedProduct);
     }
 
@@ -273,14 +286,12 @@ public class ProductService {
     }
 
     private ProductResponseDTO mapToResponseDTOInternal(Product product, boolean isAdmin) {
-        List<VariantDTO> variantDTOs = product.getVariants().stream().map(v ->
-                VariantDTO.builder()
-                        .id(v.getId().toString())
-                        .size(v.getSize())
-                        .stockQuantity(v.getStockQuantity())
-                        .sku(v.getSku())
-                        .build()
-        ).collect(Collectors.toList());
+        List<VariantDTO> variantDTOs = product.getVariants().stream().map(v -> VariantDTO.builder()
+                .id(v.getId().toString())
+                .size(v.getSize())
+                .stockQuantity(v.getStockQuantity())
+                .sku(v.getSku())
+                .build()).collect(Collectors.toList());
 
         return ProductResponseDTO.builder()
                 .id(product.getId().toString())

@@ -16,15 +16,18 @@ import org.springframework.data.repository.query.Param;
 @Repository
 public interface ProductRepository extends JpaRepository<Product, UUID>, JpaSpecificationExecutor<Product> {
     Page<Product> findByIsVisibleTrue(Pageable pageable);
+
     Page<Product> findByIsVisibleTrueOrderByCreatedAtDesc(Pageable pageable);
+
     Page<Product> findByIsNewArrivalTrueAndIsVisibleTrueOrderByCreatedAtDesc(Pageable pageable);
+
     Page<Product> findByIsTrendingTrueAndIsVisibleTrueOrderByCreatedAtDesc(Pageable pageable);
 
     @Query("SELECT p FROM Product p WHERE p.isVisible = true AND " +
-           "(LOWER(p.searchName) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
-           "LOWER(p.searchBrand) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
-           "LOWER(p.searchText) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
-           "LOWER(p.category) LIKE LOWER(CONCAT('%', :query, '%')))")
+            "(LOWER(p.searchName) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
+            "LOWER(p.searchBrand) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
+            "LOWER(p.searchText) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
+            "LOWER(p.category) LIKE LOWER(CONCAT('%', :query, '%')))")
     Page<Product> searchProductsByQuery(@Param("query") String query, Pageable pageable);
 
     Page<Product> findByCategoryIgnoreCaseAndIsVisibleTrue(String category, Pageable pageable);

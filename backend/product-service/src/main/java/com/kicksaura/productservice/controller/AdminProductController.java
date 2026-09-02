@@ -40,7 +40,8 @@ public class AdminProductController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ProductResponseDTO> updateProduct(@PathVariable String id, @Valid @RequestBody ProductRequestDTO request) {
+    public ResponseEntity<ProductResponseDTO> updateProduct(@PathVariable String id,
+            @Valid @RequestBody ProductRequestDTO request) {
         System.out.println("[STEP 3 - Controller] AdminProductController received updateProduct request for id: " + id);
         System.out.println("[STEP 4 - DTO] ProductRequestDTO imageUrls: " + request.getImageUrls());
         return ResponseEntity.ok(productService.updateProduct(id, request));
@@ -53,7 +54,8 @@ public class AdminProductController {
     }
 
     @PatchMapping("/{id}/visibility")
-    public ResponseEntity<ProductResponseDTO> updateVisibility(@PathVariable String id, @RequestBody Map<String, Boolean> payload) {
+    public ResponseEntity<ProductResponseDTO> updateVisibility(@PathVariable String id,
+            @RequestBody Map<String, Boolean> payload) {
         if (!payload.containsKey("isVisible")) {
             return ResponseEntity.badRequest().build();
         }
@@ -61,9 +63,9 @@ public class AdminProductController {
     }
 
     @PatchMapping("/{id}/variants/{variantId}/deduct-stock")
-    public ResponseEntity<Void> deductStock(@PathVariable String id, @PathVariable String variantId, @RequestParam Integer quantity) {
+    public ResponseEntity<Void> deductStock(@PathVariable String id, @PathVariable String variantId,
+            @RequestParam Integer quantity) {
         productService.deductStock(id, variantId, quantity);
         return ResponseEntity.noContent().build();
     }
 }
-

@@ -18,7 +18,7 @@ public class ProductResponseDTO {
 
     private String id;
     private String name;
-    
+
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String originalName;
     private String searchName;
@@ -40,6 +40,6 @@ public class ProductResponseDTO {
     private boolean isInStockFlag;
     private boolean limitedStock;
     private LocalDateTime createdAt;
-    
+
     private List<VariantDTO> variants;
 }
