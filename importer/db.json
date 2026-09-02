@@ -1,5 +1,18 @@
 {
   "imported": {
+    "451511195": {
+      "media": {
+        "img_1": "https://kicks-aura-media-pull-zone.b-cdn.net/kicks-aura/indiankicks/ladies-sunglasses/451511195/01.jpg",
+        "img_2": "https://kicks-aura-media-pull-zone.b-cdn.net/kicks-aura/indiankicks/ladies-sunglasses/451511195/02.jpg",
+        "img_3": "https://kicks-aura-media-pull-zone.b-cdn.net/kicks-aura/indiankicks/ladies-sunglasses/451511195/03.jpg",
+        "img_4": "https://kicks-aura-media-pull-zone.b-cdn.net/kicks-aura/indiankicks/ladies-sunglasses/451511195/04.jpg",
+        "video": "https://vz-5e7458e7-315.b-cdn.net/dcac77bf-df6b-46ae-84af-c96bb59ffe11/playlist.m3u8"
+      },
+      "status": "CREATED",
+      "kicksAuraId": "60b5ec81-2be8-48eb-b805-49301bc11e7e",
+      "name": "Fendi Women's Black Yellow",
+      "importedAt": "2026-09-02T08:13:39.680Z"
+    },
     "452061963": {
       "media": {
         "img_1": "https://ik.imagekit.io/kicks0122image/kicks-aura/indiankicks/ladies-sunglasses/452061963/01_OW0-2Zy4O.jpg",
@@ -169,6 +182,45 @@
       "name": "Miu Miu Women's Black Day Night Colour Changing Glass",
       "importedAt": "2026-09-01T20:10:53.170Z"
     },
+    "545435651": {
+      "media": {
+        "img_1": "https://kicks-aura-media-pull-zone.b-cdn.net/kicks-aura/indiankicks/ladies-sunglasses/545435651/01.jpg",
+        "img_2": "https://kicks-aura-media-pull-zone.b-cdn.net/kicks-aura/indiankicks/ladies-sunglasses/545435651/02.jpg",
+        "img_3": "https://kicks-aura-media-pull-zone.b-cdn.net/kicks-aura/indiankicks/ladies-sunglasses/545435651/03.jpg",
+        "img_4": "https://kicks-aura-media-pull-zone.b-cdn.net/kicks-aura/indiankicks/ladies-sunglasses/545435651/04.jpg",
+        "video": "https://vz-5e7458e7-315.b-cdn.net/cb2f8205-005c-48ed-8cb2-4b754dca710c/playlist.m3u8"
+      },
+      "status": "CREATED",
+      "kicksAuraId": "426e0114-183c-4697-af07-59084f240498",
+      "name": "Miu Miu Women's Black",
+      "importedAt": "2026-09-02T08:13:36.933Z"
+    },
+    "547409986": {
+      "media": {
+        "img_1": "https://kicks-aura-media-pull-zone.b-cdn.net/kicks-aura/indiankicks/ladies-sunglasses/547409986/01.jpg",
+        "img_2": "https://kicks-aura-media-pull-zone.b-cdn.net/kicks-aura/indiankicks/ladies-sunglasses/547409986/02.jpg",
+        "img_3": "https://kicks-aura-media-pull-zone.b-cdn.net/kicks-aura/indiankicks/ladies-sunglasses/547409986/03.jpg",
+        "img_4": "https://kicks-aura-media-pull-zone.b-cdn.net/kicks-aura/indiankicks/ladies-sunglasses/547409986/04.jpg",
+        "video": "https://vz-5e7458e7-315.b-cdn.net/b18e653a-6ee4-459a-ae55-ee7fbfd57c72/playlist.m3u8"
+      },
+      "status": "CREATED",
+      "kicksAuraId": "5c37832d-1d2c-4259-80b1-3fbe80c8b87a",
+      "name": "Louis Vuitton Women's White Red",
+      "importedAt": "2026-09-02T08:13:34.182Z"
+    },
+    "551653145": {
+      "media": {
+        "img_1": "https://kicks-aura-media-pull-zone.b-cdn.net/kicks-aura/indiankicks/ladies-sunglasses/551653145/01.jpg",
+        "img_2": "https://kicks-aura-media-pull-zone.b-cdn.net/kicks-aura/indiankicks/ladies-sunglasses/551653145/02.jpg",
+        "img_3": "https://kicks-aura-media-pull-zone.b-cdn.net/kicks-aura/indiankicks/ladies-sunglasses/551653145/03.jpg",
+        "img_4": "https://kicks-aura-media-pull-zone.b-cdn.net/kicks-aura/indiankicks/ladies-sunglasses/551653145/04.jpg",
+        "video": "https://vz-5e7458e7-315.b-cdn.net/573eb78c-2ea8-47ef-8892-b01b537659bb/playlist.m3u8"
+      },
+      "status": "CREATED",
+      "kicksAuraId": "d0f99c80-ec9c-46ad-b8ba-d202763ce580",
+      "name": "Marc Jacobs Women's Grey",
+      "importedAt": "2026-09-02T08:13:30.566Z"
+    },
     "555675332": {
       "media": {
         "img_1": "https://ik.imagekit.io/kicks0122image/kicks-aura/indiankicks/ladies-sunglasses/555675332/01_Gh3reiOtu.jpg",
@@ -178,9 +230,9 @@
         "video": "https://ik.imagekit.io/kicks0122image/kicks-aura/indiankicks/ladies-sunglasses/555675332/video_Xgvz7O_w4.mp4"
       },
       "status": "CREATED",
-      "kicksAuraId": "6645b847-588c-4881-b72c-09bf0aea7b2e",
+      "kicksAuraId": "ca6f8215-0370-4a4e-be7b-9e3f4b4e4433",
       "name": "Miu Miu Women's Gold Day Night Colour Changing Glass",
-      "importedAt": "2026-09-01T20:10:41.994Z"
+      "importedAt": "2026-09-01T23:12:51.552Z"
     },
     "557358019": {
       "media": {
@@ -191,9 +243,9 @@
         "video": "https://ik.imagekit.io/kicks0122image/kicks-aura/indiankicks/ladies-sunglasses/557358019/video_4lOf2nRKk.mp4"
       },
       "status": "CREATED",
-      "kicksAuraId": "fab8c96f-4c63-4ae3-b606-f608e98184ef",
+      "kicksAuraId": "68262848-33e4-4281-a0cf-34ea0f977b2f",
       "name": "Burberry Women's Water Day",
-      "importedAt": "2026-09-01T20:10:26.603Z"
+      "importedAt": "2026-09-01T23:12:51.271Z"
     },
     "566223757": {
       "media": {
@@ -205,9 +257,9 @@
         "video": "https://ik.imagekit.io/kicks0122image/kicks-aura/indiankicks/ladies-sunglasses/566223757/video_hjtXTJwfs.mp4"
       },
       "status": "CREATED",
-      "kicksAuraId": "61e27b2d-804a-434c-be38-175328e1bb78",
+      "kicksAuraId": "33a1134f-743c-44d3-a4cd-22898c356cdf",
       "name": "Christian Dior Women's Ice Day",
-      "importedAt": "2026-09-01T20:10:02.414Z"
+      "importedAt": "2026-09-01T23:12:50.986Z"
     },
     "573169221": {
       "media": {
@@ -219,9 +271,9 @@
         "video": "https://ik.imagekit.io/kicks0122image/kicks-aura/indiankicks/ladies-sunglasses/573169221/video_i_-8xT0P6.mp4"
       },
       "status": "CREATED",
-      "kicksAuraId": "0bcddfa7-2cdd-4be2-94f6-1c0995f54904",
+      "kicksAuraId": "23d89907-afd7-40f1-8ca8-111432eec2c0",
       "name": "Prada Women's White Black",
-      "importedAt": "2026-09-01T20:09:49.070Z"
+      "importedAt": "2026-09-01T23:12:50.697Z"
     },
     "573970032": {
       "media": {
@@ -233,9 +285,9 @@
         "video": "https://ik.imagekit.io/kicks0122image/kicks-aura/indiankicks/ladies-sunglasses/573970032/video_Q6MgSyY2G.mp4"
       },
       "status": "CREATED",
-      "kicksAuraId": "7a234d02-895a-49de-8f8d-af966c8d2e52",
+      "kicksAuraId": "820c1670-70b2-4165-856e-9c53dd6d8910",
       "name": "Louis Vuitton Women's Red Black DC",
-      "importedAt": "2026-09-01T20:09:36.080Z"
+      "importedAt": "2026-09-01T23:12:50.394Z"
     },
     "588535828": {
       "media": {
@@ -247,9 +299,22 @@
         "video": "https://ik.imagekit.io/kicks0122image/kicks-aura/indiankicks/ladies-sunglasses/588535828/video_9hxdyDKYt.mp4"
       },
       "status": "CREATED",
-      "kicksAuraId": "7693f970-2038-45ae-bf7e-4938f3bac94e",
+      "kicksAuraId": "e9f50db6-8fcc-427c-81ad-25d4998a4c10",
       "name": "Fendi Women's Red",
-      "importedAt": "2026-09-01T20:09:20.453Z"
+      "importedAt": "2026-09-01T23:12:50.075Z"
+    },
+    "590368315": {
+      "media": {
+        "img_1": "https://ik.imagekit.io/kicks0122image/kicks-aura/indiankicks/ladies-sunglasses/590368315/01_yTurr2zzq.jpg",
+        "img_2": "https://ik.imagekit.io/kicks0122image/kicks-aura/indiankicks/ladies-sunglasses/590368315/02_pLQ54IZhP.jpg",
+        "img_3": "https://ik.imagekit.io/kicks0122image/kicks-aura/indiankicks/ladies-sunglasses/590368315/03_h3ihleHwg.jpg",
+        "img_4": "https://ik.imagekit.io/kicks0122image/kicks-aura/indiankicks/ladies-sunglasses/590368315/04_jdejqgH2L.jpg",
+        "img_5": "https://ik.imagekit.io/kicks0122image/kicks-aura/indiankicks/ladies-sunglasses/590368315/05_mOqiZhvF1.jpg"
+      },
+      "status": "CREATED",
+      "kicksAuraId": "9e573e34-900d-42f4-8f06-69b94d4824b1",
+      "name": "Marc Jacobs Women's Black",
+      "importedAt": "2026-09-01T23:12:49.582Z"
     },
     "592385495": {
       "media": {
@@ -261,9 +326,9 @@
         "video": "https://ik.imagekit.io/kicks0122image/kicks-aura/indiankicks/ladies-sunglasses/592385495/video_zeNEM0_RB.mp4"
       },
       "status": "CREATED",
-      "kicksAuraId": "73f185f8-788a-43b6-ba42-7b2de53b4604",
+      "kicksAuraId": "c2f78ea5-603a-4b20-a185-df58b8fe9897",
       "name": "Fendi Women's Brown",
-      "importedAt": "2026-09-01T20:09:04.510Z"
+      "importedAt": "2026-09-01T23:12:42.632Z"
     },
     "600983375": {
       "media": {
@@ -275,9 +340,9 @@
         "video": "https://ik.imagekit.io/kicks0122image/kicks-aura/indiankicks/ladies-sunglasses/600983375/video_Mqp-94MUf.mp4"
       },
       "status": "CREATED",
-      "kicksAuraId": "b039c72b-f570-49c7-85ae-b1c697b57614",
+      "kicksAuraId": "3e5d9b5f-c045-4228-8e74-9f660e562e88",
       "name": "Fendi Water Purple Black",
-      "importedAt": "2026-09-01T20:08:48.914Z"
+      "importedAt": "2026-09-01T23:12:42.334Z"
     },
     "603345518": {
       "media": {
@@ -289,9 +354,9 @@
         "video": "https://ik.imagekit.io/kicks0122image/kicks-aura/indiankicks/ladies-sunglasses/603345518/video_UXmdVXoEG.mp4"
       },
       "status": "CREATED",
-      "kicksAuraId": "5d59bb62-542e-4629-af05-a09990db9a40",
+      "kicksAuraId": "6fb37971-16ca-450f-a986-2f3bcb1d0402",
       "name": "Prada Women's Gold Black Red",
-      "importedAt": "2026-09-01T20:08:33.869Z"
+      "importedAt": "2026-09-01T23:12:42.049Z"
     },
     "606471933": {
       "media": {
@@ -303,9 +368,9 @@
         "video": "https://ik.imagekit.io/kicks0122image/kicks-aura/indiankicks/ladies-sunglasses/606471933/video_MqPumCSsm.mp4"
       },
       "status": "CREATED",
-      "kicksAuraId": "99055d8c-bad5-40f9-ad84-26a1ac4d140c",
+      "kicksAuraId": "c4f8a6a6-6ee6-4d02-a7b8-63599d4b44a4",
       "name": "Miu Miu Silver Black",
-      "importedAt": "2026-09-01T20:08:19.400Z"
+      "importedAt": "2026-09-01T23:12:41.758Z"
     },
     "606682169": {
       "media": {
@@ -317,9 +382,9 @@
         "video": "https://ik.imagekit.io/kicks0122image/kicks-aura/indiankicks/ladies-sunglasses/606682169/video_XvsYSnOHd.mp4"
       },
       "status": "CREATED",
-      "kicksAuraId": "5e17e7e5-b8d5-42ad-b419-5c763403d815",
+      "kicksAuraId": "7830b7f7-da6d-427b-8d15-30409770a227",
       "name": "Dior Black Plano",
-      "importedAt": "2026-09-01T20:08:05.276Z"
+      "importedAt": "2026-09-01T23:12:41.473Z"
     },
     "607613610": {
       "media": {
@@ -331,9 +396,9 @@
         "video": "https://ik.imagekit.io/kicks0122image/kicks-aura/indiankicks/ladies-sunglasses/607613610/video_4v5pZc4V7.mp4"
       },
       "status": "CREATED",
-      "kicksAuraId": "e3063d76-9360-486d-8a00-eb246353681b",
+      "kicksAuraId": "4631d11e-c51c-4bf5-850b-866609d9ca3d",
       "name": "Miu Miu Black",
-      "importedAt": "2026-09-01T20:07:51.235Z"
+      "importedAt": "2026-09-01T23:12:41.177Z"
     },
     "610421738": {
       "media": {
@@ -344,9 +409,22 @@
         "img_5": "https://ik.imagekit.io/kicks0122image/kicks-aura/indiankicks/ladies-sunglasses/610421738/05_lb51uj73B.jpg"
       },
       "status": "CREATED",
-      "kicksAuraId": "2bc584b1-40d6-47c9-8f63-50cfc7a59517",
+      "kicksAuraId": "0cd3f5a3-4c0c-4d72-86b5-f2c15e8b7de4",
       "name": "Miu Miu Black Plano",
-      "importedAt": "2026-09-01T20:07:38.256Z"
+      "importedAt": "2026-09-01T23:12:40.805Z"
+    },
+    "621507370": {
+      "media": {
+        "img_1": "https://ik.imagekit.io/kicks0122image/kicks-aura/indiankicks/ladies-sunglasses/621507370/01_OKwgvJ3C-.jpg",
+        "img_2": "https://ik.imagekit.io/kicks0122image/kicks-aura/indiankicks/ladies-sunglasses/621507370/02_gHPP-gIKO.jpg",
+        "img_3": "https://ik.imagekit.io/kicks0122image/kicks-aura/indiankicks/ladies-sunglasses/621507370/03_kVPWhb9XI.jpg",
+        "img_4": "https://ik.imagekit.io/kicks0122image/kicks-aura/indiankicks/ladies-sunglasses/621507370/04_OYiL3rBSy.jpg",
+        "img_5": "https://ik.imagekit.io/kicks0122image/kicks-aura/indiankicks/ladies-sunglasses/621507370/05_mwXhGz3qc.jpg"
+      },
+      "status": "CREATED",
+      "kicksAuraId": "6b8d8242-1cda-4fd8-abbc-d469908b8050",
+      "name": "Burberry Women's White Black",
+      "importedAt": "2026-09-01T23:12:40.302Z"
     },
     "625446711": {
       "media": {
@@ -358,9 +436,9 @@
         "video": "https://ik.imagekit.io/kicks0122image/kicks-aura/indiankicks/ladies-sunglasses/625446711/video_9-YaQBG-7.mp4"
       },
       "status": "CREATED",
-      "kicksAuraId": "4a48beab-f8f5-42a7-84f3-13d7bd31ace5",
+      "kicksAuraId": "7f3ad1d8-ba12-4d9c-91b9-20eb61fc961b",
       "name": "Miu Miu Silver Peach Shaded",
-      "importedAt": "2026-09-01T20:05:54.090Z"
+      "importedAt": "2026-09-01T23:12:33.471Z"
     },
     "630501326": {
       "media": {
@@ -370,9 +448,9 @@
         "img_4": "https://ik.imagekit.io/kicks0122image/kicks-aura/indiankicks/ladies-sunglasses/630501326/04_FTND8i6x5.jpg"
       },
       "status": "CREATED",
-      "kicksAuraId": "f0f491e4-5098-4034-bb28-9366b6ace7ae",
+      "kicksAuraId": "005362a5-56fb-4146-ae60-ab8f162099bd",
       "name": "Loewe Gold Black",
-      "importedAt": "2026-09-01T20:05:41.525Z"
+      "importedAt": "2026-09-01T23:12:33.163Z"
     },
     "631753546": {
       "media": {
@@ -383,9 +461,9 @@
         "img_5": "https://ik.imagekit.io/kicks0122image/kicks-aura/indiankicks/ladies-sunglasses/631753546/05_pYljzjALC.jpg"
       },
       "status": "CREATED",
-      "kicksAuraId": "dd6ccfcd-ac00-4ee9-8812-4609f61da58f",
+      "kicksAuraId": "b6bd8cd4-7400-40b2-83c6-51de71b5a9cf",
       "name": "Bvlgari Gold Brown",
-      "importedAt": "2026-09-01T20:05:32.081Z"
+      "importedAt": "2026-09-01T23:12:32.847Z"
     },
     "631924163": {
       "media": {
@@ -397,9 +475,9 @@
         "video": "https://ik.imagekit.io/kicks0122image/kicks-aura/indiankicks/ladies-sunglasses/631924163/video_S4NwiXANR.mp4"
       },
       "status": "CREATED",
-      "kicksAuraId": "dea5a051-5cb3-442a-9a5c-a24ff7300c07",
+      "kicksAuraId": "5016b7da-7991-43aa-9959-6c8d256bcae3",
       "name": "Celine Women's Gun Black",
-      "importedAt": "2026-09-01T20:05:18.663Z"
+      "importedAt": "2026-09-01T23:12:32.555Z"
     },
     "632628599": {
       "media": {
@@ -411,9 +489,9 @@
         "video": "https://ik.imagekit.io/kicks0122image/kicks-aura/indiankicks/ladies-sunglasses/632628599/video_8QVmyLsrh.mp4"
       },
       "status": "CREATED",
-      "kicksAuraId": "27b4ddf9-6bec-4daa-88d0-13bbdc9fb07a",
+      "kicksAuraId": "bb6af584-d647-4beb-83d1-bd9eeca6727c",
       "name": "Dolce & Gabbana Women's Black",
-      "importedAt": "2026-09-01T20:04:19.018Z"
+      "importedAt": "2026-09-01T23:12:32.243Z"
     },
     "634726397": {
       "media": {
@@ -425,9 +503,9 @@
         "video": "https://ik.imagekit.io/kicks0122image/kicks-aura/indiankicks/ladies-sunglasses/634726397/video_i7y3b8pYQ.mp4"
       },
       "status": "CREATED",
-      "kicksAuraId": "0be0b989-2f14-4c52-bcbf-7dda9ad71424",
+      "kicksAuraId": "d1c0c834-318d-4667-b992-41df4db8f2cd",
       "name": "Dolce & Gabbana Women's Black Frame",
-      "importedAt": "2026-09-01T20:04:06.997Z"
+      "importedAt": "2026-09-01T23:12:31.938Z"
     },
     "635692075": {
       "media": {
@@ -439,9 +517,9 @@
         "video": "https://ik.imagekit.io/kicks0122image/kicks-aura/indiankicks/ladies-sunglasses/635692075/video_14Jc_O3m4.mp4"
       },
       "status": "CREATED",
-      "kicksAuraId": "dd555b24-ced7-403d-9826-530e31c85dae",
+      "kicksAuraId": "e999d703-459a-4cfb-b24e-fdaeedb451d2",
       "name": "Dior Women's Green Black DC",
-      "importedAt": "2026-09-01T20:03:53.566Z"
+      "importedAt": "2026-09-01T23:12:31.619Z"
     },
     "636628708": {
       "media": {
@@ -451,9 +529,9 @@
         "img_4": "https://ik.imagekit.io/kicks0122image/kicks-aura/indiankicks/ladies-sunglasses/636628708/04_vDnjQYrSj.jpg"
       },
       "status": "CREATED",
-      "kicksAuraId": "f00d01cd-6ded-46b9-b4c1-5b5acf3bed8d",
+      "kicksAuraId": "3b2cfd89-bbb0-431e-881b-994b695e99c5",
       "name": "Loewe Silver Black",
-      "importedAt": "2026-09-01T20:03:39.033Z"
+      "importedAt": "2026-09-01T23:12:31.318Z"
     },
     "640228077": {
       "media": {
@@ -465,9 +543,9 @@
         "video": "https://ik.imagekit.io/kicks0122image/kicks-aura/indiankicks/ladies-sunglasses/640228077/video_VC36TdOxl.mp4"
       },
       "status": "CREATED",
-      "kicksAuraId": "774009d7-c6cb-436d-8262-f655ca747809",
+      "kicksAuraId": "68d0ab70-93bb-4688-9390-ae6142af11d0",
       "name": "Dolce & Gabbana Women's Tiger Purple",
-      "importedAt": "2026-09-01T20:03:28.081Z"
+      "importedAt": "2026-09-01T23:12:31.005Z"
     },
     "641256565": {
       "media": {
@@ -479,9 +557,9 @@
         "video": "https://ik.imagekit.io/kicks0122image/kicks-aura/indiankicks/ladies-sunglasses/641256565/video_nH6hLZg09.mp4"
       },
       "status": "CREATED",
-      "kicksAuraId": "107a6086-199e-48e8-9c33-7bc1b11bcc5b",
+      "kicksAuraId": "04eba99a-0950-43dd-9b30-dc6ce1bf32bb",
       "name": "Celine Tiger Brown",
-      "importedAt": "2026-09-01T20:03:10.363Z"
+      "importedAt": "2026-09-01T23:12:30.710Z"
     },
     "641738875": {
       "media": {
@@ -493,9 +571,22 @@
         "video": "https://ik.imagekit.io/kicks0122image/kicks-aura/indiankicks/ladies-sunglasses/641738875/video_jBDmJzRsD.mp4"
       },
       "status": "CREATED",
-      "kicksAuraId": "73d11312-2ac0-4ad6-984c-1ddd92f961ef",
+      "kicksAuraId": "9694f88d-1df2-4fe4-9687-9bb8754ed372",
       "name": "Christian Dior Women's Black",
-      "importedAt": "2026-09-01T20:02:53.077Z"
+      "importedAt": "2026-09-01T23:12:30.389Z"
+    },
+    "643408072": {
+      "media": {
+        "img_1": "https://ik.imagekit.io/kicks0122image/kicks-aura/indiankicks/ladies-sunglasses/643408072/01_m0KOU0Nqu.jpg",
+        "img_2": "https://ik.imagekit.io/kicks0122image/kicks-aura/indiankicks/ladies-sunglasses/643408072/02_kWEOPkaZG.jpg",
+        "img_3": "https://ik.imagekit.io/kicks0122image/kicks-aura/indiankicks/ladies-sunglasses/643408072/03__Ct9V3MUj.jpg",
+        "img_4": "https://ik.imagekit.io/kicks0122image/kicks-aura/indiankicks/ladies-sunglasses/643408072/04_Pf7MxuODm.jpg",
+        "img_5": "https://ik.imagekit.io/kicks0122image/kicks-aura/indiankicks/ladies-sunglasses/643408072/05_Dk8nnX172.jpg"
+      },
+      "status": "CREATED",
+      "kicksAuraId": "f5110c9e-eae4-4f32-92e7-68d8b24d55ba",
+      "name": "Gucci Grey Blue",
+      "importedAt": "2026-09-01T23:12:29.879Z"
     },
     "649598679": {
       "media": {
@@ -507,9 +598,22 @@
         "img_6": "https://ik.imagekit.io/kicks0122image/kicks-aura/indiankicks/ladies-sunglasses/649598679/06_lwqE8AJxS.jpg"
       },
       "status": "CREATED",
-      "kicksAuraId": "82dab5c5-d7ab-4005-9de3-ef61c53a874b",
+      "kicksAuraId": "3cf06601-8d11-413f-b1e4-db8d0361b087",
       "name": "Gucci Silver Monogram",
-      "importedAt": "2026-09-01T20:02:02.780Z"
+      "importedAt": "2026-09-01T23:12:22.546Z"
+    },
+    "651114158": {
+      "media": {
+        "img_1": "https://kicks-aura-media-pull-zone.b-cdn.net/kicks-aura/indiankicks/ladies-sunglasses/651114158/01.jpg",
+        "img_2": "https://kicks-aura-media-pull-zone.b-cdn.net/kicks-aura/indiankicks/ladies-sunglasses/651114158/02.jpg",
+        "img_3": "https://kicks-aura-media-pull-zone.b-cdn.net/kicks-aura/indiankicks/ladies-sunglasses/651114158/03.jpg",
+        "img_4": "https://kicks-aura-media-pull-zone.b-cdn.net/kicks-aura/indiankicks/ladies-sunglasses/651114158/04.jpg",
+        "img_5": "https://kicks-aura-media-pull-zone.b-cdn.net/kicks-aura/indiankicks/ladies-sunglasses/651114158/05.jpg"
+      },
+      "status": "CREATED",
+      "kicksAuraId": "d9085c31-45f2-43c6-8796-1963ce62e946",
+      "name": "Gucci Black Pink Monogram",
+      "importedAt": "2026-09-02T08:02:38.502Z"
     },
     "661610107": {
       "media": {
@@ -521,23 +625,23 @@
         "video": "https://ik.imagekit.io/kicks0122image/kicks-aura/indiankicks/ladies-sunglasses/661610107/video_2LM4uoBw-.mp4"
       },
       "status": "CREATED",
-      "kicksAuraId": "2dda4522-2831-48c8-821c-91339ff3d674",
+      "kicksAuraId": "631b0806-8a71-4e13-af66-0ea82ba3c8fc",
       "name": "Versace Women's Black DC",
-      "importedAt": "2026-09-01T20:01:48.054Z"
+      "importedAt": "2026-09-01T23:12:14.646Z"
     },
     "662304144": {
       "media": {
-        "img_1": "https://ik.imagekit.io/kicks0122image/kicks-aura/indiankicks/ladies-sunglasses/662304144/01_QCZaa_Svm.jpg",
-        "img_2": "https://ik.imagekit.io/kicks0122image/kicks-aura/indiankicks/ladies-sunglasses/662304144/02_9uh6RgWLo.jpg",
-        "img_3": "https://ik.imagekit.io/kicks0122image/kicks-aura/indiankicks/ladies-sunglasses/662304144/03_18zZ-tJgy.jpg",
-        "img_4": "https://ik.imagekit.io/kicks0122image/kicks-aura/indiankicks/ladies-sunglasses/662304144/04_6vxLMerJl-.jpg",
-        "img_5": "https://ik.imagekit.io/kicks0122image/kicks-aura/indiankicks/ladies-sunglasses/662304144/05_GYz00aLK7.jpg",
-        "video": "https://ik.imagekit.io/kicks0122image/kicks-aura/indiankicks/ladies-sunglasses/662304144/video_4OyfTVNt6.mp4"
+        "img_1": "https://kicks-aura-media-pull-zone.b-cdn.net/kicks-aura/indiankicks/ladies-sunglasses/662304144/01.jpg",
+        "img_2": "https://kicks-aura-media-pull-zone.b-cdn.net/kicks-aura/indiankicks/ladies-sunglasses/662304144/02.jpg",
+        "img_3": "https://kicks-aura-media-pull-zone.b-cdn.net/kicks-aura/indiankicks/ladies-sunglasses/662304144/03.jpg",
+        "img_4": "https://kicks-aura-media-pull-zone.b-cdn.net/kicks-aura/indiankicks/ladies-sunglasses/662304144/04.jpg",
+        "img_5": "https://kicks-aura-media-pull-zone.b-cdn.net/kicks-aura/indiankicks/ladies-sunglasses/662304144/05.jpg",
+        "video": "https://vz-5e7458e7-315.b-cdn.net/d64d76f1-b0dd-44da-8834-621d75997377/playlist.m3u8"
       },
       "status": "CREATED",
-      "kicksAuraId": "45ef7801-e323-4dcd-a101-26ad7b727ddb",
+      "kicksAuraId": "c150b06f-7d87-480e-9895-1292ef2329c4",
       "name": "Gucci Women's Water Brown",
-      "importedAt": "2026-09-01T20:01:34.450Z"
+      "importedAt": "2026-09-02T08:02:35.141Z"
     },
     "670361460": {
       "media": {
@@ -588,9 +692,9 @@
         "video": "https://ik.imagekit.io/kicks0122image/kicks-aura/indiankicks/ladies-sunglasses/670774896/video_ArYcCEGzF.mp4"
       },
       "status": "CREATED",
-      "kicksAuraId": "f50c779c-8550-4778-828a-cbac535547c2",
+      "kicksAuraId": "6b152f6b-517e-45bc-9300-a40c8a3e3a3f",
       "name": "Tory Burch Women's Gold Black",
-      "importedAt": "2026-09-01T20:01:17.039Z"
+      "importedAt": "2026-09-01T23:12:13.792Z"
     },
     "670945816": {
       "media": {
@@ -683,6 +787,17 @@
       "kicksAuraId": "ce2d5288-0771-498e-8317-e966d70d752d",
       "name": "Coach 2-Piece Belt Set 7 & 8",
       "importedAt": "2026-09-01T18:22:30.922Z"
+    },
+    "undefined": {
+      "media": {
+        "img_1": "https://ik.imagekit.io/kicks0122image/kicks-aura/indiankicks/ladies-sunglasses/undefined/01_ssSZ1JpF9.jpg",
+        "img_2": "https://ik.imagekit.io/kicks0122image/kicks-aura/indiankicks/ladies-sunglasses/undefined/02_8eq7h4y-2.jpg",
+        "img_3": "https://ik.imagekit.io/kicks0122image/kicks-aura/indiankicks/ladies-sunglasses/undefined/03_nAFucwlNW.jpg",
+        "img_4": "https://ik.imagekit.io/kicks0122image/kicks-aura/indiankicks/ladies-sunglasses/undefined/04_KW-X_HVnnd.jpg",
+        "img_5": "https://ik.imagekit.io/kicks0122image/kicks-aura/indiankicks/ladies-sunglasses/undefined/05_QMSqiPjWf.jpg"
+      },
+      "status": "FAILED",
+      "reason": "Cannot find package 'node-fetch' imported from /Users/yash/Desktop/kicksaura/importer/import_ladies_sunglasses_autonomous_fixed.js"
     }
   }
 }

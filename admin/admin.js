@@ -153,60 +153,34 @@ async function uploadToCloudinary(file, resourceType = 'image', folder = null) {
 // _uploaderState stores per-uploader URL arrays and active upload status
 const _uploaderState = { images: [], videos: [], activeUploads: 0 };
 
-// ── ImageKit Upload Helpers ─────────────────────────────────
+// ── Backend Upload Helpers (Bunny Storage) ─────────────────
 
 /**
- * Fetch a short-lived signed auth token from our backend.
- * The private key NEVER leaves the server.
- * @returns {{ token, expire, signature, publicKey, urlEndpoint }}
- */
-async function fetchImageKitAuth() {
-  const res = await api.req('/api/v1/admin/imagekit/auth');
-  if (!res || !res.token) throw new Error('Failed to obtain ImageKit auth token');
-  return res;
-}
-
-/**
- * Upload a single file directly to ImageKit using server-signed credentials.
- * File bytes go browser → ImageKit directly (never through our backend).
+ * Upload a single file to our backend, which securely forwards it to Bunny Storage.
  *
  * @param {File}   file         - The file to upload
- * @param {string} resourceType - 'image' or 'video' (informational; ImageKit auto-detects)
- * @param {string} [folder]     - Target folder path in ImageKit
- * @returns {Promise<string>}   - Absolute ImageKit delivery URL
+ * @param {string} resourceType - 'image' or 'video'
+ * @param {string} [folder]     - Target folder path in Bunny
+ * @returns {Promise<string>}   - Absolute CDN delivery URL
  */
-async function uploadToImageKit(file, resourceType = 'image', folder = null) {
-  const auth = await fetchImageKitAuth();
-
-  // Generate a unique filename to avoid collisions across uploads.
-  // Pattern: {timestamp}-{random}-{sanitized-original-name}
-  const ext         = file.name.split('.').pop() || '';
-  const safeName    = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-  const uniqueName  = `${Date.now()}-${Math.random().toString(36).slice(2)}-${safeName}`;
-
+async function uploadToBackend(file, resourceType = 'image', folder = null) {
   const fd = new FormData();
-  fd.append('file',       file);
-  fd.append('fileName',   uniqueName);
-  fd.append('publicKey',  auth.publicKey);
-  fd.append('signature',  auth.signature);
-  fd.append('expire',     String(auth.expire));
-  fd.append('token',      auth.token);
+  fd.append('file', file);
   if (folder) fd.append('folder', folder);
 
-  const res = await fetch('https://upload.imagekit.io/api/v1/files/upload', {
+  const res = await fetch('/api/v1/admin/upload', {
     method: 'POST',
     body: fd,
   });
 
   if (!res.ok) {
-    let errMsg = `ImageKit upload failed (HTTP ${res.status})`;
-    try { const e = await res.json(); errMsg = e.message || errMsg; } catch (_) {}
+    let errMsg = `Upload failed (HTTP ${res.status})`;
+    try { const e = await res.json(); errMsg = e.error || e.message || errMsg; } catch (_) {}
     throw new Error(errMsg);
   }
 
   const data = await res.json();
-  // data.url is the full delivery URL, e.g. https://ik.imagekit.io/your_id/path/file.jpg
-  if (!data.url) throw new Error('ImageKit returned no URL');
+  if (!data.url) throw new Error('Backend returned no URL');
   return data.url;
 }
 
@@ -257,7 +231,7 @@ function initMediaUploader(containerId, key, resourceType, accept, folder = null
         <div class="upload-dropzone-inner">
           <span class="upload-icon">${isUploading ? '⏳' : '☁'}</span>
           ${dropzoneHint}
-          <span class="upload-sub">Uploads directly to ${useCloudinary ? 'Cloudinary' : 'ImageKit'}</span>
+          <span class="upload-sub">Uploads ${useCloudinary ? 'directly to Cloudinary' : 'securely via Bunny Storage'}</span>
         </div>
       </label>
       <div class="upload-progress-bar" id="${containerId}-bar" style="${isUploading ? 'display:block;' : 'display:none;'}">
@@ -322,7 +296,7 @@ function initMediaUploader(containerId, key, resourceType, accept, folder = null
         if (fill) fill.style.width = Math.round((done / files.length) * 100) + '%';
         const url = useCloudinary
           ? await uploadToCloudinary(file, resourceType, folder)
-          : await uploadToImageKit(file, resourceType, folder);
+          : await uploadToBackend(file, resourceType, folder);
         _uploaderState[key].push(url);
         done++;
         if (fill) fill.style.width = Math.round((done / files.length) * 100) + '%';
