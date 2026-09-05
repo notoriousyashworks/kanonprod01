@@ -319,10 +319,11 @@ export function createProductCard(product) {
   const badgesContainer = '';
 
   const safeProductName = (product.name || '').replace(/"/g, '&quot;');
+  const isHandbag = (product.category || '').trim().toLowerCase() === 'handbags';
 
   return `
     <a href="/product-details?id=${product.id}" target="_blank" class="product-card-link" aria-label="${product.name}">
-      <article class="product-card product-card-new" data-product-id="${product.id}">
+      <article class="product-card product-card-new ${isHandbag ? 'is-handbag' : ''}" data-product-id="${product.id}">
         <div class="pc-image-wrap">
           ${badgesContainer}
           <button class="pc-heart-btn ${isLiked ? 'active' : ''}" onclick="event.preventDefault(); event.stopPropagation(); toggleWishlistItem('${product.id}'); this.classList.toggle('active'); this.querySelector('svg').setAttribute('fill', this.classList.contains('active') ? '#c82333' : 'none'); this.querySelector('svg').setAttribute('stroke', this.classList.contains('active') ? '#c82333' : 'currentColor')">
