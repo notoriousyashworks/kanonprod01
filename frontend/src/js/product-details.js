@@ -539,11 +539,6 @@ function renderProduct(product) {
         </span>
       </div>
 
-      ${product.description ? `
-        <div class="product-description-section">
-          <h2>Description</h2>
-          <p>${product.description}</p>
-        </div>` : ''}
     </div>
   `;
 
