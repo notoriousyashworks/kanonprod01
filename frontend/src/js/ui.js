@@ -3,7 +3,7 @@
    ============================================ */
 import { isWishlisted, toggleWishlistItem } from './wishlist.js';
 import { initLoginModalTrigger } from './login-modal.js';
-import { getAllProducts } from './api.js';
+import { getAllProducts, getCategories } from './api.js';
 
 // Toast notifications
 export function showToast(message, type = 'info') {
@@ -299,6 +299,11 @@ export function createProductCard(product) {
   const originalPrice = product.discountedPrice ? product.basePrice : null;
   const isLiked = isWishlisted(product.id);
 
+  // Calculate savings percentage
+  const savingsPct = originalPrice
+    ? Math.round(((originalPrice - currentPrice) / originalPrice) * 100)
+    : 0;
+
   let mediaHTML = '';
   if (image) {
     mediaHTML = `<img src="${image}" alt="${product.name}" loading="lazy" />`;
@@ -326,16 +331,14 @@ export function createProductCard(product) {
       <article class="product-card product-card-new ${isHandbag ? 'is-handbag' : ''}" data-product-id="${product.id}">
         <div class="pc-image-wrap">
           ${badgesContainer}
-          <button class="pc-heart-btn ${isLiked ? 'active' : ''}" onclick="event.preventDefault(); event.stopPropagation(); toggleWishlistItem('${product.id}'); this.classList.toggle('active'); this.querySelector('svg').setAttribute('fill', this.classList.contains('active') ? '#c82333' : 'none'); this.querySelector('svg').setAttribute('stroke', this.classList.contains('active') ? '#c82333' : 'currentColor')">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="${isLiked ? '#c82333' : 'none'}" stroke="${isLiked ? '#c82333' : 'currentColor'}" stroke-width="2">
+          <button class="pc-heart-btn ${isLiked ? 'active' : ''}" onclick="event.preventDefault(); event.stopPropagation(); toggleWishlistItem('${product.id}'); this.classList.toggle('active'); this.querySelector('svg').setAttribute('fill', this.classList.contains('active') ? '#0a0a0a' : 'none'); this.querySelector('svg').setAttribute('stroke', this.classList.contains('active') ? '#0a0a0a' : 'currentColor')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="${isLiked ? '#0a0a0a' : 'none'}" stroke="${isLiked ? '#0a0a0a' : 'currentColor'}" stroke-width="2">
               <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
             </svg>
           </button>
-          <button class="pc-whatsapp-btn" aria-label="Contact on WhatsApp" data-product-id="${product.id}" data-product-name="${safeProductName}" onclick="event.preventDefault(); event.stopPropagation(); window.openProductWhatsApp(this.dataset.productName, this.dataset.productId)">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none">
-              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"></path>
-            </svg>
-          </button>
+          <a href="https://wa.me/${import.meta.env.VITE_WHATSAPP_NUMBER || '916239379751'}?text=${encodeURIComponent('Hi Kicks Aura, I want to inquire about this product:\n\n*' + (product.name||product.brand||'') + '*\nPrice: ' + fmtPrice(currentPrice) + '\nLink: ' + window.location.origin + '/product-details?id=' + product.id)}" target="_blank" rel="noopener noreferrer" class="pc-whatsapp-btn" aria-label="Inquire via WhatsApp" onclick="event.stopPropagation();">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          </a>
           ${mediaHTML}
         </div>
         <div class="pc-body">
@@ -353,8 +356,24 @@ export function createProductCard(product) {
 
 // Generate navbar HTML
 export function getNavbarHTML(activePage = 'home') {
+  setTimeout(loadCategoriesDropdown, 0);
   return `
     <header class="header">
+      <!-- Rotating Announcement Ticker -->
+      <div class="header__banner" id="header-banner">
+        <div class="header__banner-ticker" id="header-ticker">
+          <div class="ticker-item is-active">
+            <span class="ticker-highlight">COD Available</span>
+            <span class="ticker-divider">|</span>
+            <span>Only Rs 99 Advance</span>
+          </div>
+          <div class="ticker-item">
+            <span class="ticker-highlight">Extra Rs 200 Off</span>
+            <span class="ticker-divider">|</span>
+            <span>on Prepaid Orders</span>
+          </div>
+        </div>
+      </div>
       <!-- Top Bar: Logo, Search, Icons -->
       <div class="header__top">
         <div class="container header__top-inner">
@@ -372,9 +391,12 @@ export function getNavbarHTML(activePage = 'home') {
             </a>
           </div>
           
-          <a href="/" class="header__logo">
-            <img src="/logos/headlogo.png" alt="KICKS AURA" class="header__logo-img" />
-          </a>
+          <div class="header__logo-container">
+            <a href="/" class="header__logo header__logo--wordmark" aria-label="Kicks Aura – Home">
+              <span class="logo-kicks">Kicks</span><span class="logo-aura">Aura</span>
+            </a>
+            <div class="header__logo-subtitle">PREMIUM | <span class="subtitle-highlight">UNISEX</span> | CURATED</div>
+          </div>
           <div class="header__search">
             <div class="header__search-icon-left">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -407,7 +429,7 @@ export function getNavbarHTML(activePage = 'home') {
                   <p class="profile-dropdown-name" id="profile-dropdown-name" style="display:none;"></p>
                 </div>
                 <div class="profile-dropdown-auth" id="profile-dropdown-auth" style="display:flex; flex-direction:column; gap:10px; padding:0 20px 16px;">
-                  <button class="profile-auth-btn" id="profile-login-btn" style="background:#315bfb; color:#fff; border-radius:10px; padding:12px; font-size:14px; font-weight:600; border:none; cursor:pointer; width: 100%;">Log In with Mobile</button>
+              <button class="profile-auth-btn" id="profile-login-btn" style="background:#0a0a0a; color:#fff; border-radius:8px; padding:12px; font-size:14px; font-weight:600; border:none; cursor:pointer; width: 100%;">Log In with Mobile</button>
                 </div>
                 <div class="profile-dropdown-actions" style="border-top:none; padding: 0 20px 20px;">
                   <a href="/orders" class="profile-dropdown-btn" id="profile-dd-orders">
@@ -430,10 +452,15 @@ export function getNavbarHTML(activePage = 'home') {
       <nav class="header__nav">
         <div class="header__nav-inner">
           <a href="/" class="nav-link ${activePage === 'home' ? 'nav-link--active' : ''}">Home</a>
-          <a href="/#shop-category" class="nav-link ${activePage === 'products' ? 'nav-link--active' : ''}">Categories</a>
+          <div class="nav-dropdown-wrapper" id="nav-categories-wrapper">
+            <a href="/#shop-category" class="nav-link nav-link--dropdown ${activePage === 'products' ? 'nav-link--active' : ''}">
+              Categories
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+            </a>
+            <div class="nav-dropdown" id="nav-categories-dropdown"></div>
+          </div>
           <a href="/#new-arrivals" class="nav-link">New Arrivals</a>
           <a href="/shipping-policy" class="nav-link ${activePage === 'shipping' ? 'nav-link--active' : ''}">Shipping Policy</a>
-          <a href="/#customer-reviews" class="nav-link">Customer Reviews</a>
         </div>
       </nav>
 
@@ -460,66 +487,9 @@ export function getNavbarHTML(activePage = 'home') {
           <a href="/shipping-policy" class="mobile-nav-link ${activePage === 'shipping' ? 'mobile-nav-link--active' : ''}">
             Shipping Policy
           </a>
-          <a href="/#customer-reviews" class="mobile-nav-link">
-            Customer Reviews
-          </a>
         </nav>
         <div class="mobile-nav-drawer__footer">
-          <span>© 2025 Kicks Aura. All rights reserved.</span>
-        </div>
-      </div>
-
-      <!-- Banner (Marquee) -->
-      <div class="header__banner">
-        <div class="header__banner-marquee">
-          <div class="marquee-content">
-            <span class="dot">•</span>
-            <span class="text-blue">COUPON CODE : GRAB100 (Flat ₹100 Off on Every Product)</span>
-            <span class="dot">•</span>
-            <span class="text-blue">PREPAID ORDERS (₹ 200 Off)</span>
-            <span class="dot">•</span>
-            <span class="text-blue">COUPON CODE : GRAB100 (Flat ₹100 Off on Every Product)</span>
-            <span class="dot">•</span>
-            <span>COD AVAILABLE (only ₹ 99 Advance)</span>
-            <span class="dot">•</span>
-            <span class="text-blue">1000+ HAPPY CUSTOMERS ACROSS INDIA</span>
-          </div>
-          <div class="marquee-content" aria-hidden="true">
-            <span class="dot">•</span>
-            <span class="text-blue">COUPON CODE : GRAB100 (Flat ₹100 Off on Every Product)</span>
-            <span class="dot">•</span>
-            <span class="text-blue">PREPAID ORDERS (₹ 200 Off)</span>
-            <span class="dot">•</span>
-            <span class="text-blue">COUPON CODE : GRAB100 (Flat ₹100 Off on Every Product)</span>
-            <span class="dot">•</span>
-            <span>COD AVAILABLE (only ₹ 99 Advance)</span>
-            <span class="dot">•</span>
-            <span class="text-blue">1000+ HAPPY CUSTOMERS ACROSS INDIA</span>
-          </div>
-          <div class="marquee-content" aria-hidden="true">
-            <span class="dot">•</span>
-            <span class="text-blue">COUPON CODE : GRAB100 (Flat ₹100 Off on Every Product)</span>
-            <span class="dot">•</span>
-            <span class="text-blue">PREPAID ORDERS (₹ 200 Off)</span>
-            <span class="dot">•</span>
-            <span class="text-blue">COUPON CODE : GRAB100 (Flat ₹100 Off on Every Product)</span>
-            <span class="dot">•</span>
-            <span>COD AVAILABLE (only ₹ 99 Advance)</span>
-            <span class="dot">•</span>
-            <span class="text-blue">1000+ HAPPY CUSTOMERS ACROSS INDIA</span>
-          </div>
-          <div class="marquee-content" aria-hidden="true">
-            <span class="dot">•</span>
-            <span class="text-blue">COUPON CODE : GRAB100 (Flat ₹100 Off on Every Product)</span>
-            <span class="dot">•</span>
-            <span class="text-blue">PREPAID ORDERS (₹ 200 Off)</span>
-            <span class="dot">•</span>
-            <span class="text-blue">COUPON CODE : GRAB100 (Flat ₹100 Off on Every Product)</span>
-            <span class="dot">•</span>
-            <span>COD AVAILABLE (only ₹ 99 Advance)</span>
-            <span class="dot">•</span>
-            <span class="text-blue">1000+ HAPPY CUSTOMERS</span>
-          </div>
+          <span>© 2026 Kicks Aura. All rights reserved.</span>
         </div>
       </div>
     </header>
@@ -559,47 +529,69 @@ export function getNavbarHTML(activePage = 'home') {
 // Generate footer HTML
 export function getFooterHTML() {
   return `
+    <!-- Trust Strip -->
+    <div class="trust-strip">
+      <div class="trust-strip__inner">
+        <div class="trust-strip__item">
+          <div class="trust-strip__icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <div class="trust-strip__label">COD Available</div>
+          <div class="trust-strip__sub">(Only Rs 99 advance)</div>
+        </div>
+        <div class="trust-strip__item">
+          <div class="trust-strip__icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+          </div>
+          <div class="trust-strip__label">Rs 200 Off on Prepaid</div>
+          <div class="trust-strip__sub">Shipping</div>
+        </div>
+        <div class="trust-strip__item">
+          <div class="trust-strip__icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          </div>
+          <div class="trust-strip__label">Easy Returns & Exchange</div>
+          <div class="trust-strip__sub">Hassle-free within 7 days</div>
+        </div>
+
+      </div>
+    </div>
     <footer id="footer" class="footer">
       <div class="container footer__inner">
         <div class="footer__col">
-          <h4>COMPANY</h4>
-          <a href="/">Home</a>
-          <a href="/about-us">About Us</a>
-          <a href="https://wa.me/${import.meta.env.VITE_WHATSAPP_NUMBER || '916239379751'}?text=Hey!" target="_blank" rel="noopener">Contact Us</a>
+          <h4>CUSTOMER CARE</h4>
           <div class="footer__contact-info">
             <p><span>Address:</span> Phase 2, Chandigarh, India</p>
             <p><span>Mobile:</span> +91 6239379751</p>
             <p><span>Email:</span> kicksauraa@gmail.com</p>
+            <p><span>Store Time:</span> 11:00 AM - 8:00 PM, Monday - Saturday</p>
           </div>
         </div>
-        <div class="footer__col">
-          <h4>POLICIES</h4>
-          <a href="/shipping-policy">Shipping & Delivery Policy</a>
-          <a href="/return-exchange">Return, Exchange & Refund</a>
-          <a href="/terms-conditions">Terms & Conditions</a>
-          <a href="/privacy-policy">Privacy Policy</a>
-        </div>
-        <div class="footer__col footer__brand">
-          <div class="footer__logo-text">KICKS<span class="text-red">AURA</span></div>
-          <div class="footer__socials">
-            <a href="https://wa.me/${import.meta.env.VITE_WHATSAPP_NUMBER || '916239379751'}?text=Hey!" target="_blank" rel="noopener">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21l1.65-3.8a9 9 0 1 1 3.4 2.9L3 21"></path><path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1"></path></svg>
-            </a>
-            <a href="https://www.youtube.com/@kicksauraa" target="_blank" rel="noopener">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33 2.78 2.78 0 0 0 1.94 2c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.33 29 29 0 0 0-.46-5.33z"></path><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"></polygon></svg>
-            </a>
-            <a href="https://x.com/kicksauraa" target="_blank" rel="noopener">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4l11.733 16h4.267l-11.733-16z"></path><path d="M4 20l6.768-6.768m2.46-2.46l6.772-6.772"></path></svg>
-            </a>
-            <a href="https://www.reddit.com/user/NoDebt5485/" target="_blank" rel="noopener">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8c-3.1 0-6.1.4-8 1.1 0 5 1.6 8 8 8s8-3 8-8c-1.9-.7-4.9-1.1-8-1.1Z"></path><path d="M12 8v-4l4-1"></path><circle cx="16" cy="3" r="1"></circle><circle cx="9" cy="13" r="1"></circle><circle cx="15" cy="13" r="1"></circle></svg>
-            </a>
+        <div class="footer__links-wrapper">
+          <div class="footer__col">
+            <h4 style="visibility: hidden; user-select: none; margin-bottom: 18px;">COMPANY</h4>
+            <a href="/">Home</a>
+            <a href="/about-us">About Us</a>
+            <a href="https://wa.me/${import.meta.env.VITE_WHATSAPP_NUMBER || '916239379751'}?text=Hey!" target="_blank" rel="noopener">Contact Us</a>
           </div>
-          <p class="footer__join-text">Join our WhatsApp channel for exclusive drops<br/>and member coupons</p>
-          <a href="https://whatsapp.com/channel/0029Vb8kKAtA2pLJLr1j7u3L" target="_blank" rel="noopener" class="btn-join-channel">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21l1.65-3.8a9 9 0 1 1 3.4 2.9L3 21"></path><path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1"></path></svg>
-            Join Channel
+          <div class="footer__col">
+            <h4 style="visibility: hidden; user-select: none; margin-bottom: 18px;">POLICIES</h4>
+            <a href="/shipping-policy">Shipping & Delivery Policy</a>
+            <a href="/return-exchange">Return, Exchange & Refund</a>
+            <a href="/terms-conditions">Terms & Conditions</a>
+            <a href="/privacy-policy">Privacy Policy</a>
+          </div>
+        </div>
+        <div class="footer__col" style="align-items: center; justify-content: flex-start; margin-left: auto; margin-top: 18px;">
+          <a href="https://instagram.com/kicksauraa" target="_blank" rel="noopener" aria-label="Instagram" style="opacity: 0.7; transition: opacity 0.2s;">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
           </a>
+        </div>
+
+      </div>
+      <div class="container">
+        <div class="footer__bottom">
+          <span class="footer__bottom-copy">© 2026 Kicks Aura. All rights reserved.</span>
         </div>
       </div>
     </footer>
@@ -612,6 +604,30 @@ export function injectFooter() {
   if (container) {
     container.innerHTML = getFooterHTML();
   }
+}
+
+// Initialize rotating ticker
+export function initTicker() {
+  const ticker = document.getElementById('header-ticker');
+  if (!ticker) return;
+  const items = ticker.querySelectorAll('.ticker-item');
+  if (!items.length) return;
+  let current = 0;
+
+  setInterval(() => {
+    const prev = items[current];
+    prev.classList.add('is-leaving');
+    prev.classList.remove('is-active');
+
+    current = (current + 1) % items.length;
+    const next = items[current];
+    next.classList.remove('is-leaving');
+    next.classList.add('is-active');
+
+    setTimeout(() => {
+      prev.classList.remove('is-leaving');
+    }, 600);
+  }, 3800);
 }
 
 // ============================================
@@ -804,9 +820,38 @@ export function initMobileMenu() {
   });
 }
 
+// Load categories into dropdown
+async function loadCategoriesDropdown() {
+  const wrapper = document.getElementById('nav-categories-wrapper');
+  const dropdown = document.getElementById('nav-categories-dropdown');
+  if (!wrapper || !dropdown) return;
+
+  try {
+    const categoriesData = await getCategories();
+    // Use content array if paginated, otherwise assume direct array
+    const categories = Array.isArray(categoriesData) ? categoriesData : categoriesData.content || [];
+    
+    if (categories.length === 0) {
+      wrapper.style.display = 'none';
+      return;
+    }
+
+    const html = categories.map(cat => {
+      const name = cat.name || cat;
+      return `<a href="/products?categories=${encodeURIComponent(name)}">${name}</a>`;
+    }).join('');
+
+    dropdown.innerHTML = html;
+  } catch (error) {
+    console.error('Failed to load categories:', error);
+    wrapper.style.display = 'none';
+  }
+}
+
 // Automatically initialize when DOM is ready
 function initializeUI() {
   injectFooter();
+  loadCategoriesDropdown();
   // initPurchaseNotifications(); // Disabled
 }
 
