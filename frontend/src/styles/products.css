@@ -600,9 +600,9 @@ details[open] > .filter-summary::after {
     max-width: 340px;
   }
 
-  /* In column mode, switch to 4 columns with tighter gap */
+  /* Restore the original responsive auto-fill behavior for < 1024px */
   .products-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
     gap: 24px 16px;
   }
 
@@ -613,7 +613,6 @@ details[open] > .filter-summary::after {
 
 @media (max-width: 900px) {
   .products-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 22px 14px;
   }
 }
@@ -626,7 +625,7 @@ details[open] > .filter-summary::after {
   }
 
   .products-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
     gap: 18px 12px;
   }
 
