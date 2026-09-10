@@ -7,16 +7,16 @@
   <link rel="icon" type="image/svg+xml" href="/assets/favicon-BtsTzBdj.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   
   <!-- HLS.js for Adaptive Bitrate Video Streaming -->
   <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.7/dist/hls.min.js"></script>
-  <script type="module" crossorigin src="/assets/main-FtOCagH2.js"></script>
-  <link rel="modulepreload" crossorigin href="/assets/login-modal.js_v_1-BRTwoa-Z.js">
-  <link rel="modulepreload" crossorigin href="/assets/cart-sidebar-DDj1jOll.js">
-  <link rel="modulepreload" crossorigin href="/assets/profile-PccgHn7L.js">
-  <link rel="stylesheet" crossorigin href="/assets/main-CYzlDH9X.css">
-  <link rel="stylesheet" crossorigin href="/assets/product-card-D4KA5hkK.css">
+  <script type="module" crossorigin src="/assets/main-DLyeXFSF.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/login-modal.js_v_1-CjZeo95D.js">
+  <link rel="modulepreload" crossorigin href="/assets/cart-sidebar-DbASK2p8.js">
+  <link rel="modulepreload" crossorigin href="/assets/profile-DuwBQh-E.js">
+  <link rel="stylesheet" crossorigin href="/assets/main-CESCMxyV.css">
+  <link rel="stylesheet" crossorigin href="/assets/product-card-BlDDIhw0.css">
 </head>
 <body>
   <!-- Global Preloader -->
@@ -56,30 +56,19 @@
   <main>
     <!-- Hero Banner -->
     <style>
-      /* ── Full-viewport hero ────────────────────────────────── */
-      .hero-banner {
-        padding: 0 !important;
-        margin: 0;
-      }
-
-      .hero-banner .container {
-        padding: 0 !important;
-        max-width: none !important;
-        width: 100% !important;
-        text-align: left !important;
-      }
-
       .hero-banner-wrapper {
         position: relative;
-        display: block;
-        width: 100vw !important;
-        max-width: 100vw !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        border-radius: 0 !important;
-        box-shadow: none !important;
-        background: #000;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 14px;
+        margin-top: 8px;
+        width: min(calc(100vw - 96px), 1500px);
+        max-width: 1500px;
         overflow: hidden;
+        padding: 3px;
+        background: #000;
+        box-shadow: 0 10px 28px rgba(0,0,0,0.18);
       }
 
       .hero-banner-wrapper img {
@@ -87,25 +76,22 @@
         width: 100%;
         height: auto;
         display: block;
-        border-radius: 0 !important;
+        border-radius: 11px; /* Slightly smaller than wrapper to fit perfectly */
         z-index: 1;
-        background: #000;
+        background: #000; /* Prevent transparency bleeding */
       }
-
       .hero-carousel {
         position: relative;
         z-index: 1;
         width: 100%;
-        /* Fill the viewport minus header and an 130px offset to show more of the next section */
-        height: calc(100dvh - var(--ka-header-h, 118px) - 130px);
-        min-height: 400px;
-        max-height: calc(100dvh - 130px);
         overflow: hidden;
-        border-radius: 0 !important;
+        border-radius: 11px;
         background: #000;
         cursor: grab;
         box-sizing: border-box;
-        aspect-ratio: unset;
+        aspect-ratio: 1280 / 480;
+        min-height: clamp(360px, 45vh, 500px);
+        max-height: min(55vh, 550px);
         touch-action: pan-y;
         user-select: none;
       }
@@ -169,62 +155,113 @@
       }
       .hero-carousel-dots {
         position: absolute;
-        left: 50%;
-        transform: translateX(-50%);
-        bottom: 16px;
+        right: 22px;
+        bottom: 18px;
         display: flex;
         align-items: center;
-        gap: 7px;
+        gap: 10px;
         z-index: 5;
-        padding: 4px;
+        max-width: min(52%, 520px);
+        overflow: visible;
+        padding: 5px;
       }
       .hero-carousel-dot {
-        width: 6px;
-        height: 6px;
-        border-radius: 999px;
-        background: rgba(255,255,255,0.45);
+        width: 92px;
+        height: 52px;
+        border: 2px solid rgba(255,255,255,0.62);
+        border-radius: 8px;
+        background: rgba(0,0,0,0.58);
         cursor: pointer;
-        border: none;
-        padding: 0;
-        transition: width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), background 0.3s ease, opacity 0.3s ease;
+        padding: 2px;
         overflow: hidden;
-        box-shadow: none;
-        flex-shrink: 0;
+        opacity: 0.68;
+        position: relative;
+        box-shadow: 0 6px 18px rgba(0,0,0,0.34);
+        transition: transform 0.22s ease, opacity 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
+      }
+      .hero-carousel-dot::before {
+        content: "";
+        position: absolute;
+        inset: -1px;
+        z-index: 2;
+        border: 1px solid rgba(0,0,0,0.45);
+        border-radius: inherit;
+        pointer-events: none;
+      }
+      .hero-carousel-dot:hover {
+        opacity: 0.92;
+        transform: scale(1.03);
+        border-color: rgba(255,255,255,0.9);
       }
       .hero-carousel-dot.is-active {
-        width: 22px;
-        background: #ffffff;
         opacity: 1;
+        transform: scale(1.05);
+        border-color: #ffffff;
+        box-shadow: 0 0 0 2px rgba(255,255,255,0.95), 0 10px 26px rgba(0,0,0,0.42);
       }
-      .hero-carousel-dot::after,
-      .hero-carousel-dot::before { display: none !important; }
-      .hero-carousel-dot img { display: none !important; }
-      @keyframes heroThumbProgress {}
+      .hero-carousel-dot:hover::before {
+        border-color: rgba(0,0,0,0.42);
+      }
+      .hero-carousel-dot.is-active::before {
+        border: 1px solid rgba(0,0,0,0.52);
+        box-shadow: inset 0 0 0 1px rgba(255,255,255,0.2);
+      }
+      .hero-carousel-dot::after {
+        content: "";
+        position: absolute;
+        left: 4px;
+        right: 4px;
+        bottom: 5px;
+        height: 3px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.26);
+        transform: scaleX(0);
+        transform-origin: left;
+        z-index: 3;
+      }
+      .hero-carousel-dot.is-active::after {
+        background: linear-gradient(90deg, #ffffff, #ef3340);
+        animation: heroThumbProgress 1.5s linear infinite;
+      }
+      .hero-carousel-dot img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+        background: #000;
+        border-radius: 5px;
+        display: block;
+      }
+      @keyframes heroThumbProgress {
+        from {
+          transform: scaleX(0);
+        }
+        to {
+          transform: scaleX(1);
+        }
+      }
       .hero-carousel-arrow {
         position: absolute;
         top: 50%;
         transform: translateY(-50%);
         z-index: 3;
-        width: 38px;
-        height: 38px;
-        border: 1px solid rgba(255,255,255,0.2);
+        width: 42px;
+        height: 42px;
+        border: 1px solid rgba(255,255,255,0.3);
         border-radius: 50%;
-        background: rgba(0,0,0,0.3);
-        backdrop-filter: blur(6px);
-        -webkit-backdrop-filter: blur(6px);
+        background: rgba(0,0,0,0.42);
         color: #fff;
-        font-size: 28px;
+        font-size: 30px;
         line-height: 1;
         display: grid;
         place-items: center;
         cursor: pointer;
-        opacity: 0.85;
-        transition: opacity 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
+        opacity: 0.9;
+        transition: opacity 0.2s ease, background-color 0.2s ease;
       }
       .hero-carousel-arrow:hover {
         opacity: 1;
-        background: rgba(0,0,0,0.55);
-        transform: translateY(-50%) scale(1.06);
+        background: rgba(0,0,0,0.68);
       }
       .hero-carousel-arrow--prev {
         left: 20px;
@@ -262,39 +299,39 @@
           letter-spacing: 0.5px;
         }
         .hero-banner-btn:hover {
-          background: #0a0a0a;
+          background: #111;
           color: #fff;
-          border-color: #0a0a0a;
+          border-color: #111;
           box-shadow: 0 6px 20px rgba(0,0,0,0.3);
           transform: translateY(-2px);
         }
         .hero-banner-wrapper {
-          width: 100vw !important;
-          margin: 0 !important;
+          width: min(calc(100vw - 48px), 1180px);
+          margin-top: 14px;
         }
+
         .hero-carousel {
-          height: calc(100dvh - var(--ka-header-h, 110px) - 130px);
-          min-height: 300px;
-          aspect-ratio: unset !important;
+          aspect-ratio: 2 / 1;
+          min-height: auto;
+          max-height: none;
         }
         .hero-carousel-arrow {
           display: none;
         }
         .hero-carousel-dots {
+          right: 10px;
           bottom: 10px;
-          gap: 5px;
+          max-width: 64%;
+          gap: 6px;
         }
         .hero-carousel-dot {
-          width: 5px;
-          height: 5px;
-        }
-        .hero-carousel-dot.is-active {
-          width: 16px;
+          width: 54px;
+          height: 32px;
         }
       }
     </style>
     <section class="hero-banner">
-      <div class="container">
+      <div class="container" style="padding: 0; text-align: center;">
         <div class="hero-banner-wrapper">
           <div class="hero-carousel" id="hero-carousel" aria-roledescription="banner" aria-label="Featured offers">
             <div class="hero-carousel-track">
@@ -312,11 +349,6 @@
             <button class="hero-carousel-arrow hero-carousel-arrow--prev" aria-label="Previous slide">&lsaquo;</button>
             <button class="hero-carousel-arrow hero-carousel-arrow--next" aria-label="Next slide">&rsaquo;</button>
 
-            <div class="hero-carousel-dots">
-              <button class="hero-carousel-dot is-active" aria-label="Slide 1"></button>
-              <button class="hero-carousel-dot" aria-label="Slide 2"></button>
-              <button class="hero-carousel-dot" aria-label="Slide 3"></button>
-            </div>
 
           </div>
         </div>
@@ -368,7 +400,7 @@
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
             </div>
             <h3>24/7 WhatsApp Support</h3>
-            <p>Our Team responds in less than 10 minutes.</p>
+            <p>Our captains respond in less than 10 minutes.</p>
           </div>
           <div class="feature-card">
             <div class="feature-icon">
@@ -405,32 +437,27 @@
       </div>
     </section>
 
+    <!-- Customer Reviews -->
+    <section id="customer-reviews" class="customer-reviews">
+      <div class="container">
+        <h2 class="section-title">CUSTOMER REVIEWS</h2>
+      </div>
+      <div class="reviews-carousel">
+        <button class="review-arrow review-arrow--prev" type="button" aria-label="Previous reviews">&lsaquo;</button>
+        <div class="reviews-track">
+          <!-- Skeleton loaders -->
+          <div class="review-card skeleton"></div>
+          <div class="review-card skeleton"></div>
+          <div class="review-card skeleton"></div>
+          <div class="review-card skeleton"></div>
+        </div>
+        <button class="review-arrow review-arrow--next" type="button" aria-label="Next reviews">&rsaquo;</button>
+      </div>
+    </section>
 
   </main>
 
   <div id="footer-container"></div>
 
-  <script>
-    // Measure actual sticky header height and keep carousel perfectly calibrated
-    (function() {
-      function setHeaderHeight() {
-        const header = document.querySelector('.header');
-        if (header) {
-          const h = header.getBoundingClientRect().height;
-          document.documentElement.style.setProperty('--ka-header-h', h + 'px');
-        }
-      }
-      // Run after fonts + navbar render
-      requestAnimationFrame(() => {
-        requestAnimationFrame(setHeaderHeight);
-      });
-      window.addEventListener('resize', setHeaderHeight, { passive: true });
-      // Also run when navbar HTML is injected (mutation observer on navbar-container)
-      const obs = new MutationObserver(() => { setHeaderHeight(); obs.disconnect(); });
-      const nc = document.getElementById('navbar-container');
-      if (nc) obs.observe(nc, { childList: true, subtree: true });
-    })();
-  </script>
 </body>
 </html>
-<!-- DEPLOY TEST 1789072606 -->

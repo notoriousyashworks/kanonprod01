@@ -422,34 +422,24 @@
    Homepage polish overrides
    ============================================ */
 .hero-banner {
-  padding: 0 !important;
-  margin: 0 !important;
+  padding: 18px 0 4px;
 }
 
 .hero-banner .container {
-  text-align: left !important;
-  width: 100% !important;
-  max-width: none !important;
-  padding-left: 0 !important;
-  padding-right: 0 !important;
+  text-align: center;
+  width: 100%;
+  max-width: none;
+  padding-left: 0;
+  padding-right: 0;
 }
 
 .hero-banner-wrapper {
-  width: 100vw !important;
-  max-width: 100vw !important;
-  display: block !important;
-  margin-left: 0 !important;
-  margin-right: 0 !important;
-  border-radius: 0 !important;
-  padding: 0 !important;
-  box-shadow: none !important;
-  transition: none !important;
-  transform: none !important;
-}
-
-.hero-banner-wrapper:hover {
-  transform: none !important;
-  box-shadow: none !important;
+  width: min(calc(100vw - 48px), 1180px) !important;
+  max-width: 1180px !important;
+  display: flex !important;
+  margin-left: auto;
+  margin-right: auto;
+  border-radius: 14px;
 }
 
 /* Trending Widget */
@@ -692,14 +682,14 @@
   flex: none !important;
 }
 
-@media (max-width: 1024px) and (pointer: coarse) {
+@media (max-width: 1024px) {
   .new-arrivals-grid {
     grid-template-columns: repeat(3, 1fr);
     gap: 20px;
   }
 }
 
-@media (max-width: 640px) and (pointer: coarse) {
+@media (max-width: 640px) {
   .new-arrivals-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 14px;
