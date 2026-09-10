@@ -605,7 +605,7 @@ details[open] > .filter-summary::after {
   }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 767px) and (pointer: coarse) {
   .products-layout {
     width: min(100% - 24px, 100%);
     padding: 0;
@@ -639,7 +639,7 @@ details[open] > .filter-summary::after {
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 480px) and (pointer: coarse) {
   .products-layout {
     width: min(100% - 16px, 100%);
     padding: 0;

@@ -692,14 +692,14 @@
   flex: none !important;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1024px) and (pointer: coarse) {
   .new-arrivals-grid {
     grid-template-columns: repeat(3, 1fr);
     gap: 20px;
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 640px) and (pointer: coarse) {
   .new-arrivals-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 14px;
