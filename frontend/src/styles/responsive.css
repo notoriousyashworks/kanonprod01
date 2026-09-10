@@ -17,6 +17,13 @@ img, video, iframe, embed, object {
   height: auto;
 }
 
+/* Product card images must fill their container — do NOT apply height:auto */
+.pc-image-wrap img {
+  max-width: 100% !important;
+  height: 100% !important;
+  width: 100% !important;
+}
+
 /* ──────────────────────────────────────────────
    CONTAINER
    ────────────────────────────────────────────── */
