@@ -101,8 +101,6 @@ export async function getProductsByCategory(category) {
   return data.content || data;
 }
 
-
-
 export async function getRelatedProducts(categoryName, excludeId, limit = 8) {
   const data = await request(`/products/category/${encodeURIComponent(categoryName)}`);
   const all = data.content || data;

@@ -17,13 +17,6 @@ img, video, iframe, embed, object {
   height: auto;
 }
 
-/* Product card images must fill their container — do NOT apply height:auto */
-.pc-image-wrap img {
-  max-width: 100% !important;
-  height: 100% !important;
-  width: 100% !important;
-}
-
 /* ──────────────────────────────────────────────
    CONTAINER
    ────────────────────────────────────────────── */
@@ -242,8 +235,8 @@ img, video, iframe, embed, object {
     color: #111;
   }
   .mobile-nav-link--active {
-    border-left-color: #0a0a0a;
-    color: #0a0a0a;
+    border-left-color: #315bfb;
+    color: #315bfb;
     font-weight: 600;
     background: rgba(49, 91, 251, 0.06);
   }
@@ -559,11 +552,70 @@ img, video, iframe, embed, object {
 
 /* ══════════════════════════════════════════════
    PRODUCTS PAGE
-   NOTE: All products-page layout rules are defined in products.css.
-   Do NOT add products-layout or products-grid rules here — this file
-   is bundled into a shared CSS chunk that loads AFTER products.css
-   in the Vite build output, which would cause cascade conflicts.
    ══════════════════════════════════════════════ */
+@media (max-width: 1023px) {
+  .products-layout {
+    flex-direction: column;
+    padding: 0 16px;
+    gap: 0;
+  }
+
+  .products-left-column {
+    width: 100%;
+    margin-top: 16px;
+  }
+
+  .filters-sort-btn {
+    margin-left: 0;
+  }
+
+  .products-main {
+    width: 100%;
+    margin-top: 16px;
+  }
+
+  .products-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 16px;
+  }
+
+  .category-title {
+    font-size: 26px;
+  }
+}
+
+@media (max-width: 767px) {
+  .products-layout {
+    padding: 0 12px;
+    margin-bottom: 48px;
+  }
+
+  .products-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .category-title {
+    font-size: 22px;
+  }
+
+  .filter-chip {
+    padding: 8px 14px;
+    font-size: 12px;
+  }
+
+  .products-sidebar {
+    width: 85%;
+    max-width: 320px;
+  }
+}
+
+@media (max-width: 480px) {
+  .products-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+}
 
 /* ══════════════════════════════════════════════
    PRODUCT DETAILS PAGE

@@ -115,12 +115,7 @@ function normalizeProductName(rawName) {
     
     // 6. Remove internal supplier reference numbers, model codes, and standalone numeric strings
     clean = clean.replace(/\b(?:fa|h|a|c|b|t)\s*(\d+)\b/gi, ''); // Removes FA 667, H 98, A227, C219, B195, T104
-    clean = clean.replace(/\b171816\b/gi, ''); // Known internal stock ID
-    clean = clean.replace(/\b[A-Za-z]?\d{3,5}\b/g, (match) => {
-        // Only remove if it looks like a pure internal code (e.g. W307, J841) and NOT a standard watch model like 2100 or 1853
-        const isWatchModel = /^(1853|2100|110|200|540|300|303|2418|8281|558)$/i.test(match);
-        return isWatchModel ? match : '';
-    });
+    clean = clean.replace(/\b\d{2,6}\b/g, ''); // Removes 2-6 digit standalone reference numbers like 06, 5524, 32827, 559
     
     // 7. Fix Women's abbreviation
     clean = clean.replace(/\b(?:wmns|wmn)\b/gi, "Women's");
