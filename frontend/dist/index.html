@@ -7,16 +7,16 @@
   <link rel="icon" type="image/svg+xml" href="/assets/favicon-BtsTzBdj.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   
   <!-- HLS.js for Adaptive Bitrate Video Streaming -->
   <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.7/dist/hls.min.js"></script>
-  <script type="module" crossorigin src="/assets/main-DLyeXFSF.js"></script>
-  <link rel="modulepreload" crossorigin href="/assets/login-modal.js_v_1-CjZeo95D.js">
-  <link rel="modulepreload" crossorigin href="/assets/cart-sidebar-DbASK2p8.js">
-  <link rel="modulepreload" crossorigin href="/assets/profile-DuwBQh-E.js">
-  <link rel="stylesheet" crossorigin href="/assets/main-CESCMxyV.css">
-  <link rel="stylesheet" crossorigin href="/assets/product-card-BlDDIhw0.css">
+  <script type="module" crossorigin src="/assets/main-iHikO-sV.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/login-modal.js_v_1-CinEOgZG.js">
+  <link rel="modulepreload" crossorigin href="/assets/cart-sidebar-CPu_dLYQ.js">
+  <link rel="modulepreload" crossorigin href="/assets/profile-DXOgewGM.js">
+  <link rel="stylesheet" crossorigin href="/assets/main-Ca61b8Wu.css">
+  <link rel="stylesheet" crossorigin href="/assets/product-card-CF2rMuXa.css">
 </head>
 <body>
   <!-- Global Preloader -->
@@ -155,113 +155,62 @@
       }
       .hero-carousel-dots {
         position: absolute;
-        right: 22px;
-        bottom: 18px;
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: 16px;
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 7px;
         z-index: 5;
-        max-width: min(52%, 520px);
-        overflow: visible;
-        padding: 5px;
+        padding: 4px;
       }
       .hero-carousel-dot {
-        width: 92px;
-        height: 52px;
-        border: 2px solid rgba(255,255,255,0.62);
-        border-radius: 8px;
-        background: rgba(0,0,0,0.58);
+        width: 6px;
+        height: 6px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.45);
         cursor: pointer;
-        padding: 2px;
+        border: none;
+        padding: 0;
+        transition: width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), background 0.3s ease, opacity 0.3s ease;
         overflow: hidden;
-        opacity: 0.68;
-        position: relative;
-        box-shadow: 0 6px 18px rgba(0,0,0,0.34);
-        transition: transform 0.22s ease, opacity 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
-      }
-      .hero-carousel-dot::before {
-        content: "";
-        position: absolute;
-        inset: -1px;
-        z-index: 2;
-        border: 1px solid rgba(0,0,0,0.45);
-        border-radius: inherit;
-        pointer-events: none;
-      }
-      .hero-carousel-dot:hover {
-        opacity: 0.92;
-        transform: scale(1.03);
-        border-color: rgba(255,255,255,0.9);
+        box-shadow: none;
+        flex-shrink: 0;
       }
       .hero-carousel-dot.is-active {
+        width: 22px;
+        background: #ffffff;
         opacity: 1;
-        transform: scale(1.05);
-        border-color: #ffffff;
-        box-shadow: 0 0 0 2px rgba(255,255,255,0.95), 0 10px 26px rgba(0,0,0,0.42);
       }
-      .hero-carousel-dot:hover::before {
-        border-color: rgba(0,0,0,0.42);
-      }
-      .hero-carousel-dot.is-active::before {
-        border: 1px solid rgba(0,0,0,0.52);
-        box-shadow: inset 0 0 0 1px rgba(255,255,255,0.2);
-      }
-      .hero-carousel-dot::after {
-        content: "";
-        position: absolute;
-        left: 4px;
-        right: 4px;
-        bottom: 5px;
-        height: 3px;
-        border-radius: 999px;
-        background: rgba(255,255,255,0.26);
-        transform: scaleX(0);
-        transform-origin: left;
-        z-index: 3;
-      }
-      .hero-carousel-dot.is-active::after {
-        background: linear-gradient(90deg, #ffffff, #ef3340);
-        animation: heroThumbProgress 1.5s linear infinite;
-      }
-      .hero-carousel-dot img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        object-position: center;
-        background: #000;
-        border-radius: 5px;
-        display: block;
-      }
-      @keyframes heroThumbProgress {
-        from {
-          transform: scaleX(0);
-        }
-        to {
-          transform: scaleX(1);
-        }
-      }
+      .hero-carousel-dot::after,
+      .hero-carousel-dot::before { display: none !important; }
+      .hero-carousel-dot img { display: none !important; }
+      @keyframes heroThumbProgress {}
       .hero-carousel-arrow {
         position: absolute;
         top: 50%;
         transform: translateY(-50%);
         z-index: 3;
-        width: 42px;
-        height: 42px;
-        border: 1px solid rgba(255,255,255,0.3);
+        width: 38px;
+        height: 38px;
+        border: 1px solid rgba(255,255,255,0.2);
         border-radius: 50%;
-        background: rgba(0,0,0,0.42);
+        background: rgba(0,0,0,0.3);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
         color: #fff;
-        font-size: 30px;
+        font-size: 28px;
         line-height: 1;
         display: grid;
         place-items: center;
         cursor: pointer;
-        opacity: 0.9;
-        transition: opacity 0.2s ease, background-color 0.2s ease;
+        opacity: 0.85;
+        transition: opacity 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
       }
       .hero-carousel-arrow:hover {
         opacity: 1;
-        background: rgba(0,0,0,0.68);
+        background: rgba(0,0,0,0.55);
+        transform: translateY(-50%) scale(1.06);
       }
       .hero-carousel-arrow--prev {
         left: 20px;
@@ -299,9 +248,9 @@
           letter-spacing: 0.5px;
         }
         .hero-banner-btn:hover {
-          background: #111;
+          background: #0a0a0a;
           color: #fff;
-          border-color: #111;
+          border-color: #0a0a0a;
           box-shadow: 0 6px 20px rgba(0,0,0,0.3);
           transform: translateY(-2px);
         }
@@ -309,7 +258,6 @@
           width: min(calc(100vw - 48px), 1180px);
           margin-top: 14px;
         }
-
         .hero-carousel {
           aspect-ratio: 2 / 1;
           min-height: auto;
@@ -319,14 +267,15 @@
           display: none;
         }
         .hero-carousel-dots {
-          right: 10px;
           bottom: 10px;
-          max-width: 64%;
-          gap: 6px;
+          gap: 5px;
         }
         .hero-carousel-dot {
-          width: 54px;
-          height: 32px;
+          width: 5px;
+          height: 5px;
+        }
+        .hero-carousel-dot.is-active {
+          width: 16px;
         }
       }
     </style>
@@ -349,6 +298,11 @@
             <button class="hero-carousel-arrow hero-carousel-arrow--prev" aria-label="Previous slide">&lsaquo;</button>
             <button class="hero-carousel-arrow hero-carousel-arrow--next" aria-label="Next slide">&rsaquo;</button>
 
+            <div class="hero-carousel-dots">
+              <button class="hero-carousel-dot is-active" aria-label="Slide 1"></button>
+              <button class="hero-carousel-dot" aria-label="Slide 2"></button>
+              <button class="hero-carousel-dot" aria-label="Slide 3"></button>
+            </div>
 
           </div>
         </div>

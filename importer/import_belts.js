@@ -73,54 +73,43 @@ async function uploadToBunnyStorage(buffer, filename, folder) {
 
 async function processVideo(videoFilename, productId) {
     const vidUrl = 'https://cdn.cartpe.in/images/video_upload/' + videoFilename;
-    console.log(`Commanding Bunny Stream to fetch video: ${vidUrl}`);
+    console.log(`Downloading video locally to bypass CDN block: ${vidUrl}`);
 
-    const fetchUrl = `https://video.bunnycdn.com/library/${BUNNY_STREAM_LIBRARY_ID}/videos/fetch`;
+    // Download locally
+    const dlRes = await fetch(vidUrl, {
+        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' }
+    });
+    if (!dlRes.ok) throw new Error(`Failed to download video from IndianKicks: ${dlRes.status}`);
+    const arrayBuffer = await dlRes.arrayBuffer();
 
-    const fetchRes = await fetch(fetchUrl, {
+    // Create Bunny video
+    console.log(`Creating Bunny Stream video for Belt ${productId}...`);
+    const createRes = await fetch(`https://video.bunnycdn.com/library/${BUNNY_STREAM_LIBRARY_ID}/videos`, {
         method: 'POST',
         headers: {
             'AccessKey': BUNNY_STREAM_API_KEY,
             'Accept': 'application/json',
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ url: vidUrl })
+        body: JSON.stringify({ title: `Belt_${productId}` })
     });
+    if (!createRes.ok) throw new Error(`Failed to create Bunny video: ${createRes.status}`);
+    const createJson = await createRes.json();
+    const videoId = createJson.guid;
 
-    if (!fetchRes.ok) {
-        throw new Error(`Bunny Stream Fetch failed: HTTP ${fetchRes.status}`);
-    }
-
-    const json = await fetchRes.json();
-    if (!json.success || !json.id) {
-        throw new Error(`Bunny Stream Fetch failed internally: ${JSON.stringify(json)}`);
-    }
+    // Upload bytes to Bunny
+    console.log(`Uploading ${arrayBuffer.byteLength} bytes directly to Bunny Stream...`);
+    const uploadRes = await fetch(`https://video.bunnycdn.com/library/${BUNNY_STREAM_LIBRARY_ID}/videos/${videoId}`, {
+        method: 'PUT',
+        headers: {
+            'AccessKey': BUNNY_STREAM_API_KEY
+        },
+        body: arrayBuffer
+    });
     
-    // Wait for Bunny video processing to complete
-    console.log(`Waiting for video processing to complete (ID: ${json.id})...`);
-    let isReady = false;
-    let attempts = 0;
-    while (!isReady && attempts < 60) { // Max 10 minutes wait (60 * 10s)
-        await new Promise(r => setTimeout(r, 10000));
-        attempts++;
-        const checkRes = await fetch(`https://video.bunnycdn.com/library/${BUNNY_STREAM_LIBRARY_ID}/videos/${json.id}`, {
-            headers: {
-                'AccessKey': BUNNY_STREAM_API_KEY,
-                'Accept': 'application/json'
-            }
-        });
-        if (checkRes.ok) {
-            const checkData = await checkRes.json();
-            if (checkData.status === 4) { // 4 = Finished
-                isReady = true;
-            } else if (checkData.status === 5) { // 5 = Failed
-                throw new Error(`Bunny Stream video processing failed.`);
-            }
-        }
-    }
-    if (!isReady) throw new Error(`Video processing timed out after 10 minutes.`);
-
-    return `https://${BUNNY_STREAM_CDN_HOSTNAME}/${json.id}/playlist.m3u8`;
+    if (!uploadRes.ok) throw new Error(`Failed to upload bytes to Bunny Stream: ${uploadRes.status}`);
+    
+    return `https://${BUNNY_STREAM_CDN_HOSTNAME}/${videoId}/playlist.m3u8`;
 }
 
 (async () => {
@@ -129,7 +118,7 @@ async function processVideo(videoFilename, productId) {
         sourceIdsExtracted: 0,
         existingSourceIds: 0,
         newSourceIds: 0,
-        maxAllowed: 100,
+        maxAllowed: 50,
         numberSelectedForImport: 0,
         successfullyImported: 0,
         alreadyExistedSkipped: 0,
@@ -165,9 +154,10 @@ async function processVideo(videoFilename, productId) {
 
     console.log('Starting Playwright for category discovery...');
     const browser = await chromium.launch({ headless: true });
-    const page = await browser.newPage();
+    const categoryPage = await browser.newPage();
+    const detailPage = await browser.newPage();
 
-    let res = await page.goto('https://indiankicks.in/shop?c=belts', { waitUntil: 'networkidle' });
+    let res = await categoryPage.goto('https://indiankicks.in/shop?c=belts', { waitUntil: 'domcontentloaded', timeout: 45000 });
     if (res.status() === 403 || res.status() === 429) {
         console.error(`FATAL: IndianKicks returned HTTP ${res.status()}. Stopping immediately as per rules.`);
         await browser.close();
@@ -175,20 +165,22 @@ async function processVideo(videoFilename, productId) {
     }
     
     // Check for rate limit or block challenge texts
-    const pageContent = await page.content();
+    const pageContent = await categoryPage.content();
     if (pageContent.toLowerCase().includes('rate limit') || pageContent.toLowerCase().includes('cloudflare') || pageContent.toLowerCase().includes('access denied')) {
         console.error(`FATAL: Detected rate limit or challenge block. Stopping immediately as per rules.`);
         await browser.close();
         process.exit(1);
     }
     
-    await page.waitForTimeout(5000);
+    await categoryPage.waitForTimeout(5000);
 
-    console.log('Loading all links...');
+    console.log('Loading links in batches...');
     let allLinks = new Set();
+    let clickCount = 0;
+    let keepDiscovering = true;
 
-    function extractLinks(page) {
-        return page.evaluate(() => {
+    function extractLinks(pageObj) {
+        return pageObj.evaluate(() => {
             const rootEl = document.querySelector('#root');
             if (!rootEl) return [];
             const fiberKey = Object.keys(rootEl).find(k => k.startsWith('__reactContainer$') || k.startsWith('__reactFiber$'));
@@ -220,82 +212,100 @@ async function processVideo(videoFilename, productId) {
         });
     }
 
-    let clickCount = 0;
-    while (true) {
-        const currentLinks = await extractLinks(page);
-        const beforeCount = allLinks.size;
-        currentLinks.forEach(l => allLinks.add(l));
-
-        console.log(`Click #${clickCount} | Unique Extracted: ${allLinks.size}`);
-
-        const loadMoreBtn = await page.$('button:has-text("Load More Product"), button:has-text("Load More")');
-        if (!loadMoreBtn) break;
-        const isVisible = await loadMoreBtn.isVisible();
-        const isDisabled = await loadMoreBtn.isDisabled();
-        if (!isVisible || isDisabled) break;
-
-        await loadMoreBtn.scrollIntoViewIfNeeded();
-        await page.waitForTimeout(500);
-        await loadMoreBtn.click();
-        clickCount++;
-        await page.waitForTimeout(4000);
-
-        if (allLinks.size === beforeCount && clickCount > 3) break;
-    }
-
-    console.log(`Discovered ${allLinks.size} unique links.`);
-    stats.totalDiscovered = allLinks.size;
-
-    let scrapedProducts = [];
-    const linkArray = Array.from(allLinks).map(s => 'https://indiankicks.in/product-detail/' + s);
-
-    console.log('Extracting product details...');
-    for (const link of linkArray) {
-        await page.goto(link, { waitUntil: 'networkidle' });
-        await page.waitForTimeout(4000);
-
-        const p = await page.evaluate(() => {
-            const rootEl = document.querySelector('#root');
-            if (!rootEl) return null;
-            const fiberKey = Object.keys(rootEl).find(k => k.startsWith('__reactContainer$') || k.startsWith('__reactFiber$'));
-            if (!fiberKey) return null;
-            let curr = rootEl[fiberKey];
-            let found = null;
-            function search(node, depth = 0) {
-                if (!node || depth > 50 || found) return;
-                if (node.memoizedState) {
-                    let s = node.memoizedState;
-                    while (s) {
-                        if (s.memoizedState && typeof s.memoizedState === 'object') {
-                            const val = s.memoizedState;
-                            if (val && val.productName && val.wpBasicPrice) {
-                                found = val;
-                                return;
-                            }
-                        }
-                        s = s.next;
-                    }
+    while (stats.successfullyImported < 50 && keepDiscovering) {
+        let batchLinks = [];
+        while (batchLinks.length < 150) {
+            const currentLinks = await extractLinks(categoryPage);
+            const beforeCount = allLinks.size;
+            currentLinks.forEach(l => {
+                if (!allLinks.has(l)) {
+                    allLinks.add(l);
+                    batchLinks.push(l);
                 }
-                if (node.child) search(node.child, depth + 1);
-                if (node.sibling) search(node.sibling, depth + 1);
-            }
-            search(curr);
-            return found;
-        });
+            });
 
-        if (p) {
-            const sourceId = p.productId;
-            if (!sourceId) {
-                stats.missingSourceIdSkipped++;
+            console.log(`Click #${clickCount} | Unique Extracted: ${allLinks.size} | In Batch: ${batchLinks.length}`);
+
+            if (batchLinks.length >= 150) break;
+
+            const loadMoreBtn = await categoryPage.$('button:has-text("Load More Product"), button:has-text("Load More")');
+            if (!loadMoreBtn) { keepDiscovering = false; break; }
+            const isVisible = await loadMoreBtn.isVisible();
+            const isDisabled = await loadMoreBtn.isDisabled();
+            if (!isVisible || isDisabled) { keepDiscovering = false; break; }
+
+            await loadMoreBtn.scrollIntoViewIfNeeded();
+            await categoryPage.waitForTimeout(500);
+            await loadMoreBtn.click();
+            clickCount++;
+            await categoryPage.waitForTimeout(4000);
+
+            if (allLinks.size === beforeCount && clickCount > 3) { keepDiscovering = false; break; }
+        }
+
+        if (batchLinks.length === 0) break;
+
+        console.log(`\nDiscovered batch of ${batchLinks.length} new links. Extracting details...`);
+        stats.totalDiscovered = allLinks.size;
+
+        let scrapedProducts = [];
+        for (const linkSlug of batchLinks) {
+            const link = 'https://indiankicks.in/product-detail/' + linkSlug;
+            try {
+                await detailPage.goto(link, { waitUntil: 'networkidle', timeout: 45000 });
+                await detailPage.waitForTimeout(4000);
+            } catch (e) {
+                console.error(`Skipping ${linkSlug} due to timeout/navigation error: ${e.message}`);
                 continue;
             }
-            p.extractedSourceId = String(sourceId);
-            scrapedProducts.push(p);
-            stats.sourceIdsExtracted++;
-        }
-    }
 
-    console.log(`\nReconciling ${scrapedProducts.length} scraped products with backend...`);
+            const p = await detailPage.evaluate(() => {
+                const rootEl = document.querySelector('#root');
+                if (!rootEl) return null;
+                const fiberKey = Object.keys(rootEl).find(k => k.startsWith('__reactContainer$') || k.startsWith('__reactFiber$'));
+                if (!fiberKey) return null;
+                let curr = rootEl[fiberKey];
+                let found = null;
+                function search(node, depth = 0) {
+                    if (!node || depth > 50 || found) return;
+                    if (node.memoizedState) {
+                        let s = node.memoizedState;
+                        while (s) {
+                            if (s.memoizedState && typeof s.memoizedState === 'object') {
+                                const val = s.memoizedState;
+                                if (val && val.productName && val.wpBasicPrice) {
+                                    found = val;
+                                    return;
+                                }
+                            }
+                            s = s.next;
+                        }
+                    }
+                    if (node.child) search(node.child, depth + 1);
+                    if (node.sibling) search(node.sibling, depth + 1);
+                }
+                search(curr);
+                return found;
+            });
+
+            if (p) {
+                const sourceId = p.id;
+                if (!sourceId) {
+                    stats.missingSourceIdSkipped++;
+                    continue;
+                }
+                p.extractedSourceId = String(sourceId);
+                scrapedProducts.push(p);
+                stats.sourceIdsExtracted++;
+            }
+        }
+        
+        if (scrapedProducts.length === 0) {
+            console.log("No valid products scraped in this batch. Continuing...");
+            continue;
+        }
+
+        console.log(`\nReconciling ${scrapedProducts.length} scraped products with backend...`);
     
     const batchLookupReq = await fetch(`${API_URL}/api/v1/admin/products/batch-lookup`, {
         method: 'POST',
@@ -319,15 +329,16 @@ async function processVideo(videoFilename, productId) {
     const existingSourceIds = await batchLookupReq.json(); // List of strings
     const existingSet = new Set(existingSourceIds.map(String));
     
-    stats.existingSourceIds = existingSet.size;
+    stats.existingSourceIds += existingSet.size;
     
     let newProducts = scrapedProducts.filter(p => !existingSet.has(p.extractedSourceId));
-    stats.newSourceIds = newProducts.length;
-    stats.alreadyExistedSkipped = scrapedProducts.length - newProducts.length;
+    stats.newSourceIds += newProducts.length;
+    stats.alreadyExistedSkipped += (scrapedProducts.length - newProducts.length);
 
-    const toProcess = newProducts.slice(0, 100);
-    stats.numberSelectedForImport = toProcess.length;
-    console.log(`Selected ${stats.numberSelectedForImport} new products for import (Limit: 100).`);
+    const needed = 50 - stats.successfullyImported;
+    const toProcess = newProducts.slice(0, needed);
+    stats.numberSelectedForImport += toProcess.length;
+    console.log(`Selected ${toProcess.length} new products from this batch (Limit: 50).`);
 
     for (let i = 0; i < toProcess.length; i++) {
         const p = toProcess[i];
@@ -339,7 +350,7 @@ async function processVideo(videoFilename, productId) {
             const sourceSellingPrice = parseFloat(p.wpBasicPrice) || parseFloat(p.sourceSellingPrice) || 0;
             const finalSellingPrice = (Math.random() < 0.4) ? generateCharmPrice(originalPrice, sourceSellingPrice) : sourceSellingPrice;
 
-            const cleanName = normalizeProductName(p.productName);
+
 
             let sourceImages = [];
             let g = p.gallery;
@@ -356,7 +367,7 @@ async function processVideo(videoFilename, productId) {
                 const ikFilename = `${String(imageIndex).padStart(2, '0')}.jpg`;
                 const folderPath = `/kicks-aura/indiankicks/belts/${sourceId}/`;
                 try {
-                    const b64 = await downloadImage(imgUrl, page);
+                    const b64 = await downloadImage(imgUrl, detailPage);
                     const bunnyBuffer = Buffer.from(b64, 'base64');
                     const bunnyUrl = await uploadToBunnyStorage(bunnyBuffer, ikFilename, folderPath);
                     bunnyUrls.push(bunnyUrl);
@@ -383,16 +394,10 @@ async function processVideo(videoFilename, productId) {
                 }
             }
 
-            const content = contentGenerator.generateProductContent({
-                productName: cleanName,
-                category: "Belts",
-                brand: p.brandName || "Unknown"
-            });
-
             const payload = {
-                name: cleanName,
+                name: p.productName,
                 originalName: p.productName,
-                brand: content.searchBrand || "Unknown",
+                brand: p.brandName || "Unknown",
                 category: "Belts",
                 basePrice: originalPrice,
                 discountedPrice: finalSellingPrice,
@@ -400,10 +405,10 @@ async function processVideo(videoFilename, productId) {
                 videoUrls: videoUrls,
                 visible: false,
                 variants: [],
-                searchName: content.searchName,
-                searchBrand: content.searchBrand,
-                searchText: content.searchText,
-                description: content.description,
+                searchName: p.productName,
+                searchBrand: p.brandName || "Unknown",
+                searchText: p.productName,
+                description: "",
                 sourceSite: "indiankicks.in",
                 sourceProductId: sourceId
             };
@@ -445,6 +450,12 @@ async function processVideo(videoFilename, productId) {
             console.error(`Failed product ${sourceId}: ${err.message}`);
         }
     }
+    
+    if (stats.successfullyImported >= 50) {
+        console.log("\nReached limit of 50 imported products. Stopping discovery.");
+        break;
+    }
+}
 
     await browser.close();
 

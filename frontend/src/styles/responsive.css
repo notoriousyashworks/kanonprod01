@@ -235,8 +235,8 @@ img, video, iframe, embed, object {
     color: #111;
   }
   .mobile-nav-link--active {
-    border-left-color: #315bfb;
-    color: #315bfb;
+    border-left-color: #0a0a0a;
+    color: #0a0a0a;
     font-weight: 600;
     background: rgba(49, 91, 251, 0.06);
   }

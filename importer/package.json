@@ -4,7 +4,13 @@
   "description": "",
   "main": "download.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "migrate:media": "node migrate_media_to_bunny.js",
+    "migrate:dry-run": "node migrate_media_to_bunny.js --dry-run",
+    "migrate:validate": "node migrate_media_to_bunny.js --validate",
+    "migrate:retry-failed": "node migrate_media_to_bunny.js --retry-failed",
+    "migrate:cloudinary": "node migrate_media_to_bunny.js --provider cloudinary",
+    "migrate:imagekit": "node migrate_media_to_bunny.js --provider imagekit"
   },
   "keywords": [],
   "author": "",
@@ -12,6 +18,7 @@
   "dependencies": {
     "dotenv": "^17.4.2",
     "imagekit": "^6.0.0",
+    "pg": "^8.23.0",
     "playwright": "^1.62.1"
   }
 }
