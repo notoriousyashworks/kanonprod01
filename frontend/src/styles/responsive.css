@@ -559,72 +559,11 @@ img, video, iframe, embed, object {
 
 /* ══════════════════════════════════════════════
    PRODUCTS PAGE
+   NOTE: All products-page layout rules are defined in products.css.
+   Do NOT add products-layout or products-grid rules here — this file
+   is bundled into a shared CSS chunk that loads AFTER products.css
+   in the Vite build output, which would cause cascade conflicts.
    ══════════════════════════════════════════════ */
-@media (max-width: 1023px) {
-  .products-layout {
-    flex-direction: column;
-    padding: 0 16px;
-    gap: 0;
-  }
-
-  .products-left-column {
-    width: 100%;
-    margin-top: 16px;
-  }
-
-  .filters-sort-btn {
-    margin-left: 0;
-  }
-
-  .products-main {
-    width: 100%;
-    margin-top: 16px;
-  }
-
-  .category-title {
-    font-size: 26px;
-  }
-}
-
-@media (max-width: 900px) {
-  .products-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-  }
-}
-
-@media (max-width: 767px) {
-  .products-layout {
-    padding: 0 12px;
-    margin-bottom: 48px;
-  }
-
-  .products-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-  }
-
-  .category-title {
-    font-size: 22px;
-  }
-
-  .filter-chip {
-    padding: 8px 14px;
-    font-size: 12px;
-  }
-
-  .products-sidebar {
-    width: 85%;
-    max-width: 320px;
-  }
-}
-
-@media (max-width: 480px) {
-  .products-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-  }
-}
 
 /* ══════════════════════════════════════════════
    PRODUCT DETAILS PAGE

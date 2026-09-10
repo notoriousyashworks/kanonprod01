@@ -590,6 +590,11 @@ details[open] > .filter-summary::after {
     margin-left: 0;
   }
 
+  .products-main {
+    width: 100%;
+    margin-top: 16px;
+  }
+
   .products-sidebar {
     width: 85%;
     max-width: 340px;
