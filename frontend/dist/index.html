@@ -4,19 +4,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sneakers & Fashion Accessories for Men & Women</title>
-  <link rel="icon" type="image/svg+xml" href="/assets/favicon-BtsTzBdj.svg">
+  <link rel="icon" type="image/svg+xml" href="/assets/favicon-CiTwR4kk.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   
   <!-- HLS.js for Adaptive Bitrate Video Streaming -->
   <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.7/dist/hls.min.js"></script>
-  <script type="module" crossorigin src="/assets/main-iHikO-sV.js"></script>
-  <link rel="modulepreload" crossorigin href="/assets/login-modal.js_v_1-CinEOgZG.js">
-  <link rel="modulepreload" crossorigin href="/assets/cart-sidebar-CPu_dLYQ.js">
-  <link rel="modulepreload" crossorigin href="/assets/profile-DXOgewGM.js">
-  <link rel="stylesheet" crossorigin href="/assets/main-Ca61b8Wu.css">
-  <link rel="stylesheet" crossorigin href="/assets/product-card-CF2rMuXa.css">
+  <script type="module" crossorigin src="/assets/main-CdrZX3Qo.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/login-modal.js_v_1-B8vGuk4e.js">
+  <link rel="modulepreload" crossorigin href="/assets/cart-sidebar-qZQMhp7N.js">
+  <link rel="modulepreload" crossorigin href="/assets/profile-BnF4qq_7.js">
+  <link rel="stylesheet" crossorigin href="/assets/main-Bl-uaGWE.css">
+  <link rel="stylesheet" crossorigin href="/assets/product-card-BmPcf6dz.css">
 </head>
 <body>
   <!-- Global Preloader -->
@@ -56,19 +56,30 @@
   <main>
     <!-- Hero Banner -->
     <style>
+      /* ── Full-viewport hero ────────────────────────────────── */
+      .hero-banner {
+        padding: 0 !important;
+        margin: 0;
+      }
+
+      .hero-banner .container {
+        padding: 0 !important;
+        max-width: none !important;
+        width: 100% !important;
+        text-align: left !important;
+      }
+
       .hero-banner-wrapper {
         position: relative;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 14px;
-        margin-top: 8px;
-        width: min(calc(100vw - 96px), 1500px);
-        max-width: 1500px;
-        overflow: hidden;
-        padding: 3px;
+        display: block;
+        width: 100vw !important;
+        max-width: 100vw !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
         background: #000;
-        box-shadow: 0 10px 28px rgba(0,0,0,0.18);
+        overflow: hidden;
       }
 
       .hero-banner-wrapper img {
@@ -76,22 +87,25 @@
         width: 100%;
         height: auto;
         display: block;
-        border-radius: 11px; /* Slightly smaller than wrapper to fit perfectly */
+        border-radius: 0 !important;
         z-index: 1;
-        background: #000; /* Prevent transparency bleeding */
+        background: #000;
       }
+
       .hero-carousel {
         position: relative;
         z-index: 1;
         width: 100%;
+        /* Fill the viewport minus header and an 130px offset to show more of the next section */
+        height: calc(100dvh - var(--ka-header-h, 118px) - 130px);
+        min-height: 400px;
+        max-height: calc(100dvh - 130px);
         overflow: hidden;
-        border-radius: 11px;
+        border-radius: 0 !important;
         background: #000;
         cursor: grab;
         box-sizing: border-box;
-        aspect-ratio: 1280 / 480;
-        min-height: clamp(360px, 45vh, 500px);
-        max-height: min(55vh, 550px);
+        aspect-ratio: unset;
         touch-action: pan-y;
         user-select: none;
       }
@@ -255,13 +269,13 @@
           transform: translateY(-2px);
         }
         .hero-banner-wrapper {
-          width: min(calc(100vw - 48px), 1180px);
-          margin-top: 14px;
+          width: 100vw !important;
+          margin: 0 !important;
         }
         .hero-carousel {
-          aspect-ratio: 2 / 1;
-          min-height: auto;
-          max-height: none;
+          height: calc(100dvh - var(--ka-header-h, 110px) - 130px);
+          min-height: 300px;
+          aspect-ratio: unset !important;
         }
         .hero-carousel-arrow {
           display: none;
@@ -280,7 +294,7 @@
       }
     </style>
     <section class="hero-banner">
-      <div class="container" style="padding: 0; text-align: center;">
+      <div class="container">
         <div class="hero-banner-wrapper">
           <div class="hero-carousel" id="hero-carousel" aria-roledescription="banner" aria-label="Featured offers">
             <div class="hero-carousel-track">
@@ -354,7 +368,7 @@
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
             </div>
             <h3>24/7 WhatsApp Support</h3>
-            <p>Our captains respond in less than 10 minutes.</p>
+            <p>Our Team responds in less than 10 minutes.</p>
           </div>
           <div class="feature-card">
             <div class="feature-icon">
@@ -391,27 +405,31 @@
       </div>
     </section>
 
-    <!-- Customer Reviews -->
-    <section id="customer-reviews" class="customer-reviews">
-      <div class="container">
-        <h2 class="section-title">CUSTOMER REVIEWS</h2>
-      </div>
-      <div class="reviews-carousel">
-        <button class="review-arrow review-arrow--prev" type="button" aria-label="Previous reviews">&lsaquo;</button>
-        <div class="reviews-track">
-          <!-- Skeleton loaders -->
-          <div class="review-card skeleton"></div>
-          <div class="review-card skeleton"></div>
-          <div class="review-card skeleton"></div>
-          <div class="review-card skeleton"></div>
-        </div>
-        <button class="review-arrow review-arrow--next" type="button" aria-label="Next reviews">&rsaquo;</button>
-      </div>
-    </section>
 
   </main>
 
   <div id="footer-container"></div>
 
+  <script>
+    // Measure actual sticky header height and keep carousel perfectly calibrated
+    (function() {
+      function setHeaderHeight() {
+        const header = document.querySelector('.header');
+        if (header) {
+          const h = header.getBoundingClientRect().height;
+          document.documentElement.style.setProperty('--ka-header-h', h + 'px');
+        }
+      }
+      // Run after fonts + navbar render
+      requestAnimationFrame(() => {
+        requestAnimationFrame(setHeaderHeight);
+      });
+      window.addEventListener('resize', setHeaderHeight, { passive: true });
+      // Also run when navbar HTML is injected (mutation observer on navbar-container)
+      const obs = new MutationObserver(() => { setHeaderHeight(); obs.disconnect(); });
+      const nc = document.getElementById('navbar-container');
+      if (nc) obs.observe(nc, { childList: true, subtree: true });
+    })();
+  </script>
 </body>
 </html>
