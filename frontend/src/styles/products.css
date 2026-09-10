@@ -595,13 +595,15 @@ details[open] > .filter-summary::after {
     max-width: 340px;
   }
 
-  .products-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 26px 18px;
-  }
-
   .category-title {
     font-size: 26px;
+  }
+}
+
+@media (max-width: 900px) {
+  .products-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 22px 16px;
   }
 }
 

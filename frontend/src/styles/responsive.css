@@ -581,13 +581,15 @@ img, video, iframe, embed, object {
     margin-top: 16px;
   }
 
+  .category-title {
+    font-size: 26px;
+  }
+}
+
+@media (max-width: 900px) {
   .products-grid {
     grid-template-columns: repeat(3, 1fr);
     gap: 16px;
-  }
-
-  .category-title {
-    font-size: 26px;
   }
 }
 
