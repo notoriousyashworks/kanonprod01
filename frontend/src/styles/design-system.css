@@ -11,10 +11,10 @@
   --color-on-primary-container: #fffbff;
   --color-inverse-primary: #ffb3b1;
 
-  --color-secondary: #485f84;
+  --color-secondary: #111111;
   --color-on-secondary: #ffffff;
-  --color-secondary-container: #bbd3fd;
-  --color-on-secondary-container: #445a7f;
+  --color-secondary-container: #f0f0f0;
+  --color-on-secondary-container: #333333;
 
   --color-tertiary: #336366;
   --color-on-tertiary: #ffffff;

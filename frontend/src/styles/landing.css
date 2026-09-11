@@ -214,11 +214,11 @@
 }
 
 .btn-explore:hover {
-  background: #dc2626;
-  border-color: #dc2626;
+  background: #333333;
+  border-color: #333333;
   color: #ffffff;
   transform: translateY(-1px);
-  box-shadow: 0 16px 34px rgba(220, 38, 38, 0.2);
+  box-shadow: 0 16px 34px rgba(17, 17, 17, 0.18);
 }
 
 /* Customer Reviews */
@@ -626,7 +626,7 @@
 
 .feature-card:hover .feature-icon {
   transform: rotate(-4deg) scale(1.08);
-  background-color: #ffe1e1;
+  background-color: #e8e8e8;
 }
 
 .new-arrivals,
