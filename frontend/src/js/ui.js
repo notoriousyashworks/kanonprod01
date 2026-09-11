@@ -3,7 +3,7 @@
    ============================================ */
 import { isWishlisted, toggleWishlistItem } from './wishlist.js';
 import { initLoginModalTrigger } from './login-modal.js';
-import { getAllProducts } from './api.js';
+import { getAllProducts, getCategories } from './api.js';
 
 // Toast notifications
 export function showToast(message, type = 'info') {
@@ -361,7 +361,7 @@ export function getNavbarHTML(activePage = 'home') {
     <header class="header">
       <!-- Top Promo Bar -->
       <div class="header__promo-bar">
-        <strong>Extra Rs 200 Off</strong> <span class="promo-divider">|</span> <span class="promo-subtext">on Prepaid Orders</span>
+        <strong>Extra Rs 200 Off</strong> <span class="promo-subtext">on Prepaid Orders</span> <span class="promo-divider">|</span> <strong>COD Available</strong> <span class="promo-subtext">(₹ 99 Advance)</span>
       </div>
 
       <!-- Top Bar: Logo, Search, Icons -->
@@ -382,7 +382,14 @@ export function getNavbarHTML(activePage = 'home') {
           </div>
           
           <a href="/" class="header__logo">
-            <img src="/logos/headlogo.png" alt="KICKS AURA" class="header__logo-img" />
+            <div class="header__logo-text-wrapper">
+              <div class="header__logo-brand">
+                <span class="brand-kicks">Kicks</span><span class="brand-aura">Aura</span>
+              </div>
+              <div class="header__logo-sub">
+                <span>PREMIUM</span> <span class="sub-divider">|</span> <span class="sub-highlight">UNISEX</span> <span class="sub-divider">|</span> <span>CURATED</span>
+              </div>
+            </div>
           </a>
           <div class="header__search">
             <div class="header__search-icon-left">
@@ -439,10 +446,15 @@ export function getNavbarHTML(activePage = 'home') {
       <nav class="header__nav">
         <div class="header__nav-inner desktop-nav-centered">
           <a href="/" class="nav-link ${activePage === 'home' ? 'nav-link--active' : ''}">HOME</a>
-          <a href="/#shop-category" class="nav-link ${activePage === 'products' ? 'nav-link--active' : ''}">
-            CATEGORIES
-            <svg width="10" height="6" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg>
-          </a>
+          <div class="nav-item-dropdown">
+            <a href="/#shop-category" class="nav-link ${activePage === 'products' ? 'nav-link--active' : ''}">
+              CATEGORIES
+              <svg width="10" height="6" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg>
+            </a>
+            <div class="nav-dropdown-content" id="desktop-nav-categories">
+              <!-- Categories injected via JS -->
+            </div>
+          </div>
           <a href="/#new-arrivals" class="nav-link">NEW ARRIVALS</a>
           <a href="/shipping-policy" class="nav-link ${activePage === 'shipping' ? 'nav-link--active' : ''}">SHIPPING POLICY</a>
         </div>
@@ -480,59 +492,6 @@ export function getNavbarHTML(activePage = 'home') {
         </div>
       </div>
 
-      <!-- Banner (Marquee) -->
-      <div class="header__banner">
-        <div class="header__banner-marquee">
-          <div class="marquee-content">
-            <span class="dot">•</span>
-            <span class="text-blue">COUPON CODE : GRAB100 (Flat ₹100 Off on Every Product)</span>
-            <span class="dot">•</span>
-            <span class="text-blue">PREPAID ORDERS (₹ 200 Off)</span>
-            <span class="dot">•</span>
-            <span class="text-blue">COUPON CODE : GRAB100 (Flat ₹100 Off on Every Product)</span>
-            <span class="dot">•</span>
-            <span>COD AVAILABLE (only ₹ 99 Advance)</span>
-            <span class="dot">•</span>
-            <span class="text-blue">1000+ HAPPY CUSTOMERS ACROSS INDIA</span>
-          </div>
-          <div class="marquee-content" aria-hidden="true">
-            <span class="dot">•</span>
-            <span class="text-blue">COUPON CODE : GRAB100 (Flat ₹100 Off on Every Product)</span>
-            <span class="dot">•</span>
-            <span class="text-blue">PREPAID ORDERS (₹ 200 Off)</span>
-            <span class="dot">•</span>
-            <span class="text-blue">COUPON CODE : GRAB100 (Flat ₹100 Off on Every Product)</span>
-            <span class="dot">•</span>
-            <span>COD AVAILABLE (only ₹ 99 Advance)</span>
-            <span class="dot">•</span>
-            <span class="text-blue">1000+ HAPPY CUSTOMERS ACROSS INDIA</span>
-          </div>
-          <div class="marquee-content" aria-hidden="true">
-            <span class="dot">•</span>
-            <span class="text-blue">COUPON CODE : GRAB100 (Flat ₹100 Off on Every Product)</span>
-            <span class="dot">•</span>
-            <span class="text-blue">PREPAID ORDERS (₹ 200 Off)</span>
-            <span class="dot">•</span>
-            <span class="text-blue">COUPON CODE : GRAB100 (Flat ₹100 Off on Every Product)</span>
-            <span class="dot">•</span>
-            <span>COD AVAILABLE (only ₹ 99 Advance)</span>
-            <span class="dot">•</span>
-            <span class="text-blue">1000+ HAPPY CUSTOMERS ACROSS INDIA</span>
-          </div>
-          <div class="marquee-content" aria-hidden="true">
-            <span class="dot">•</span>
-            <span class="text-blue">COUPON CODE : GRAB100 (Flat ₹100 Off on Every Product)</span>
-            <span class="dot">•</span>
-            <span class="text-blue">PREPAID ORDERS (₹ 200 Off)</span>
-            <span class="dot">•</span>
-            <span class="text-blue">COUPON CODE : GRAB100 (Flat ₹100 Off on Every Product)</span>
-            <span class="dot">•</span>
-            <span>COD AVAILABLE (only ₹ 99 Advance)</span>
-            <span class="dot">•</span>
-            <span class="text-blue">1000+ HAPPY CUSTOMERS</span>
-          </div>
-        </div>
-      </div>
     </header>
   
     <!-- Wishlist Sidebar -->
@@ -815,9 +774,27 @@ export function initMobileMenu() {
   });
 }
 
+// Initialize Categories Dropdown
+export async function initCategoriesDropdown() {
+  const container = document.getElementById('desktop-nav-categories');
+  if (!container) return;
+  
+  try {
+    const categories = await getCategories();
+    if (!categories || categories.length === 0) return;
+    
+    container.innerHTML = categories.map(c => `
+      <a href="/products?categories=${encodeURIComponent(c.name)}" class="nav-dropdown-link">${c.name}</a>
+    `).join('');
+  } catch (error) {
+    console.error('Failed to load categories for dropdown:', error);
+  }
+}
+
 // Automatically initialize when DOM is ready
 function initializeUI() {
   injectFooter();
+  initCategoriesDropdown();
   // initPurchaseNotifications(); // Disabled
 }
 
