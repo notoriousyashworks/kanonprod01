@@ -245,6 +245,7 @@ export function formatVideoPoster(url) {
   if (!url || typeof url !== 'string') return url;
   if (url.includes('res.cloudinary.com')) return formatCloudinaryVideoPoster(url);
   if (isImageKitUrl(url)) return formatImageKitVideoPoster(url);
+  if (url.includes('.b-cdn.net') && url.includes('.m3u8')) return url.replace('playlist.m3u8', 'thumbnail.jpg');
   return url;
 }
 
@@ -256,6 +257,7 @@ export function formatVideoHls(url) {
   if (!url || typeof url !== 'string') return url;
   if (url.includes('res.cloudinary.com')) return formatCloudinaryVideoHls(url);
   if (isImageKitUrl(url)) return url; // raw URL; HLS.js will fail gracefully → MP4 fallback
+  if (url.includes('.b-cdn.net') && url.includes('.m3u8')) return url; // Already HLS
   return url;
 }
 
@@ -264,6 +266,7 @@ export function formatVideoMp4(url) {
   if (!url || typeof url !== 'string') return url;
   if (url.includes('res.cloudinary.com')) return formatCloudinaryVideoMp4(url);
   if (isImageKitUrl(url)) return formatImageKitVideoMp4(url);
+  if (url.includes('.b-cdn.net') && url.includes('.m3u8')) return url.replace('playlist.m3u8', 'play_720p.mp4');
   return url;
 }
 
@@ -272,6 +275,7 @@ export function formatVideoHoverPreview(url) {
   if (!url || typeof url !== 'string') return url;
   if (url.includes('res.cloudinary.com')) return formatCloudinaryHoverPreview(url);
   if (isImageKitUrl(url)) return formatImageKitHoverPreview(url);
+  if (url.includes('.b-cdn.net') && url.includes('.m3u8')) return url.replace('playlist.m3u8', 'play_480p.mp4');
   return url;
 }
 
