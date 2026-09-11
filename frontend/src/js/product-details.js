@@ -191,7 +191,10 @@ window.initVideoPlayback = function(video) {
   }
 
   if (window.Hls && Hls.isSupported()) {
-    const hls = new Hls({ startLevel: -1 });
+    const hls = new Hls({ 
+      startLevel: -1,
+      abrEwmaDefaultEstimate: 1200000 
+    });
     video.hlsInstance = hls;
 
     hls.on(Hls.Events.MEDIA_ATTACHED, function () {
