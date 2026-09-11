@@ -359,19 +359,24 @@ export function createProductCard(product) {
 export function getNavbarHTML(activePage = 'home') {
   return `
     <header class="header">
+      <!-- Top Promo Bar -->
+      <div class="header__promo-bar">
+        <strong>Extra Rs 200 Off</strong> <span class="promo-divider">|</span> <span class="promo-subtext">on Prepaid Orders</span>
+      </div>
+
       <!-- Top Bar: Logo, Search, Icons -->
-      <div class="header__top">
+      <div class="header__top" style="background-color: #000000; border-bottom: none;">
         <div class="container header__top-inner">
           <!-- Hamburger + Home (mobile only) -->
           <div class="mobile-left-actions">
-            <button class="icon-btn mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu" aria-expanded="false">
+            <button class="icon-btn mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu" aria-expanded="false" style="color: #fff;">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
                 <line x1="3" y1="6" x2="21" y2="6"/>
                 <line x1="3" y1="12" x2="21" y2="12"/>
                 <line x1="3" y1="18" x2="21" y2="18"/>
               </svg>
             </button>
-            <a href="/" class="icon-btn mobile-home-btn" aria-label="Home">
+            <a href="/" class="icon-btn mobile-home-btn" aria-label="Home" style="color: #fff;">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
             </a>
           </div>
@@ -391,18 +396,18 @@ export function getNavbarHTML(activePage = 'home') {
             <button class="header__search-btn" id="nav-search-btn" style="display:none;"></button>
           </div>
           <div class="header__icons">
-            <button class="icon-btn nav-icon" id="wishlist-trigger" aria-label="Wishlist" style="position: relative; background:none; border:none; cursor:pointer;">
+            <button class="icon-btn nav-icon" id="wishlist-trigger" aria-label="Wishlist" style="position: relative; background:none; border:none; cursor:pointer; color: #fff;">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
               </svg>
               <span class="cart-badge nav-badge" id="wishlist-badge" style="display: none;">0</span>
             </button>
-            <button class="icon-btn" id="cart-trigger" style="position: relative; background:none; border:none; cursor:pointer;">
+            <button class="icon-btn" id="cart-trigger" style="position: relative; background:none; border:none; cursor:pointer; color: #fff;">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
               <span class="cart-badge navbar__cart-count" id="cart-badge">0</span>
             </button>
             <div class="profile-dropdown-wrap" id="profile-dropdown-wrap">
-              <button class="icon-btn profile-icon-btn" id="profile-icon-btn" aria-label="Account" aria-haspopup="true">
+              <button class="icon-btn profile-icon-btn" id="profile-icon-btn" aria-label="Account" aria-haspopup="true" style="color: #fff;">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
               </button>
               <div class="profile-dropdown" id="profile-dropdown" role="menu">
@@ -432,12 +437,14 @@ export function getNavbarHTML(activePage = 'home') {
       
       <!-- Nav Links -->
       <nav class="header__nav">
-        <div class="header__nav-inner">
-          <a href="/" class="nav-link ${activePage === 'home' ? 'nav-link--active' : ''}">Home</a>
-          <a href="/#shop-category" class="nav-link ${activePage === 'products' ? 'nav-link--active' : ''}">Categories</a>
-          <a href="/#new-arrivals" class="nav-link">New Arrivals</a>
-          <a href="/shipping-policy" class="nav-link ${activePage === 'shipping' ? 'nav-link--active' : ''}">Shipping Policy</a>
-          <a href="/#customer-reviews" class="nav-link">Customer Reviews</a>
+        <div class="header__nav-inner desktop-nav-centered">
+          <a href="/" class="nav-link ${activePage === 'home' ? 'nav-link--active' : ''}">HOME</a>
+          <a href="/#shop-category" class="nav-link ${activePage === 'products' ? 'nav-link--active' : ''}">
+            CATEGORIES
+            <svg width="10" height="6" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg>
+          </a>
+          <a href="/#new-arrivals" class="nav-link">NEW ARRIVALS</a>
+          <a href="/shipping-policy" class="nav-link ${activePage === 'shipping' ? 'nav-link--active' : ''}">SHIPPING POLICY</a>
         </div>
       </nav>
 
