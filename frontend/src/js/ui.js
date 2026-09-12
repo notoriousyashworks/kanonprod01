@@ -357,11 +357,17 @@ export function createProductCard(product) {
 
 // Generate navbar HTML
 export function getNavbarHTML(activePage = 'home') {
+  setTimeout(() => initCategoriesDropdown(), 0);
   return `
     <header class="header">
       <!-- Top Promo Bar -->
       <div class="header__promo-bar">
-        <strong>Extra Rs 200 Off</strong> <span class="promo-subtext">on Prepaid Orders</span> <span class="promo-divider">|</span> <strong>COD Available</strong> <span class="promo-subtext">(₹ 99 Advance)</span>
+        <div class="promo-slide promo-slide-1">
+          <strong>Extra Rs 200 Off</strong> <span class="promo-subtext">on Prepaid Orders</span>
+        </div>
+        <div class="promo-slide promo-slide-2">
+          <strong>COD Available</strong> <span class="promo-subtext">(₹ 99 Advance)</span>
+        </div>
       </div>
 
       <!-- Top Bar: Logo, Search, Icons -->
@@ -530,47 +536,60 @@ export function getNavbarHTML(activePage = 'home') {
 export function getFooterHTML() {
   return `
     <footer id="footer" class="footer">
-      <div class="container footer__inner">
-        <div class="footer__col">
-          <h4>COMPANY</h4>
-          <a href="/">Home</a>
-          <a href="/about-us">About Us</a>
-          <a href="https://wa.me/${import.meta.env.VITE_WHATSAPP_NUMBER || '916239379751'}?text=Hey!" target="_blank" rel="noopener">Contact Us</a>
-          <div class="footer__contact-info">
-            <p><span>Address:</span> Phase 2, Chandigarh, India</p>
-            <p><span>Mobile:</span> +91 6239379751</p>
-            <p><span>Email:</span> kicksauraa@gmail.com</p>
+      <div class="footer__features">
+        <div class="footer__feature">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+          <h5>COD AVAILABLE</h5>
+          <p>(Only Rs 99 advance)</p>
+        </div>
+        <div class="footer__feature">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+          <h5>RS 200 OFF ON PREPAID</h5>
+          <p>Shipping</p>
+        </div>
+        <div class="footer__feature">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M3 22v-6h6"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path></svg>
+          <h5>EASY RETURNS & EXCHANGE</h5>
+          <p>Hassle-free within 7 days</p>
+        </div>
+      </div>
+      
+      <div class="footer__main">
+        <div class="footer__col footer__col--contact">
+          <h4>CUSTOMER CARE</h4>
+          <p><span>Address:</span> Phase 2, Chandigarh, India</p>
+          <p><span>Mobile:</span> +91 6239379751</p>
+          <p><span>Email:</span> kicksauraa@gmail.com</p>
+          <p><span>Store Time:</span> 11:00 AM - 8:00 PM, Monday - Saturday</p>
+        </div>
+        
+        <div class="footer__col footer__col--links-wrapper">
+          <div class="footer__links-col">
+            <a href="/">Home</a>
+            <a href="/about-us">About Us</a>
+            <a href="https://wa.me/${import.meta.env.VITE_WHATSAPP_NUMBER || '916239379751'}?text=Hey!" target="_blank" rel="noopener">Contact Us</a>
+          </div>
+          <div class="footer__links-col">
+            <a href="/shipping-policy">Shipping & Delivery Policy</a>
+            <a href="/return-exchange">Return, Exchange & Refund</a>
+            <a href="/terms-conditions">Terms & Conditions</a>
+            <a href="/privacy-policy">Privacy Policy</a>
           </div>
         </div>
-        <div class="footer__col">
-          <h4>POLICIES</h4>
-          <a href="/shipping-policy">Shipping & Delivery Policy</a>
-          <a href="/return-exchange">Return, Exchange & Refund</a>
-          <a href="/terms-conditions">Terms & Conditions</a>
-          <a href="/privacy-policy">Privacy Policy</a>
-        </div>
-        <div class="footer__col footer__brand">
-          <div class="footer__logo-text">KICKS<span class="text-red">AURA</span></div>
-          <div class="footer__socials">
-            <a href="https://wa.me/${import.meta.env.VITE_WHATSAPP_NUMBER || '916239379751'}?text=Hey!" target="_blank" rel="noopener">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21l1.65-3.8a9 9 0 1 1 3.4 2.9L3 21"></path><path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1"></path></svg>
-            </a>
-            <a href="https://www.youtube.com/@kicksauraa" target="_blank" rel="noopener">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33 2.78 2.78 0 0 0 1.94 2c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.33 29 29 0 0 0-.46-5.33z"></path><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"></polygon></svg>
-            </a>
-            <a href="https://x.com/kicksauraa" target="_blank" rel="noopener">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4l11.733 16h4.267l-11.733-16z"></path><path d="M4 20l6.768-6.768m2.46-2.46l6.772-6.772"></path></svg>
-            </a>
-            <a href="https://www.reddit.com/user/NoDebt5485/" target="_blank" rel="noopener">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8c-3.1 0-6.1.4-8 1.1 0 5 1.6 8 8 8s8-3 8-8c-1.9-.7-4.9-1.1-8-1.1Z"></path><path d="M12 8v-4l4-1"></path><circle cx="16" cy="3" r="1"></circle><circle cx="9" cy="13" r="1"></circle><circle cx="15" cy="13" r="1"></circle></svg>
-            </a>
-          </div>
-          <p class="footer__join-text">Join our WhatsApp channel for exclusive drops<br/>and member coupons</p>
-          <a href="https://whatsapp.com/channel/0029Vb8kKAtA2pLJLr1j7u3L" target="_blank" rel="noopener" class="btn-join-channel">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21l1.65-3.8a9 9 0 1 1 3.4 2.9L3 21"></path><path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1"></path></svg>
-            Join Channel
+        
+        <div class="footer__col footer__col--social">
+          <a href="https://instagram.com/kicksauraa" target="_blank" rel="noopener" aria-label="Instagram">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+            </svg>
           </a>
         </div>
+      </div>
+
+      <div class="footer__bottom">
+        <p>© 2026 Kicks Aura. All rights reserved.</p>
       </div>
     </footer>
   `;

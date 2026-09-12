@@ -576,114 +576,136 @@ button {
    Footer
    ============================================ */
 .footer {
-  background-color: #151515;
-  color: var(--text-white);
-  padding: 52px 0 46px;
+  background-color: #131313;
+  color: #ffffff;
   margin-top: 64px;
 }
 
-.footer__inner {
-  display: grid;
-  grid-template-columns: minmax(180px, 0.85fr) minmax(260px, 1fr) minmax(360px, 1.05fr);
-  gap: clamp(48px, 6vw, 96px);
-  align-items: start;
+.footer__features {
+  display: flex;
+  justify-content: center;
+  border-bottom: 1px solid #222222;
+  padding: 40px 20px;
 }
 
-.footer h4 {
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 22px;
+.footer__feature {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  flex: 1;
+  max-width: 400px;
+  border-right: 1px solid #222222;
+}
+
+.footer__feature:last-child {
+  border-right: none;
+}
+
+.footer__feature svg {
+  width: 28px;
+  height: 28px;
+  margin-bottom: 16px;
+  color: #e0e0e0;
+}
+
+.footer__feature h5 {
+  font-family: 'Montserrat', var(--font-primary), sans-serif;
+  font-size: 13px;
+  font-weight: 700;
   letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.footer__feature p {
+  font-size: 13px;
+  color: #888888;
+}
+
+.footer__main {
+  display: grid;
+  grid-template-columns: minmax(300px, 1.2fr) minmax(400px, 1.5fr) minmax(100px, 0.5fr);
+  gap: 40px;
+  padding: 60px 4% 80px;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
 .footer__col {
   display: flex;
   flex-direction: column;
-  gap: 13px;
-}
-
-.footer__col a {
-  color: #cccccc;
-  font-size: 14px;
-  transition: color 0.2s;
-}
-
-.footer__col a:hover {
-  color: var(--text-white);
-}
-
-.footer__contact-info {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-top: 4px;
-}
-
-.footer__contact-info p {
-  font-size: 13px;
-  color: #aaaaaa;
-  margin: 0;
-  line-height: 1.5;
-}
-
-.footer__contact-info p span {
-  color: #cccccc;
-  font-weight: 600;
-  margin-right: 4px;
-}
-
-.footer__brand {
   align-items: flex-start;
 }
 
-.footer__logo-text {
-  font-size: 22px;
-  font-weight: 800;
-  letter-spacing: -0.5px;
-  margin-bottom: 18px;
-}
-
-.footer__logo-text .text-red {
-  color: #c82333;
-}
-
-.footer__socials {
-  display: flex;
-  gap: 18px;
-  margin-bottom: 22px;
-}
-
-.footer__socials a {
-  color: var(--text-white);
-  transition: opacity 0.2s;
-}
-
-.footer__socials a:hover {
-  opacity: 0.8;
-}
-
-.footer__join-text {
-  font-size: 14px;
-  color: #cccccc;
-  line-height: 1.6;
-  margin-bottom: 18px;
-}
-
-.btn-join-channel {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background-color: #C82333;
-  color: var(--text-white) !important;
-  padding: 10px 16px;
-  border-radius: 6px;
-  font-size: 14px;
+.footer__col h4 {
+  font-family: 'Montserrat', var(--font-primary), sans-serif;
+  font-size: 16px;
   font-weight: 600;
-  transition: background-color 0.2s;
+  color: #999999;
+  letter-spacing: 1px;
+  margin-bottom: 24px;
 }
 
-.btn-join-channel:hover {
-  background-color: #a71d2a;
+.footer__col p {
+  font-size: 13px;
+  color: #888888;
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
+.footer__col p span {
+  font-weight: 600;
+  color: #bbbbbb;
+  margin-right: 4px;
+}
+
+.footer__col--links-wrapper {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: 80px;
+  padding-top: 45px;
+}
+
+.footer__links-col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.footer__links-col a {
+  color: #aaaaaa;
+  font-size: 14px;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.footer__links-col a:hover {
+  color: #ffffff;
+}
+
+.footer__col--social {
+  padding-top: 45px;
+  align-items: flex-end;
+}
+
+.footer__col--social a {
+  color: #888888;
+  transition: color 0.2s;
+}
+
+.footer__col--social a:hover {
+  color: #ffffff;
+}
+
+.footer__bottom {
+  text-align: left;
+  padding: 24px 4%;
+  border-top: 1px solid #222222;
+  font-size: 12px;
+  color: #555555;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
 /* ============================================
