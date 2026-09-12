@@ -238,11 +238,12 @@ button {
 }
 
 .header__logo-brand {
-  font-size: 38px;
+  font-size: 52px;
   font-weight: 900;
-  letter-spacing: -2px;
+  letter-spacing: -1px;
   line-height: 1;
-  font-family: 'Montserrat', var(--font-primary), sans-serif;
+  font-family: 'Barlow Condensed', 'Montserrat', var(--font-primary), sans-serif;
+  text-transform: uppercase;
 }
 
 .brand-kicks {
@@ -254,14 +255,14 @@ button {
 }
 
 .header__logo-sub {
-  margin-top: 4px;
-  font-size: 11px;
+  margin-top: 5px;
+  font-size: 10.5px;
   font-weight: 600;
-  letter-spacing: 1.5px;
-  color: #cccccc;
+  letter-spacing: 2px;
+  color: #aaaaaa;
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
   font-family: var(--font-primary), sans-serif;
   text-transform: uppercase;
 }
