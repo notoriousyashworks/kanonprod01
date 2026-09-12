@@ -432,12 +432,16 @@ button {
   align-items: center;
   justify-content: center;
   position: relative;
+  height: 100%;
+  width: 100%;
 }
 
 .nav-item-dropdown {
   position: relative;
   display: flex;
   align-items: stretch;
+  height: 100%;
+  width: 100%;
 }
 
 .nav-dropdown-content {
@@ -2698,11 +2702,12 @@ body.sidebar-lock #wishlist-sidebar {
 }
 
 .nav-link {
-  min-height: auto !important;
-  display: inline-flex !important;
+  height: 100% !important;
+  width: 100% !important;
+  display: flex !important;
   align-items: center;
   justify-content: center;
-  padding: 6px 14px !important;
+  padding: 0 !important;
   font-size: 14.5px !important;
   font-weight: 600 !important;
   letter-spacing: 0 !important;
