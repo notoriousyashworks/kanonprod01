@@ -415,8 +415,10 @@ button {
 }
 
 .desktop-nav-centered {
-  justify-content: center;
-  gap: 80px;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  justify-content: space-between;
 }
 
 .nav-item-dropdown {
@@ -430,9 +432,9 @@ button {
   position: absolute;
   top: 100%;
   left: 0;
-  background-color: #ffffff;
+  background-color: #111111;
   min-width: 220px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
   border-radius: 4px;
   padding: 12px 0;
   z-index: 200;
@@ -451,7 +453,7 @@ button {
 }
 
 .nav-dropdown-link {
-  color: #6b7280;
+  color: #999999;
   padding: 14px 24px;
   text-decoration: none;
   font-size: 11px;
@@ -464,8 +466,8 @@ button {
 }
 
 .nav-dropdown-link:hover {
-  background-color: #f9fafb;
-  color: #111111;
+  background-color: transparent;
+  color: #ffffff;
 }
 
 .nav-link {
