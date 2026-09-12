@@ -489,9 +489,6 @@ export function getNavbarHTML(activePage = 'home') {
           <a href="/shipping-policy" class="mobile-nav-link ${activePage === 'shipping' ? 'mobile-nav-link--active' : ''}">
             Shipping Policy
           </a>
-          <a href="/#customer-reviews" class="mobile-nav-link">
-            Customer Reviews
-          </a>
         </nav>
         <div class="mobile-nav-drawer__footer">
           <span>© 2025 Kicks Aura. All rights reserved.</span>
