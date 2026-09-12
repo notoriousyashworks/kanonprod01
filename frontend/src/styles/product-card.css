@@ -22,12 +22,12 @@
 
 .pc-image-wrap {
   position: relative;
-  background-color: #f5f5f5 !important;
+  background-color: #ffffff !important;
   aspect-ratio: 1 / 1.08;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid #eeeeee !important;
+  border: none !important;
   border-radius: 16px !important;
   overflow: hidden;
   box-shadow: none;
@@ -39,11 +39,12 @@
   object-fit: cover;
   background: transparent !important;
   mix-blend-mode: normal;
-  transition: transform 0.22s ease;
+  transition: transform 0.3s ease;
+  transform: scale(1.08);
 }
 
 .product-card-new:hover .pc-image-wrap img {
-  transform: scale(1.035);
+  transform: scale(1.13);
 }
 
 /* Handbags zoomed in */
