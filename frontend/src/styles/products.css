@@ -441,9 +441,9 @@ details[open] > .filter-summary::after {
 
 .products-grid .pc-image-wrap {
   aspect-ratio: 1 / 1.03;
-  padding: clamp(16px, 1.45vw, 24px);
-  border-radius: 14px;
-  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.06);
+  padding: 0;
+  border-radius: 16px;
+  box-shadow: none;
 }
 
 .products-grid .pc-body {
