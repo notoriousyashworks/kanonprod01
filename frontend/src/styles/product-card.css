@@ -28,7 +28,7 @@
   align-items: center;
   justify-content: center;
   border: 1px solid #eeeeee !important;
-  border-radius: 8px !important;
+  border-radius: 16px !important;
   overflow: hidden;
   box-shadow: none;
 }
