@@ -102,9 +102,9 @@ export async function getProductsByCategory(category) {
 }
 
 export async function getRelatedProducts(categoryName, excludeId, limit = 8) {
-  const data = await request(`/products/category/${encodeURIComponent(categoryName)}`);
+  const data = await filterProducts({ categories: [categoryName] }, 0, 20);
   const all = data.content || data;
-  const filtered = all.filter(p => String(p.id) !== String(excludeId));
+  const filtered = (all || []).filter(p => String(p.id) !== String(excludeId));
   // Shuffle and return up to `limit` products
   for (let i = filtered.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));

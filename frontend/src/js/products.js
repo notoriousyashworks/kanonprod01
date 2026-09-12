@@ -1,7 +1,7 @@
 /* ============================================
    Products Page — Search + Filter Engine
    ============================================ */
-import { filterProducts, getCategories, getBrands, getAllProducts } from './api.js';
+import { filterProducts, getCategories, getBrands, getAllProducts, getTrendingProducts as apiGetTrendingProducts } from './api.js';
 import { updateCartBadge } from './cart.js';
 import { getNavbarHTML, getFooterHTML, createProductCard, showToast, initSearch, initMobileMenu } from './ui.js';
 import { initWishlistSidebar, updateWishlistBadge } from './wishlist.js';
@@ -393,9 +393,8 @@ let trendingCache = null;
 async function getTrendingProducts() {
   if (trendingCache) return trendingCache;
   try {
-    const all = await getAllProducts();
-    // Use newest 8 products as "trending"
-    trendingCache = (all || []).slice(0, 8);
+    const trending = await apiGetTrendingProducts();
+    trendingCache = (trending || []).slice(0, 8);
   } catch {
     trendingCache = [];
   }
