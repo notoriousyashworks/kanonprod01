@@ -420,6 +420,15 @@ button {
   align-items: stretch;
 }
 
+/* All direct nav-link children must stretch full height */
+.desktop-nav-centered > .nav-link,
+.desktop-nav-centered > .nav-item-dropdown {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  justify-content: center;
+}
+
 .nav-item-dropdown {
   position: relative;
   display: flex;
@@ -485,7 +494,8 @@ button {
   position: relative;
 }
 
-.nav-link:hover {
+.nav-link:hover,
+.desktop-nav-centered > .nav-link:hover {
   background-color: #111111 !important;
   color: #ffffff !important;
   border-bottom-color: transparent !important;
@@ -497,7 +507,9 @@ button {
 }
 
 .nav-link--active:hover {
-  color: #111111 !important;
+  background-color: #111111 !important;
+  color: #ffffff !important;
+  border-bottom-color: transparent !important;
 }
 
 .header__banner {
