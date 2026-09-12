@@ -286,7 +286,7 @@ async function initTrendingWidget() {
 // ── Load New Arrivals ────────────────────────────────────
 let allNewArrivals = [];
 let visibleArrivalsCount = 0;
-const ARRIVALS_PAGE_SIZE = 10;
+const ARRIVALS_PAGE_SIZE = 8;
 
 async function loadArrivals() {
   const grid = document.getElementById('new-arrivals-grid');
