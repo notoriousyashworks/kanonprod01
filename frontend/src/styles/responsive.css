@@ -420,12 +420,10 @@ img, video, iframe, embed, object {
    FOOTER
    ══════════════════════════════════════════════ */
 @media (max-width: 1023px) {
-  .footer__inner {
-    grid-template-columns: 1fr 1fr;
+  .footer__main {
+    grid-template-columns: 1fr;
     gap: 40px;
-  }
-  .footer__brand {
-    grid-column: 1 / -1;
+    padding: 40px 20px;
   }
 }
 
@@ -459,6 +457,8 @@ img, video, iframe, embed, object {
   .footer__col--links-wrapper {
     flex-direction: column;
     gap: 24px;
+    padding-top: 0;
+    width: 100%;
   }
   .footer h4 {
     font-size: 14px;
