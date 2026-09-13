@@ -291,7 +291,7 @@ img, video, iframe, embed, object {
 @media (max-width: 768px) {
   .hero-banner-wrapper {
     width: 96%;
-    margin-top: 12px;
+    margin-top: 0px;
   }
 }
 
