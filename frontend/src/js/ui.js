@@ -485,7 +485,6 @@ export function getNavbarHTML(activePage = 'home') {
         </div>
       </div>
 
-    </header>
     <div class="header__promo-bar">
       <div class="promo-slide promo-slide-1">
         <strong>Extra Rs 200 Off</strong> <span class="promo-subtext">on Prepaid Orders</span>
@@ -494,6 +493,7 @@ export function getNavbarHTML(activePage = 'home') {
         <strong>COD Available</strong> <span class="promo-subtext">(₹ 99 Advance)</span>
       </div>
     </div>
+    </header>
   
     <!-- Wishlist Sidebar -->
     <div class="sidebar-overlay" id="wishlist-overlay"></div>

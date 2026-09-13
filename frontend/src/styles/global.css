@@ -2684,7 +2684,6 @@ body.sidebar-lock #wishlist-sidebar {
   min-height: 44px !important;
   border-top: 1px solid #ececec;
   border-bottom: 1px solid #d9d9d9;
-  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.045);
 }
 
 .header__nav-inner {
