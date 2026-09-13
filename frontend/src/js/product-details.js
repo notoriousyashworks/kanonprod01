@@ -392,7 +392,7 @@ function renderProduct(product) {
                preload="none"
                playsinline
                onclick="window.initVideoPlayback(this)"
-               style="cursor:pointer; width:100%; height:100%; object-fit:contain; background:transparent;"
+               style="cursor:pointer; width:92%; height:92%; object-fit:contain; background:transparent;"
              ></video>
              <button class="center-play-btn" onclick="window.centerPlayBtnClick(this)" aria-label="Play video">
                <svg width="32" height="32" viewBox="0 0 24 24" fill="white"><polygon points="6,4 20,12 6,20"/></svg>
@@ -403,7 +403,7 @@ function renderProduct(product) {
                id="main-image-${idx}"
                loading="${idx === 0 ? 'eager' : 'lazy'}"
                decoding="async"
-               style="width:100%; height:100%; object-fit:contain; background:transparent;"
+               style="width:92%; height:92%; object-fit:contain; background:transparent;"
              />`
       }
       </div>
