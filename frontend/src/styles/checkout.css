@@ -1231,3 +1231,28 @@
 }
 .co-sub-highlight { color: #eb1e2d; }
 .co-sub-divider { color: #999999; opacity: 0.9; }
+
+.co-header-strip {
+  background-color: #000000;
+  padding: 16px 20px;
+  display: flex;
+  justify-content: flex-start;
+  border-bottom: 1px solid #222;
+}
+.co-header-strip .co-brand {
+  margin-bottom: 0;
+}
+.co-header-strip .co-brand-kicks {
+  color: #ffffff;
+}
+.co-header-strip .co-brand-sub {
+  color: #ffffff;
+}
+.co-header-strip .co-sub-divider {
+  color: #ffffff;
+}
+@media (max-width: 991px) {
+  .co-header-strip {
+    justify-content: center;
+  }
+}
