@@ -420,7 +420,7 @@ img, video, iframe, embed, object {
    FOOTER
    ══════════════════════════════════════════════ */
 @media (max-width: 1023px) {
-  .footer__main {
+  .footer .footer__main {
     grid-template-columns: 1fr;
     gap: 40px;
     padding: 40px 20px;
@@ -432,29 +432,29 @@ img, video, iframe, embed, object {
     padding: 0;
     margin-top: 40px;
   }
-  .footer__features {
+  .footer .footer__features {
     padding: 24px 10px;
   }
-  .footer__feature {
+  .footer .footer__feature {
     padding: 0 10px;
   }
-  .footer__feature svg {
+  .footer .footer__feature svg {
     width: 24px;
     height: 24px;
     margin-bottom: 8px;
   }
-  .footer__feature h5 {
+  .footer .footer__feature h5 {
     font-size: 10px;
   }
-  .footer__feature p {
+  .footer .footer__feature p {
     font-size: 10px;
   }
-  .footer__main {
+  .footer .footer__main {
     grid-template-columns: 1fr;
     gap: 32px;
     padding: 40px 20px;
   }
-  .footer__col--links-wrapper {
+  .footer .footer__col--links-wrapper {
     flex-direction: column;
     gap: 24px;
     padding-top: 0;
@@ -464,16 +464,16 @@ img, video, iframe, embed, object {
     font-size: 14px;
     margin-bottom: 16px;
   }
-  .footer__col {
+  .footer .footer__col {
     gap: 12px;
   }
-  .footer__col a {
+  .footer .footer__col a {
     font-size: 13px;
   }
-  .footer__socials {
+  .footer .footer__socials {
     gap: 16px;
   }
-  .btn-join-channel {
+  .footer .btn-join-channel {
     font-size: 13px;
     padding: 8px 14px;
   }
