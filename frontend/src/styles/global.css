@@ -764,6 +764,7 @@ button {
   box-shadow: -4px 0 15px rgba(0, 0, 0, 0.1);
   border-top-left-radius: 24px;
   border-bottom-left-radius: 24px;
+  overflow: hidden;
 }
 
 .sidebar.open {
