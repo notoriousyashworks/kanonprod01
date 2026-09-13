@@ -360,16 +360,6 @@ export function getNavbarHTML(activePage = 'home') {
   setTimeout(() => initCategoriesDropdown(), 0);
   return `
     <header class="header">
-      <!-- Top Promo Bar -->
-      <div class="header__promo-bar">
-        <div class="promo-slide promo-slide-1">
-          <strong>Extra Rs 200 Off</strong> <span class="promo-subtext">on Prepaid Orders</span>
-        </div>
-        <div class="promo-slide promo-slide-2">
-          <strong>COD Available</strong> <span class="promo-subtext">(₹ 99 Advance)</span>
-        </div>
-      </div>
-
       <!-- Top Bar: Logo, Search, Icons -->
       <div class="header__top" style="background-color: #000000; border-bottom: none;">
         <div class="container header__top-inner">
@@ -496,21 +486,12 @@ export function getNavbarHTML(activePage = 'home') {
       </div>
 
     </header>
-    <div class="global-features-bar">
-      <div class="global-feature">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-        <h5>COD AVAILABLE</h5>
-        <p>(Only Rs 99 advance)</p>
+    <div class="header__promo-bar">
+      <div class="promo-slide promo-slide-1">
+        <strong>Extra Rs 200 Off</strong> <span class="promo-subtext">on Prepaid Orders</span>
       </div>
-      <div class="global-feature">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
-        <h5>RS 200 OFF ON PREPAID</h5>
-        <p>Shipping</p>
-      </div>
-      <div class="global-feature">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M3 22v-6h6"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path></svg>
-        <h5>EASY RETURNS & EXCHANGE</h5>
-        <p>Hassle-free within 7 days</p>
+      <div class="promo-slide promo-slide-2">
+        <strong>COD Available</strong> <span class="promo-subtext">(₹ 99 Advance)</span>
       </div>
     </div>
   
@@ -550,6 +531,23 @@ export function getNavbarHTML(activePage = 'home') {
 export function getFooterHTML() {
   return `
     <footer id="footer" class="footer">
+      <div class="footer__features">
+        <div class="footer__feature">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+          <h5>COD AVAILABLE</h5>
+          <p>(Only Rs 99 advance)</p>
+        </div>
+        <div class="footer__feature">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+          <h5>RS 200 OFF ON PREPAID</h5>
+          <p>Shipping</p>
+        </div>
+        <div class="footer__feature">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M3 22v-6h6"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path></svg>
+          <h5>EASY RETURNS & EXCHANGE</h5>
+          <p>Hassle-free within 7 days</p>
+        </div>
+      </div>
       
       <div class="footer__main">
         <div class="footer__col footer__col--contact">

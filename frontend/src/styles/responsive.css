@@ -432,21 +432,21 @@ img, video, iframe, embed, object {
     padding: 0;
     margin-top: 40px;
   }
-  body .global-features-bar {
+  .footer .footer__features {
     padding: 24px 10px;
   }
-  body .global-feature {
+  .footer .footer__feature {
     padding: 0 10px;
   }
-  body .global-feature svg {
+  .footer .footer__feature svg {
     width: 24px;
     height: 24px;
     margin-bottom: 8px;
   }
-  body .global-feature h5 {
+  .footer .footer__feature h5 {
     font-size: 10px;
   }
-  body .global-feature p {
+  .footer .footer__feature p {
     font-size: 10px;
   }
   .footer .footer__main {

@@ -602,16 +602,14 @@ button {
   margin-top: 64px;
 }
 
-.global-features-bar {
+.footer__features {
   display: flex;
   justify-content: center;
   border-bottom: 1px solid #222222;
   padding: 40px 20px;
-  background-color: #131313;
-  color: #ffffff;
 }
 
-.global-feature {
+.footer__feature {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -621,26 +619,25 @@ button {
   border-right: 1px solid #222222;
 }
 
-.global-feature:last-child {
+.footer__feature:last-child {
   border-right: none;
 }
 
-.global-feature svg {
+.footer__feature svg {
   width: 28px;
   height: 28px;
   margin-bottom: 16px;
   color: #e0e0e0;
 }
 
-.global-feature h5 {
-  font-family: 'Montserrat', var(--font-primary), sans-serif;
+.footer__feature h5 {
   font-size: 13px;
   font-weight: 700;
-  letter-spacing: 0.5px;
-  margin-bottom: 6px;
+  letter-spacing: 1.5px;
+  margin-bottom: 8px;
 }
 
-.global-feature p {
+.footer__feature p {
   font-size: 13px;
   color: #888888;
 }
