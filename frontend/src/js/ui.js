@@ -554,10 +554,14 @@ export function getFooterHTML() {
       <div class="footer__main">
         <div class="footer__col footer__col--contact">
           <h4>CUSTOMER CARE</h4>
-          <p><span>Address:</span> Phase 2, Chandigarh, India</p>
-          <p><span>Mobile:</span> +91 6239379751</p>
-          <p><span>Email:</span> kicksauraa@gmail.com</p>
-          <p><span>Store Time:</span> 11:00 AM - 8:00 PM, Monday - Saturday</p>
+          <table class="footer__contact-table">
+            <tbody>
+              <tr><td>Address:</td><td>Phase 2, Chandigarh, India</td></tr>
+              <tr><td>Mobile:</td><td>+91 6239379751</td></tr>
+              <tr><td>Email:</td><td>kicksauraa@gmail.com</td></tr>
+              <tr><td>Store Time:</td><td>11:00 AM - 8:00 PM, Monday - Saturday</td></tr>
+            </tbody>
+          </table>
         </div>
         
         <div class="footer__col footer__col--links-wrapper">
