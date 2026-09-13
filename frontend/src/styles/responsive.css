@@ -431,15 +431,32 @@ img, video, iframe, embed, object {
 
 @media (max-width: 767px) {
   .footer {
-    padding: 40px 0 32px;
+    padding: 0;
     margin-top: 40px;
   }
-  .footer__inner {
+  .footer__features {
+    flex-direction: column;
+    gap: 24px;
+    padding: 32px 20px;
+  }
+  .footer__feature {
+    border-right: none;
+    border-bottom: 1px solid #222222;
+    padding-bottom: 24px;
+    max-width: 100%;
+  }
+  .footer__feature:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+  .footer__main {
     grid-template-columns: 1fr;
     gap: 32px;
+    padding: 40px 20px;
   }
-  .footer__brand {
-    grid-column: auto;
+  .footer__col--links-wrapper {
+    flex-direction: column;
+    gap: 24px;
   }
   .footer h4 {
     font-size: 14px;

@@ -105,9 +105,9 @@ public class Product {
     private boolean withOgBox = false;
 
     @Column(name = "is_in_stock_flag", nullable = false)
-    @org.hibernate.annotations.ColumnDefault("true")
+    @org.hibernate.annotations.ColumnDefault("false")
     @Builder.Default
-    private boolean isInStockFlag = true;
+    private boolean isInStockFlag = false;
 
     @Column(name = "is_limited_stock", nullable = false)
     @org.hibernate.annotations.ColumnDefault("false")

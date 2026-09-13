@@ -55,7 +55,7 @@ public class ProductRequestDTO {
     private boolean isVideoVisible;
     private boolean withOgBox;
     @Builder.Default
-    private boolean isInStockFlag = true;
+    private boolean isInStockFlag = false;
     @JsonProperty("limitedStock")
     private boolean limitedStock;
 
