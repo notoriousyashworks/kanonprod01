@@ -454,12 +454,7 @@ img, video, iframe, embed, object {
     gap: 32px;
     padding: 40px 20px;
   }
-  .footer .footer__col--links-wrapper {
-    flex-direction: column;
-    gap: 24px;
-    padding-top: 0;
-    width: 100%;
-  }
+
   .footer h4 {
     font-size: 14px;
     margin-bottom: 16px;

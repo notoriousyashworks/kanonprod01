@@ -562,12 +562,17 @@ export function getFooterHTML() {
           </table>
         </div>
         
-        <div class="footer__col footer__col--links-wrapper">
+        <div class="footer__col footer__col--links">
+          <h4>MAIN MENU</h4>
           <div class="footer__links-col">
             <a href="/">Home</a>
             <a href="/about-us">About Us</a>
             <a href="https://wa.me/${import.meta.env.VITE_WHATSAPP_NUMBER || '916239379751'}?text=Hey!" target="_blank" rel="noopener">Contact Us</a>
           </div>
+        </div>
+
+        <div class="footer__col footer__col--policies">
+          <h4>POLICIES</h4>
           <div class="footer__links-col">
             <a href="/shipping-policy">Shipping & Delivery Policy</a>
             <a href="/return-exchange">Return, Exchange & Refund</a>
@@ -577,6 +582,7 @@ export function getFooterHTML() {
         </div>
         
         <div class="footer__col footer__col--social">
+          <h4>SOCIAL MEDIA</h4>
           <a href="https://instagram.com/kicksauraa" target="_blank" rel="noopener" aria-label="Instagram">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
               <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
