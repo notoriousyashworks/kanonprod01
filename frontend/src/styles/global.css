@@ -645,9 +645,8 @@ button {
 }
 
 .footer__main {
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr 1.1fr 0.4fr;
   gap: 40px;
   padding: 60px 4% 80px;
   max-width: 1080px;
