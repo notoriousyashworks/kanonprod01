@@ -21,6 +21,7 @@
   display: flex;
   flex-direction: column;
   width: 100%;
+  min-width: 0;
 }
 
 /* New side-by-side gallery layout */
@@ -30,6 +31,7 @@
   gap: 12px;
   align-items: flex-start;
   width: 100%;
+  min-width: 0;
 }
 
 /* Vertical thumbnail strip */
@@ -95,6 +97,7 @@
   flex: 1;
   aspect-ratio: 1 / 1;
   min-height: 0;
+  min-width: 0;
   background-color: #ffffff !important;
   display: flex;
   align-items: center;
@@ -561,7 +564,7 @@
 
 @media (max-width: 1024px) {
   .product-container {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 24px;
     max-width: 100%;
     padding: 0 24px;
