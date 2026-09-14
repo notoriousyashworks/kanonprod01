@@ -1198,3 +1198,61 @@
   color: #777;
   font-size: 10px !important;
 }
+
+/* Checkout Text Logo Styles */
+.co-brand {
+  text-decoration: none;
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+.co-brand-main {
+  font-size: 34px;
+  font-weight: 900;
+  letter-spacing: -1.5px;
+  line-height: 1;
+  font-family: 'Montserrat', sans-serif;
+}
+.co-brand-kicks { color: #111111; }
+.co-brand-aura { color: #eb1e2d; }
+.co-brand-sub {
+  margin-top: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 2.5px;
+  color: #666666;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: 'Montserrat', sans-serif;
+  text-transform: uppercase;
+}
+.co-sub-highlight { color: #eb1e2d; }
+.co-sub-divider { color: #999999; opacity: 0.9; }
+
+.co-header-strip {
+  background-color: #000000;
+  padding: 16px 20px;
+  display: flex;
+  justify-content: flex-start;
+  border-bottom: 1px solid #222;
+}
+.co-header-strip .co-brand {
+  margin-bottom: 0;
+}
+.co-header-strip .co-brand-kicks {
+  color: #ffffff;
+}
+.co-header-strip .co-brand-sub {
+  color: #ffffff;
+}
+.co-header-strip .co-sub-divider {
+  color: #ffffff;
+}
+@media (max-width: 991px) {
+  .co-header-strip {
+    justify-content: center;
+  }
+}

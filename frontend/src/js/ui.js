@@ -360,16 +360,6 @@ export function getNavbarHTML(activePage = 'home') {
   setTimeout(() => initCategoriesDropdown(), 0);
   return `
     <header class="header">
-      <!-- Top Promo Bar -->
-      <div class="header__promo-bar">
-        <div class="promo-slide promo-slide-1">
-          <strong>Extra Rs 200 Off</strong> <span class="promo-subtext">on Prepaid Orders</span>
-        </div>
-        <div class="promo-slide promo-slide-2">
-          <strong>COD Available</strong> <span class="promo-subtext">(₹ 99 Advance)</span>
-        </div>
-      </div>
-
       <!-- Top Bar: Logo, Search, Icons -->
       <div class="header__top" style="background-color: #000000; border-bottom: none;">
         <div class="container header__top-inner">
@@ -495,6 +485,14 @@ export function getNavbarHTML(activePage = 'home') {
         </div>
       </div>
 
+    <div class="header__promo-bar">
+      <div class="promo-slide promo-slide-1">
+        <strong>Extra Rs 200 Off</strong> <span class="promo-subtext">on Prepaid Orders</span>
+      </div>
+      <div class="promo-slide promo-slide-2">
+        <strong>COD Available</strong> <span class="promo-subtext">(₹ 99 Advance)</span>
+      </div>
+    </div>
     </header>
   
     <!-- Wishlist Sidebar -->

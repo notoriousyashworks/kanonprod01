@@ -51,6 +51,20 @@
   </script>
 
   <!-- ══════════════════════════════════════════════
+       CHECKOUT HEADER
+  ══════════════════════════════════════════════ -->
+  <header class="co-header-strip">
+    <a href="/" class="co-brand" aria-label="KICKS AURA Home">
+      <div class="co-brand-main">
+        <span class="co-brand-kicks">Kicks</span><span class="co-brand-aura">Aura</span>
+      </div>
+      <div class="co-brand-sub">
+        <span>PREMIUM</span> <span class="co-sub-divider">|</span> <span class="co-sub-highlight">UNISEX</span> <span class="co-sub-divider">|</span> <span>CURATED</span>
+      </div>
+    </a>
+  </header>
+
+  <!-- ══════════════════════════════════════════════
        CHECKOUT LAYOUT: LEFT + RIGHT PANEL
   ══════════════════════════════════════════════ -->
   <div class="co-wrap">
@@ -58,11 +72,6 @@
     <!-- ── LEFT PANEL ──────────────────────────── -->
     <div class="co-left">
       <div class="co-left-inner">
-
-        <!-- Brand -->
-        <a href="/" class="co-brand" aria-label="KICKS AURA Home" style="display: inline-block;">
-          <img src="/logos/headlogo.png" alt="KICKS AURA" style="height: 48px; width: auto; display: block; border-radius: 8px; object-fit: contain;" />
-        </a>
 
         <form id="checkout-form" class="co-form" novalidate>
 
@@ -205,12 +214,7 @@
         <div class="co-order-items" id="summary-items-list">
           <!-- Populated by checkout.js -->
         </div>
-        <div class="co-coupon-row">
-          <input type="text" class="co-coupon-input" id="coupon-input" placeholder="Coupon code" autocomplete="off" />
-          <button class="co-coupon-btn btn-apply" type="button">Apply</button>
-        </div>
-        <p id="coupon-msg" style="display:none; margin: -12px 0 14px; font-size: 12px; font-weight: 600;"></p>
-        <div id="available-coupons-container" class="available-coupons-container" style="display:none; margin: 0 0 16px;"></div>
+        <!-- Coupon section removed as requested -->
         <div class="co-totals">
           <div class="co-totals-row">
             <span class="co-totals-label">Subtotal</span>
