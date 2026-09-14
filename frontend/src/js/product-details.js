@@ -99,19 +99,8 @@ window.initVideoPlayback = function(video, isWarmup = false) {
   if (video.parentElement && !video.dataset.listenersAttached) {
     video.dataset.listenersAttached = 'true';
     
-    let loader = video.parentElement.querySelector('.hls-loader');
-    if (!loader) {
-      loader = document.createElement('div');
-      loader.className = 'hls-loader';
-      loader.innerHTML = '<div style="width:40px;height:40px;border:3px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 1s linear infinite;"></div><style>@keyframes spin{100%{transform:rotate(360deg)}}</style>';
-      loader.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:10;pointer-events:none;display:none;';
-      video.parentElement.style.position = 'relative';
-      video.parentElement.appendChild(loader);
-    }
-    
     const playBtn = video.parentElement.querySelector('.center-play-btn');
     if (!isWarmup && playBtn) playBtn.style.display = 'none';
-    if (!isWarmup) loader.style.display = 'block';
 
     const PLAY_SVG  = '<svg width="34" height="34" viewBox="0 0 24 24" fill="white"><polygon points="6,3 21,12 6,21"/></svg>';
     const PAUSE_SVG = '<svg width="30" height="30" viewBox="0 0 24 24" fill="white"><rect x="5" y="3" width="4" height="18" rx="1"/><rect x="15" y="3" width="4" height="18" rx="1"/></svg>';
@@ -131,7 +120,6 @@ window.initVideoPlayback = function(video, isWarmup = false) {
 
     video.addEventListener('playing', () => {
       video.dataset.initState = 'playing';
-      loader.style.display = 'none';
       if (playBtn) {
         playBtn.innerHTML = PAUSE_SVG;
         playBtn.setAttribute('aria-label', 'Pause video');
@@ -153,7 +141,6 @@ window.initVideoPlayback = function(video, isWarmup = false) {
 
     video.addEventListener('waiting', () => {
       if (video.dataset.initState === 'warmup') return;
-      loader.style.display = 'block';
       if (playBtn) { playBtn.style.opacity = '0'; playBtn.style.pointerEvents = 'none'; }
     });
 
@@ -166,7 +153,6 @@ window.initVideoPlayback = function(video, isWarmup = false) {
         playBtn.style.pointerEvents = 'auto';
         playBtn.style.display = 'flex';
       }
-      loader.style.display = 'none';
     });
 
     video.addEventListener('ended', () => {
@@ -178,11 +164,9 @@ window.initVideoPlayback = function(video, isWarmup = false) {
         playBtn.style.pointerEvents = 'auto';
         playBtn.style.display = 'flex';
       }
-      loader.style.display = 'none';
     });
 
     video.addEventListener('error', () => {
-      loader.style.display = 'none';
       if (playBtn && video.dataset.initState !== 'warmup') {
         playBtn.innerHTML = PLAY_SVG;
         playBtn.style.opacity = '1';
@@ -268,8 +252,6 @@ window.centerPlayBtnClick = function(btn) {
   if (v.dataset.initState === 'warmup') {
     v.dataset.initState = 'ready';
     btn.style.display = 'none';
-    const loader = v.parentElement.querySelector('.hls-loader');
-    if (loader && v.readyState < 3) loader.style.display = 'block';
     
     const p = v.play();
     if (p !== undefined) p.catch(e => console.warn('[VIDEO UI] Warmup playback failed:', e));
