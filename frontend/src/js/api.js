@@ -102,7 +102,7 @@ export async function getProductsByCategory(category) {
 }
 
 export async function getRelatedProducts(categoryName, excludeId, limit = 8) {
-  const data = await filterProducts({ categories: [categoryName] }, 0, 20);
+  const data = await filterProducts({ categories: [categoryName] }, 0, limit + 2);
   const all = data.content || data;
   const filtered = (all || []).filter(p => String(p.id) !== String(excludeId));
   // Shuffle and return up to `limit` products
