@@ -294,8 +294,8 @@ function renderProduct(product) {
   // formatMediaUrl routes Cloudinary URLs through Cloudinary transforms and
   // ImageKit URLs through ImageKit transforms transparently.
   const images = (product.imageUrls?.length > 0 ? product.imageUrls : []).map(formatMediaUrl);
-  // Respect videoVisible flag — only show videos the backend has marked as visible
-  const videos = (product.videoVisible !== false && product.videoUrls?.length > 0) ? product.videoUrls : [];
+  // Show all videos — videoVisible is an admin badge flag, not a storefront visibility gate
+  const videos = product.videoUrls?.length > 0 ? product.videoUrls : [];
   const mediaItems = [
     ...images.map(url => ({ type: 'image', url })),
     ...videos.map(url => ({ type: 'video', url }))
