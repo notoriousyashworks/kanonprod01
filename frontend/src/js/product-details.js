@@ -68,8 +68,9 @@ window.initVideoPlayback = function(video, isWarmup = false) {
     if (video.dataset.initState !== 'none') return; // already warmed up or playing
   } else {
     console.log('[HLS] User requested playback', { video: video.id });
-    if (isTouchDevice && video.dataset.initState === 'ready') {
-       // Mobile: hand off to native controls entirely after first interaction
+    if (isTouchDevice && (video.dataset.initState === 'ready' || video.dataset.initState === 'playing')) {
+       // Mobile: hand off to native controls entirely after first interaction.
+       // This prevents our JS from forcefully toggling play/pause when the user taps to show controls.
        return;
     }
     if (video.dataset.initState === 'ready' || video.dataset.initState === 'playing') {
