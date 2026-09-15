@@ -176,6 +176,18 @@ window.initVideoPlayback = function(video, isWarmup = false) {
     });
   }
 
+  // If hlsSrc is null (e.g. plain .mp4 BunnyCDN URL), skip HLS entirely and play mp4 directly
+  if (!hlsSrc) {
+    console.log('[HLS] No HLS source — falling back directly to mp4');
+    video.src = mp4Src;
+    if (!isWarmup) {
+      video.load();
+      const playPromise = video.play();
+      if (playPromise !== undefined) playPromise.catch(() => {});
+    }
+    return;
+  }
+
   if (window.Hls && Hls.isSupported()) {
     const hls = new Hls({ 
       startLevel: -1,
@@ -282,7 +294,8 @@ function renderProduct(product) {
   // formatMediaUrl routes Cloudinary URLs through Cloudinary transforms and
   // ImageKit URLs through ImageKit transforms transparently.
   const images = (product.imageUrls?.length > 0 ? product.imageUrls : []).map(formatMediaUrl);
-  const videos = product.videoUrls?.length > 0 ? product.videoUrls : [];
+  // Respect videoVisible flag — only show videos the backend has marked as visible
+  const videos = (product.videoVisible !== false && product.videoUrls?.length > 0) ? product.videoUrls : [];
   const mediaItems = [
     ...images.map(url => ({ type: 'image', url })),
     ...videos.map(url => ({ type: 'video', url }))
