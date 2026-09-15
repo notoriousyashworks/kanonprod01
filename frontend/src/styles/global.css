@@ -2846,6 +2846,7 @@ body.sidebar-lock #wishlist-sidebar {
   transition: background-color 0.2s;
   width: max-content;
   min-width: 200px;
+  box-sizing: border-box;
 }
 .pd-whatsapp-inquiry-btn:hover {
   background-color: #128C7E;
