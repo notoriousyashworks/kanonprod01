@@ -3,6 +3,8 @@ package com.kicksaura.productservice.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -56,12 +58,14 @@ public class Product {
     @ElementCollection
     @CollectionTable(name = "product_images", joinColumns = @JoinColumn(name = "product_id"), indexes = @Index(name = "idx_product_images_product_id", columnList = "product_id"))
     @Column(name = "image_url")
+    @Fetch(FetchMode.SUBSELECT)
     @Builder.Default
     private List<String> imageUrls = new ArrayList<>();
 
     @ElementCollection
     @CollectionTable(name = "product_videos", joinColumns = @JoinColumn(name = "product_id"), indexes = @Index(name = "idx_product_videos_product_id", columnList = "product_id"))
     @Column(name = "video_url")
+    @Fetch(FetchMode.SUBSELECT)
     @Builder.Default
     private List<String> videoUrls = new ArrayList<>();
 
@@ -115,6 +119,7 @@ public class Product {
     private boolean isLimitedStock = false;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Fetch(FetchMode.SUBSELECT)
     @Builder.Default
     @ToString.Exclude
     @EqualsAndHashCode.Exclude

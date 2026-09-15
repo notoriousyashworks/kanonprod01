@@ -9,6 +9,9 @@ import { initCartSidebar, openShippingPolicyModal } from './cart-sidebar.js';
 import { initProfileDropdown } from './profile.js';
 import { initLoginModalTrigger } from './login-modal.js';
 
+// Kick off the API fetch immediately (parallel to UI rendering)
+loadProduct();
+
 // Render navbar & footer
 document.getElementById('navbar-container').innerHTML = getNavbarHTML('product');
 document.getElementById('footer-container').innerHTML = getFooterHTML();
@@ -49,263 +52,226 @@ function renderError(msg) {
     </div>`;
 }
 
-// Initialize video playback on interaction
-window.initVideoPlayback = function(video) {
-  console.log('[HLS] User requested playback', { video: video.id });
+// Initialize video playback on interaction or warmup
+window.initVideoPlayback = function(video, isWarmup = false) {
+  if (!video) return;
 
-  // On touch/mobile: once initialized, do NOT intercept clicks on the video body.
-  // The native controls own play/pause — tap video to reveal controls, tap the
-  // center button in those controls to actually play/pause.
   const isTouchDevice = window.matchMedia('(pointer: coarse)').matches;
 
-  if (video.dataset.initialized === 'true') {
-    if (isTouchDevice) {
-      // Mobile: hand off to native controls entirely — do nothing here.
-      console.log('[HLS] Mobile: already initialized, deferring to native controls.');
+  // Initialize state if missing
+  if (!video.dataset.initState) {
+    video.dataset.initState = 'none';
+  }
+
+  if (isWarmup) {
+    console.log('[HLS] Warmup requested', { video: video.id });
+    if (video.dataset.initState !== 'none') return; // already warmed up or playing
+  } else {
+    console.log('[HLS] User requested playback', { video: video.id });
+    if (isTouchDevice && video.dataset.initState === 'ready') {
+       // Mobile: hand off to native controls entirely after first interaction
+       return;
+    }
+    if (video.dataset.initState === 'ready' || video.dataset.initState === 'playing') {
+      console.log('[HLS] Already initialized. Toggling play/pause.');
+      if (video.paused) {
+        const p = video.play();
+        if (p !== undefined) p.catch(e => console.warn('[HLS] Resume error:', e));
+      } else {
+        video.pause();
+      }
       return;
     }
-    // Desktop: click on video body toggles play/pause.
-    console.log('[HLS] Already initialized. Toggling play/pause.');
-    if (video.paused) {
-      const p = video.play();
-      if (p !== undefined) p.catch(e => console.warn('[HLS] Resume error:', e));
-      console.log('[HLS] Playback resumed');
-    } else {
-      video.pause();
-    }
-    return;
   }
-  
-  video.dataset.initialized = 'true';
-  console.log('[HLS] Initializing');
-  
+
+  video.dataset.initState = isWarmup ? 'warmup' : 'ready';
+  console.log(`[HLS] Initializing (State: ${video.dataset.initState})`);
+
   const hlsSrc = video.dataset.hlsSrc;
   const mp4Src = video.dataset.mp4Src;
-  
+
   if (video.hlsInstance) {
     video.hlsInstance.destroy();
     video.hlsInstance = null;
   }
 
-  // Setup loading indicator and play button overlays (guard against duplicate listeners)
+  // Setup UI overlays
   if (video.parentElement && !video.dataset.listenersAttached) {
     video.dataset.listenersAttached = 'true';
     
-    let loader = video.parentElement.querySelector('.hls-loader');
-    if (!loader) {
-      loader = document.createElement('div');
-      loader.className = 'hls-loader';
-      loader.innerHTML = '<div style="width:40px;height:40px;border:3px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 1s linear infinite;"></div><style>@keyframes spin{100%{transform:rotate(360deg)}}</style>';
-      loader.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:10;pointer-events:none;';
-      video.parentElement.style.position = 'relative';
-      video.parentElement.appendChild(loader);
-    }
-    loader.style.display = 'block';
-    
     const playBtn = video.parentElement.querySelector('.center-play-btn');
-    // Hide button immediately when init starts
-    if (playBtn) playBtn.style.display = 'none';
-    
-    // SVG icons — YouTube style: white, slightly larger
+    if (!isWarmup && playBtn) playBtn.style.display = 'none';
+
     const PLAY_SVG  = '<svg width="34" height="34" viewBox="0 0 24 24" fill="white"><polygon points="6,3 21,12 6,21"/></svg>';
     const PAUSE_SVG = '<svg width="30" height="30" viewBox="0 0 24 24" fill="white"><rect x="5" y="3" width="4" height="18" rx="1"/><rect x="15" y="3" width="4" height="18" rx="1"/></svg>';
 
-    // Helper: fade the button out quickly
     const hideBtn = (delay = 0) => {
-      clearTimeout(playBtn._fadeTimer);
-      playBtn._fadeTimer = setTimeout(() => {
-        if (playBtn) { playBtn.style.opacity = '0'; playBtn.style.pointerEvents = 'none'; }
-      }, delay);
+      clearTimeout(playBtn?._fadeTimer);
+      if (playBtn) {
+        playBtn._fadeTimer = setTimeout(() => {
+          playBtn.style.opacity = '0'; playBtn.style.pointerEvents = 'none';
+        }, delay);
+      }
     };
 
-    // Mouse leaves the video wrapper → hide immediately
     video.parentElement.addEventListener('mouseleave', () => {
-      if (playBtn && !video.paused) hideBtn(0);
+      if (playBtn && !video.paused && video.dataset.initState !== 'warmup') hideBtn(0);
     });
 
-    // Overlays respond to actual video events
     video.addEventListener('playing', () => {
-      console.log('[VIDEO UI] playback started');
-      loader.style.display = 'none';
-      // Briefly show pause icon then fade — YouTube style
+      video.dataset.initState = 'playing';
       if (playBtn) {
         playBtn.innerHTML = PAUSE_SVG;
         playBtn.setAttribute('aria-label', 'Pause video');
         playBtn.style.display = 'flex';
         playBtn.style.opacity = '1';
         playBtn.style.pointerEvents = 'auto';
-        hideBtn(600); // disappears after 0.6 s
+        hideBtn(600);
       }
     });
-    // Mouse moves over video while playing → reveal pause button briefly
+
     video.addEventListener('mousemove', () => {
-      if (playBtn && !video.paused) {
+      if (playBtn && !video.paused && video.dataset.initState !== 'warmup') {
         clearTimeout(playBtn._fadeTimer);
         playBtn.style.opacity = '1';
         playBtn.style.pointerEvents = 'auto';
-        hideBtn(800); // disappears 0.8 s after last movement
+        hideBtn(800);
       }
     });
+
     video.addEventListener('waiting', () => {
-      console.log('[HLS] Playback waiting/buffering');
-      loader.style.display = 'block';
+      if (video.dataset.initState === 'warmup') return;
       if (playBtn) { playBtn.style.opacity = '0'; playBtn.style.pointerEvents = 'none'; }
     });
+
     video.addEventListener('pause', () => {
       clearTimeout(playBtn?._fadeTimer);
-      if (playBtn) {
+      if (playBtn && video.dataset.initState !== 'warmup') {
         playBtn.innerHTML = PLAY_SVG;
         playBtn.setAttribute('aria-label', 'Play video');
         playBtn.style.opacity = '1';
         playBtn.style.pointerEvents = 'auto';
         playBtn.style.display = 'flex';
       }
-      loader.style.display = 'none';
     });
+
     video.addEventListener('ended', () => {
       clearTimeout(playBtn?._fadeTimer);
-      if (playBtn) {
+      if (playBtn && video.dataset.initState !== 'warmup') {
         playBtn.innerHTML = PLAY_SVG;
         playBtn.setAttribute('aria-label', 'Play video');
         playBtn.style.opacity = '1';
         playBtn.style.pointerEvents = 'auto';
         playBtn.style.display = 'flex';
       }
-      loader.style.display = 'none';
     });
+
     video.addEventListener('error', () => {
-      loader.style.display = 'none';
-      if (playBtn) {
+      if (playBtn && video.dataset.initState !== 'warmup') {
         playBtn.innerHTML = PLAY_SVG;
         playBtn.style.opacity = '1';
         playBtn.style.pointerEvents = 'auto';
         playBtn.style.display = 'flex';
       }
     });
-  } else if (video.parentElement) {
-    // Listeners already attached — just show loader
-    const loader = video.parentElement.querySelector('.hls-loader');
-    if (loader) loader.style.display = 'block';
-    const playBtn = video.parentElement.querySelector('.center-play-btn');
-    if (playBtn) playBtn.style.display = 'none';
   }
 
   if (window.Hls && Hls.isSupported()) {
     const hls = new Hls({ 
       startLevel: -1,
-      abrEwmaDefaultEstimate: 1200000 
+      capLevelToPlayerSize: true, 
+      maxBufferLength: 5,         
+      maxMaxBufferLength: 10,
+      startFragPrefetch: true
     });
     video.hlsInstance = hls;
 
     hls.on(Hls.Events.MEDIA_ATTACHED, function () {
       console.log('[HLS] MEDIA_ATTACHED');
-      console.log('[HLS] Loading source');
       hls.loadSource(hlsSrc);
     });
 
     hls.on(Hls.Events.MANIFEST_PARSED, function () {
-      console.log('[HLS] MANIFEST_PARSED');
-      console.log('[HLS] Video ready for playback');
-      if (video.paused) {
-        const p = video.play();
-        if (p !== undefined) p.catch(() => {});
+      console.log('[HLS] MANIFEST_PARSED - Ready');
+      if (video.dataset.initState === 'ready' || video.dataset.initState === 'playing') {
+        if (video.paused) {
+          const p = video.play();
+          if (p !== undefined) p.catch(() => {});
+        }
       }
     });
 
     hls.on(Hls.Events.ERROR, function (event, data) {
-      console.error('[HLS] Playback error:', data);
       if (data.fatal) {
         if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
           hls.startLoad();
         } else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
           hls.recoverMediaError();
         } else {
-          console.error('[HLS] Fatal unrecoverable error, falling back to MP4');
           hls.destroy();
           video.hlsInstance = null;
           video.src = mp4Src;
           video.load();
-          const p = video.play();
-          if (p !== undefined) p.catch(e => console.warn('[HLS] Fallback MP4 error:', e));
+          if (video.dataset.initState === 'ready' || video.dataset.initState === 'playing') {
+            const p = video.play();
+            if (p !== undefined) p.catch(() => {});
+          }
         }
       }
     });
 
     hls.attachMedia(video);
     
-    // Synchronous play to capture the user gesture context immediately
-    const playPromise = video.play();
-    if (playPromise !== undefined) {
-      playPromise.catch(e => console.warn('[HLS] Initial synchronous play error (expected):', e));
+    if (!isWarmup) {
+      const playPromise = video.play();
+      if (playPromise !== undefined) playPromise.catch(() => {});
     }
     
   } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-    console.log('[HLS] Native HLS supported (Safari)');
     video.src = hlsSrc;
-    video.load();
-    
-    // Synchronous play to capture the user gesture context immediately
-    const playPromise = video.play();
-    if (playPromise !== undefined) {
-      playPromise.catch(e => console.warn('[HLS] Native initial play error:', e));
-    }
-    
-    video.addEventListener('loadedmetadata', function() {
-      if (video.paused) {
-        const p = video.play();
-        if (p !== undefined) p.catch(() => {});
-      }
-    }, { once: true });
-    
-    video.addEventListener('error', function(e) {
-      console.error('[HLS] Playback error (Native HLS), falling back to MP4', e);
-      video.src = mp4Src;
+    if (!isWarmup) {
       video.load();
-      const p = video.play();
-      if (p !== undefined) p.catch(err => console.warn('[HLS] Fallback MP4 error:', err));
-    }, { once: true });
-    
+      const playPromise = video.play();
+      if (playPromise !== undefined) playPromise.catch(() => {});
+    }
   } else {
-    console.log('[HLS] No HLS support, falling back to MP4');
     video.src = mp4Src;
-    video.load();
-    const playPromise = video.play();
-    if (playPromise !== undefined) {
-      playPromise.catch(e => console.warn('[HLS] MP4 play error:', e));
+    if (!isWarmup) {
+      video.load();
+      const playPromise = video.play();
+      if (playPromise !== undefined) playPromise.catch(() => {});
     }
   }
 };
 
-// Custom centered Play/Pause button click handler (desktop only — hidden on mobile via CSS).
-// Mirrors the Safari native centered button: shows ▶ when paused, ⏸ when playing.
 window.centerPlayBtnClick = function(btn) {
   console.log('[VIDEO UI] play button clicked');
   const v = btn.parentElement ? btn.parentElement.querySelector('video') : null;
   if (!v) return;
 
-  if (v.dataset.initialized === 'true') {
+  if (v.dataset.initState === 'warmup') {
+    v.dataset.initState = 'ready';
+    btn.style.display = 'none';
+    
+    const p = v.play();
+    if (p !== undefined) p.catch(e => console.warn('[VIDEO UI] Warmup playback failed:', e));
+    return;
+  }
+
+  if (v.dataset.initState === 'ready' || v.dataset.initState === 'playing') {
     if (v.paused || v.ended) {
-      // Video is paused — play it
-      console.log('[VIDEO UI] video.play() requested (already initialized)');
       const p = v.play();
       if (p !== undefined) {
-        p.then(() => {
-          console.log('[VIDEO UI] playback started');
-        }).catch(e => {
-          console.warn('[VIDEO UI] playback failed:', e);
+        p.catch(e => {
           btn.style.opacity = '1';
           btn.style.pointerEvents = 'auto';
         });
       }
     } else {
-      // Video is playing — pause it
-      console.log('[VIDEO UI] video.pause() requested');
       v.pause();
     }
   } else {
-    // First interaction — enter init flow which also calls video.play() inside
-    console.log('[VIDEO UI] video.play() requested (triggering init)');
-    window.initVideoPlayback(v);
+    window.initVideoPlayback(v, false);
   }
 };
 
@@ -321,6 +287,8 @@ function renderProduct(product) {
     ...images.map(url => ({ type: 'image', url })),
     ...videos.map(url => ({ type: 'video', url }))
   ];
+
+
 
   const currentPrice = product.discountedPrice || product.basePrice;
   const originalPrice = product.discountedPrice ? product.basePrice : null;
@@ -382,6 +350,7 @@ function renderProduct(product) {
       <div class="main-media-slide" data-idx="${idx}" style="position: relative; display: flex; align-items: center; justify-content: center;">
         ${item.type === 'video'
         ? `<video
+               class="ka-lazy-video"
                id="main-video-${idx}"
                poster="${formatVideoPoster(item.url)}"
                data-hls-src="${formatVideoHls(item.url)}"
@@ -389,10 +358,10 @@ function renderProduct(product) {
                controls
                controlsList="nofullscreen nodownload noplaybackrate"
                disablePictureInPicture
-               preload="none"
+               preload="metadata"
                playsinline
-               onclick="window.initVideoPlayback(this)"
-               style="cursor:pointer; width:92%; height:92%; object-fit:contain; background:transparent;"
+               onclick="window.initVideoPlayback(this, false)"
+               style="cursor:pointer; width:100%; height:100%; object-fit:contain; background:transparent;"
              ></video>
              <button class="center-play-btn" onclick="window.centerPlayBtnClick(this)" aria-label="Play video">
                <svg width="32" height="32" viewBox="0 0 24 24" fill="white"><polygon points="6,4 20,12 6,20"/></svg>
@@ -545,6 +514,24 @@ function renderProduct(product) {
     </div>
   `;
 
+
+  // Intersection Observer for Video Warmup
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver((entries, obs) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const video = entry.target;
+          if (video.dataset.initState !== 'warmup' && video.dataset.initState !== 'ready' && video.dataset.initState !== 'playing') {
+            window.initVideoPlayback(video, true);
+          }
+          obs.unobserve(video); // Only warmup once
+        }
+      });
+    }, { rootMargin: '50% 0px 50% 0px' });
+    
+    document.querySelectorAll('.ka-lazy-video').forEach(v => observer.observe(v));
+  }
+
   // Render related products below the product section
   renderRelatedProducts(product);
 
@@ -569,7 +556,7 @@ function renderProduct(product) {
              data-hls-src="${formatCloudinaryVideoHls(item.url)}"
              data-mp4-src="${formatCloudinaryVideoMp4(item.url)}"
              controls controlsList="nodownload" playsinline autoplay 
-             onclick="window.initVideoPlayback(this)"
+             onclick="window.initVideoPlayback(this, false)"
              style="cursor:pointer; display:block; width:100%; max-height:82vh; object-fit:contain; background:#000; border-radius:8px;">
            </video>
            <button class="center-play-btn" style="display:none;" onclick="window.centerPlayBtnClick(this)" aria-label="Play video">
@@ -1107,5 +1094,3 @@ async function renderRelatedProducts(product) {
     section.remove();
   }
 }
-
-loadProduct();
