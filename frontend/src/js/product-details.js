@@ -176,8 +176,8 @@ window.initVideoPlayback = function(video, isWarmup = false) {
     });
   }
 
-  // If hlsSrc is null (e.g. plain .mp4 BunnyCDN URL), skip HLS entirely and play mp4 directly
-  if (!hlsSrc) {
+  // If hlsSrc is falsy or "null" (e.g. plain .mp4 BunnyCDN URL), skip HLS entirely and play mp4 directly
+  if (!hlsSrc || hlsSrc === 'null' || hlsSrc === 'undefined') {
     console.log('[HLS] No HLS source — falling back directly to mp4');
     video.src = mp4Src;
     if (!isWarmup) {
@@ -365,9 +365,9 @@ function renderProduct(product) {
         ? `<video
                class="ka-lazy-video"
                id="main-video-${idx}"
-               poster="${formatVideoPoster(item.url)}"
-               data-hls-src="${formatVideoHls(item.url)}"
-               data-mp4-src="${formatVideoMp4(item.url)}"
+               poster="${formatVideoPoster(item.url) || ''}"
+               data-hls-src="${formatVideoHls(item.url) || ''}"
+               data-mp4-src="${formatVideoMp4(item.url) || ''}"
                controls
                controlsList="nofullscreen nodownload noplaybackrate"
                disablePictureInPicture
