@@ -68,8 +68,9 @@ window.initVideoPlayback = function(video, isWarmup = false) {
     if (video.dataset.initState !== 'none') return; // already warmed up or playing
   } else {
     console.log('[HLS] User requested playback', { video: video.id });
-    if (isTouchDevice && video.dataset.initState === 'ready') {
-       // Mobile: hand off to native controls entirely after first interaction
+    if (isTouchDevice && (video.dataset.initState === 'ready' || video.dataset.initState === 'playing')) {
+       // Mobile: hand off to native controls entirely after first interaction.
+       // This prevents our JS from forcefully toggling play/pause when the user taps to show controls.
        return;
     }
     if (video.dataset.initState === 'ready' || video.dataset.initState === 'playing') {
@@ -174,6 +175,18 @@ window.initVideoPlayback = function(video, isWarmup = false) {
         playBtn.style.display = 'flex';
       }
     });
+  }
+
+  // If hlsSrc is falsy or "null" (e.g. plain .mp4 BunnyCDN URL), skip HLS entirely and play mp4 directly
+  if (!hlsSrc || hlsSrc === 'null' || hlsSrc === 'undefined') {
+    console.log('[HLS] No HLS source — falling back directly to mp4');
+    video.src = mp4Src;
+    if (!isWarmup) {
+      video.load();
+      const playPromise = video.play();
+      if (playPromise !== undefined) playPromise.catch(() => {});
+    }
+    return;
   }
 
   if (window.Hls && Hls.isSupported()) {
@@ -282,6 +295,7 @@ function renderProduct(product) {
   // formatMediaUrl routes Cloudinary URLs through Cloudinary transforms and
   // ImageKit URLs through ImageKit transforms transparently.
   const images = (product.imageUrls?.length > 0 ? product.imageUrls : []).map(formatMediaUrl);
+  // Show all videos — videoVisible is an admin badge flag, not a storefront visibility gate
   const videos = product.videoUrls?.length > 0 ? product.videoUrls : [];
   const mediaItems = [
     ...images.map(url => ({ type: 'image', url })),
@@ -352,9 +366,9 @@ function renderProduct(product) {
         ? `<video
                class="ka-lazy-video"
                id="main-video-${idx}"
-               poster="${formatVideoPoster(item.url)}"
-               data-hls-src="${formatVideoHls(item.url)}"
-               data-mp4-src="${formatVideoMp4(item.url)}"
+               poster="${formatVideoPoster(item.url) || ''}"
+               data-hls-src="${formatVideoHls(item.url) || ''}"
+               data-mp4-src="${formatVideoMp4(item.url) || ''}"
                controls
                controlsList="nofullscreen nodownload noplaybackrate"
                disablePictureInPicture

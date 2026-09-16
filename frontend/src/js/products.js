@@ -62,6 +62,7 @@ function readStateFromURL() {
 }
 
 // ── Write state to URL (pushState for back/forward support) ─
+let isInitialLoad = true;
 function pushStateToURL() {
   const p = new URLSearchParams();
   if (state.searchQuery) p.set('search', state.searchQuery);
@@ -72,11 +73,20 @@ function pushStateToURL() {
   if (state.trending) p.set('trending', 'true');
 
   const newUrl = `${window.location.pathname}${p.toString() ? '?' + p.toString() : ''}`;
-  history.pushState(null, '', newUrl);
+  // On the very first load the URL is already correct — replace instead of push
+  // so the browser doesn't create a duplicate history entry (which forces the
+  // user to press Back twice to leave the page).
+  if (isInitialLoad) {
+    history.replaceState(null, '', newUrl);
+    isInitialLoad = false;
+  } else {
+    history.pushState(null, '', newUrl);
+  }
 }
 
 // Restore state when user navigates back/forward
 window.addEventListener('popstate', () => {
+  isInitialLoad = true; // treat restored state as a fresh load (replaceState)
   readStateFromURL();
   syncSidebarCheckboxes();
   syncPriceSlider();

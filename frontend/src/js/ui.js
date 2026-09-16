@@ -245,19 +245,25 @@ export function formatVideoPoster(url) {
   if (!url || typeof url !== 'string') return url;
   if (url.includes('res.cloudinary.com')) return formatCloudinaryVideoPoster(url);
   if (isImageKitUrl(url)) return formatImageKitVideoPoster(url);
+  // BunnyCDN HLS path: swap playlist.m3u8 for thumbnail.jpg
   if (url.includes('.b-cdn.net') && url.includes('.m3u8')) return url.replace('playlist.m3u8', 'thumbnail.jpg');
+  // Plain .mp4 BunnyCDN URL — no thumbnail transform available, return empty so no broken poster
+  if (url.includes('.b-cdn.net')) return '';
   return url;
 }
 
 /**
  * Video HLS URL — routes to provider.
  * ImageKit: returns raw URL (HLS needs ABR add-on; MP4 is the reliable fallback).
+ * BunnyCDN plain .mp4: return null so the player skips HLS and uses mp4 directly.
  */
 export function formatVideoHls(url) {
   if (!url || typeof url !== 'string') return url;
   if (url.includes('res.cloudinary.com')) return formatCloudinaryVideoHls(url);
   if (isImageKitUrl(url)) return url; // raw URL; HLS.js will fail gracefully → MP4 fallback
   if (url.includes('.b-cdn.net') && url.includes('.m3u8')) return url; // Already HLS
+  // Plain .mp4 from BunnyCDN — return null so initVideoPlayback skips HLS and plays mp4
+  if (url.includes('.b-cdn.net') && url.includes('.mp4')) return null;
   return url;
 }
 
@@ -267,6 +273,8 @@ export function formatVideoMp4(url) {
   if (url.includes('res.cloudinary.com')) return formatCloudinaryVideoMp4(url);
   if (isImageKitUrl(url)) return formatImageKitVideoMp4(url);
   if (url.includes('.b-cdn.net') && url.includes('.m3u8')) return url.replace('playlist.m3u8', 'play_720p.mp4');
+  // Plain .mp4 BunnyCDN URL — use as-is
+  if (url.includes('.b-cdn.net') && url.includes('.mp4')) return url;
   return url;
 }
 
