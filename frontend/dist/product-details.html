@@ -8,48 +8,18 @@
   <meta name="description" content="View product details, select your size, and add to cart on KicksAura." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://vz-5e7458e7-315.b-cdn.net" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800;900&display=swap" rel="stylesheet">
   <!-- HLS.js for Adaptive Bitrate Video Streaming -->
   <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.7/dist/hls.min.js"></script>
-  <script type="module" crossorigin src="/assets/productDetails-BsrLJkEA.js"></script>
-  <link rel="modulepreload" crossorigin href="/assets/login-modal.js_v_1-YkX-reF-.js">
-  <link rel="modulepreload" crossorigin href="/assets/cart-sidebar-DjxeW8cT.js">
-  <link rel="modulepreload" crossorigin href="/assets/profile-BtTw_Xe_.js">
-  <link rel="stylesheet" crossorigin href="/assets/productDetails-DK95wTL8.css">
-  <link rel="stylesheet" crossorigin href="/assets/product-card-rVgtotW-.css">
+  <script type="module" crossorigin src="/assets/productDetails-CDhSiHyv.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/login-modal.js_v_1-vylF9FGw.js">
+  <link rel="modulepreload" crossorigin href="/assets/cart-sidebar-CO8nBrVq.js">
+  <link rel="modulepreload" crossorigin href="/assets/profile-DqUfOBpi.js">
+  <link rel="stylesheet" crossorigin href="/assets/productDetails-DiBgTt6E.css">
+  <link rel="stylesheet" crossorigin href="/assets/product-card-Cmfv4r6t.css">
 </head>
 <body>
-  <!-- Global Preloader -->
-  <div id="global-ka-preloader" style="position: fixed; inset: 0; background: var(--bg-main, #f5f5f5); z-index: 999999; display: flex; align-items: center; justify-content: center; transition: opacity 0.5s ease, visibility 0.5s ease;">
-    <div class="ka-loader" style="min-height: 100vh; margin: 0;">
-      <div class="ka-loader__badge">
-        <div class="ka-loader__wordmark">KICKS<br>AURA</div>
-      </div>
-      <span class="ka-loader__text" style="font-size: 14px;">Loading...</span>
-    </div>
-  </div>
-  <script>
-    (function() {
-      const startTime = Date.now();
-      const minDelay = 0;
-      function hideLoader() {
-        const preloader = document.getElementById("global-ka-preloader");
-        if (!preloader) return;
-        const elapsed = Date.now() - startTime;
-        const remaining = Math.max(0, minDelay - elapsed);
-        setTimeout(() => {
-          preloader.style.opacity = "0";
-          preloader.style.visibility = "hidden";
-          setTimeout(() => preloader.remove(), 500);
-        }, remaining);
-      }
-      if (document.readyState === "complete") {
-        hideLoader();
-      } else {
-        window.addEventListener("load", hideLoader);
-      }
-    })();
-  </script>
   <div id="navbar-container"></div>
   
   <main class="product-page">
