@@ -133,7 +133,7 @@ function renderActiveChips() {
   // Trending chip (if trending is active)
   if (state.trending) {
     chips.push({
-      label: 'Trending 🔥',
+      label: 'New Arrivals',
       onRemove: () => {
         state.trending = false;
         triggerLoad();
