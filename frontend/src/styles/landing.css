@@ -382,7 +382,7 @@
   }
   .product-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+    gap: 16px;
     margin-bottom: 32px;
   }
   .review-card {
@@ -414,7 +414,7 @@
   }
   .product-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
+    gap: 16px;
   }
 }
 
