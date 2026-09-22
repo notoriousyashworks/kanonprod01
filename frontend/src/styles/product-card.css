@@ -183,6 +183,27 @@
   .pc-image-wrap {
     aspect-ratio: 1 / 1.35;
   }
+
+  .pc-heart-btn {
+    width: 30px;
+    height: 30px;
+  }
+
+  .pc-heart-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .pc-whatsapp-btn {
+    width: 30px;
+    height: 30px;
+    top: 48px;
+  }
+
+  .pc-whatsapp-btn svg {
+    width: 15px;
+    height: 15px;
+  }
 }
 
 .pc-price-row {
