@@ -342,17 +342,25 @@ async function loadArrivals() {
           
           if (fetchedProducts.length === 0 && isFallbackMode) {
              const filters = { categories: FALLBACK_CATEGORIES };
-             const fallbacks = await filterProducts(filters, fallbackPage, 30);
-             fallbackPage++;
              
-             const existingIds = new Set(allNewArrivals.map(p => p.id));
-             const uniqueFallbacks = fallbacks.filter(p => !existingIds.has(p.id));
+             while (fetchedProducts.length < ARRIVALS_PAGE_SIZE) {
+               const fallbacks = await filterProducts(filters, fallbackPage, 30);
+               fallbackPage++;
+               
+               if (fallbacks.length === 0) {
+                 break;
+               }
+               
+               const existingIds = new Set(allNewArrivals.map(p => p.id).concat(fetchedProducts.map(p => p.id)));
+               const uniqueFallbacks = fallbacks.filter(p => !existingIds.has(p.id));
+               
+               fetchedProducts = fetchedProducts.concat(uniqueFallbacks);
+             }
              
-             uniqueFallbacks.sort(() => Math.random() - 0.5);
+             fetchedProducts.sort(() => Math.random() - 0.5);
+             fetchedProducts = fetchedProducts.slice(0, ARRIVALS_PAGE_SIZE);
              
-             fetchedProducts = uniqueFallbacks.slice(0, ARRIVALS_PAGE_SIZE);
-             
-             if (fallbacks.length === 0) {
+             if (fetchedProducts.length === 0) {
                renderArrivalsGrid(true);
                return; 
              }
