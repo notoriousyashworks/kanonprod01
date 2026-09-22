@@ -286,7 +286,7 @@ async function initTrendingWidget() {
 // ── Load New Arrivals ────────────────────────────────────
 let allNewArrivals = [];
 let arrivalsPage = 0;
-const ARRIVALS_PAGE_SIZE = 16;
+const ARRIVALS_PAGE_SIZE = 20;
 let hasMoreArrivals = true;
 
 let isFallbackMode = false;

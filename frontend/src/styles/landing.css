@@ -672,7 +672,7 @@
 /* New Arrivals Grid */
 .new-arrivals-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 24px;
 }
 
@@ -680,6 +680,12 @@
   width: 100% !important;
   max-width: 100% !important;
   flex: none !important;
+}
+
+@media (max-width: 1200px) {
+  .new-arrivals-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
 
 @media (max-width: 1024px) {
