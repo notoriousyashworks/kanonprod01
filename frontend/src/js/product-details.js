@@ -405,8 +405,8 @@ function renderProduct(product) {
   // Size variant buttons — sort numerically so UK 6 < UK 6.5 < UK 10 etc.
   const sortedVariants = hasVariants
     ? [...product.variants].sort((a, b) => {
-        const aNum = parseFloat((a.size || '').replace(/[^0-9.]/g, '')) || 0;
-        const bNum = parseFloat((b.size || '').replace(/[^0-9.]/g, '')) || 0;
+        const aNum = parseFloat((String(a.size || '')).replace(/[^0-9.]/g, '')) || 0;
+        const bNum = parseFloat((String(b.size || '')).replace(/[^0-9.]/g, '')) || 0;
         return aNum - bNum;
       })
     : [];
@@ -824,7 +824,7 @@ function renderProduct(product) {
         }
       };
 
-      const brandKey = (drawerBrandText || '').toLowerCase();
+      const brandKey = String(drawerBrandText || '').toLowerCase();
       const chartData = BRAND_SIZE_DATA[brandKey];
 
       if (chartData) {
