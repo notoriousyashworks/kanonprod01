@@ -334,7 +334,7 @@ export function createProductCard(product) {
   const isHandbag = (product.category || '').trim().toLowerCase() === 'handbags';
 
   return `
-    <a href="/product-details?id=${product.id}" class="product-card-link" aria-label="${product.name}" target="_blank" rel="noopener">
+    <a href="/product-details?id=${product.id}" class="product-card-link" aria-label="${product.name}">
       <article class="product-card product-card-new ${isHandbag ? 'is-handbag' : ''}" data-product-id="${product.id}">
         <div class="pc-image-wrap">
           ${badgesContainer}
