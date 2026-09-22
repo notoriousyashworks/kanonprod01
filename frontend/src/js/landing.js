@@ -285,8 +285,9 @@ async function initTrendingWidget() {
 
 // ── Load New Arrivals ────────────────────────────────────
 let allNewArrivals = [];
-let visibleArrivalsCount = 0;
-const ARRIVALS_PAGE_SIZE = 8;
+let arrivalsPage = 0;
+const ARRIVALS_PAGE_SIZE = 16;
+let hasMoreArrivals = true;
 
 async function loadArrivals() {
   const grid = document.getElementById('new-arrivals-grid');
@@ -294,7 +295,9 @@ async function loadArrivals() {
   const viewMoreBtn = document.getElementById('new-arrivals-view-more');
 
   try {
-    const products = await getNewArrivals();
+    arrivalsPage = 0;
+    const products = await getNewArrivals(arrivalsPage, ARRIVALS_PAGE_SIZE);
+    
     if (!products || products.length === 0) {
       grid.innerHTML = `
         <div style="grid-column: 1/-1; text-align:center; padding: 60px 20px;">
@@ -306,14 +309,28 @@ async function loadArrivals() {
     }
 
     allNewArrivals = products;
-    visibleArrivalsCount = Math.min(ARRIVALS_PAGE_SIZE, allNewArrivals.length);
+    hasMoreArrivals = products.length === ARRIVALS_PAGE_SIZE;
 
     renderArrivalsGrid();
 
     if (viewMoreBtn) {
-      viewMoreBtn.addEventListener('click', () => {
-        visibleArrivalsCount = Math.min(visibleArrivalsCount + ARRIVALS_PAGE_SIZE, allNewArrivals.length);
-        renderArrivalsGrid();
+      viewMoreBtn.addEventListener('click', async () => {
+        if (!hasMoreArrivals) return;
+        
+        viewMoreBtn.textContent = 'Loading...';
+        viewMoreBtn.disabled = true;
+        
+        try {
+          arrivalsPage++;
+          const moreProducts = await getNewArrivals(arrivalsPage, ARRIVALS_PAGE_SIZE);
+          allNewArrivals = allNewArrivals.concat(moreProducts);
+          hasMoreArrivals = moreProducts.length === ARRIVALS_PAGE_SIZE;
+          renderArrivalsGrid();
+        } catch (err) {
+          console.error("Failed to fetch more arrivals", err);
+          viewMoreBtn.textContent = 'View More';
+          viewMoreBtn.disabled = false;
+        }
       });
     }
   } catch (error) {
@@ -332,12 +349,11 @@ function renderArrivalsGrid() {
   const moreWrap = document.getElementById('new-arrivals-more-wrap');
   const viewMoreBtn = document.getElementById('new-arrivals-view-more');
 
-  const slice = allNewArrivals.slice(0, visibleArrivalsCount);
-  grid.innerHTML = slice.map(createProductCard).join('');
-  attachCardListeners(slice);
+  grid.innerHTML = allNewArrivals.map(createProductCard).join('');
+  attachCardListeners(allNewArrivals);
 
   if (moreWrap) {
-    moreWrap.style.display = visibleArrivalsCount < allNewArrivals.length ? 'block' : 'none';
+    moreWrap.style.display = hasMoreArrivals ? 'block' : 'none';
   }
   if (viewMoreBtn) {
     viewMoreBtn.textContent = 'View More';
