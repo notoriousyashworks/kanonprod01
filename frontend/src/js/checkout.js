@@ -243,10 +243,7 @@ function calculateTotals() {
 
   const totalUnits = items.reduce((sum, item) => sum + item.quantity, 0);
 
-  if (selectedPayment === 'prepaid') {
-    discount = totalUnits * 200; // ₹200 flat off per product
-    shipping = 0;
-  } else if (selectedPayment === 'cod') {
+  if (selectedPayment === 'cod') {
     discount = 0;
     shipping = totalUnits * 99;
   }
@@ -278,11 +275,7 @@ function calculateTotals() {
 
   const total = subtotal - discount - couponDiscount + shipping;
 
-  if (selectedPayment === 'prepaid') {
-    if (subtitleEl) subtitleEl.textContent = `Sales Team will connect over WhatsApp to collect ₹${total.toLocaleString('en-IN')}`;
-  } else if (selectedPayment === 'cod') {
-    if (subtitleEl) subtitleEl.textContent = `Sales Team will connect over WhatsApp to collect ₹${shipping.toLocaleString('en-IN')} advance`;
-  }
+  if (subtitleEl) subtitleEl.textContent = `Sales Team will connect over WhatsApp to collect ₹${shipping.toLocaleString('en-IN')} advance`;
 
   // Update DOM
   const subtotalEl = document.getElementById('summary-subtotal');
@@ -788,7 +781,7 @@ if (placeOrderBtn) {
     if (!city) { alert('Please enter your city.'); return; }
     if (!state) { alert('Please enter your state.'); return; }
 
-    const selectedPayment = document.querySelector('.co-payment-option input[type="radio"]:checked, .payment-option input[type="radio"]:checked')?.value || 'prepaid';
+    const selectedPayment = document.querySelector('.co-payment-option input[type="radio"]:checked, .payment-option input[type="radio"]:checked')?.value || 'cod';
 
     // Build the request payload matching CheckoutRequestDTO
     const orderPayload = {

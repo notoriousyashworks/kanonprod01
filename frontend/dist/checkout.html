@@ -218,10 +218,7 @@
             <span class="co-totals-label">Subtotal</span>
             <span class="co-totals-value" id="summary-subtotal">₹0</span>
           </div>
-          <div class="co-totals-row" id="summary-discount-row" style="display:none;">
-            <span class="co-totals-label co-totals-label--discount" style="color: #16a34a;">Prepaid Discount</span>
-            <span class="co-totals-value co-totals-value--discount" id="summary-discount" style="color: #16a34a;"></span>
-          </div>
+
           <div class="co-totals-row" id="summary-coupon-row" style="display:none;">
             <span class="co-totals-label" style="color: #16a34a;" id="summary-coupon-label">Coupon Discount</span>
             <span class="co-totals-value" id="summary-coupon-discount" style="color: #16a34a;"></span>
@@ -253,16 +250,8 @@
           <h2 class="co-section-title">Payment</h2>
           <p class="co-section-sub">All transactions are secure and encrypted.</p>
           <div class="co-payment-list">
-            <label class="co-payment-option co-payment-option--selected" id="pay-prepaid-label">
-              <input type="radio" name="paymentMethod" value="prepaid" checked />
-              <span class="co-radio-dot"></span>
-              <span class="co-payment-text">
-                <span class="co-payment-name">Prepaid</span>
-                <span class="co-payment-desc">Payment will be collected by Sales Team via WhatsApp</span>
-              </span>
-            </label>
-            <label class="co-payment-option" id="pay-cod-label">
-              <input type="radio" name="paymentMethod" value="cod" />
+            <label class="co-payment-option co-payment-option--selected" id="pay-cod-label">
+              <input type="radio" name="paymentMethod" value="cod" checked />
               <span class="co-radio-dot"></span>
               <span class="co-payment-text">
                 <span class="co-payment-name">Cash on Delivery (COD)</span>
