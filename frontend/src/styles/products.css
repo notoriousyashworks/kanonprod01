@@ -621,6 +621,10 @@ details[open] > .filter-summary::after {
     font-size: 20px;
   }
 
+  .products-grid .pc-image-wrap {
+    aspect-ratio: 1 / 1.7;
+  }
+
   .category-count {
     font-size: 12px;
   }
