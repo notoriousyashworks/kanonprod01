@@ -175,6 +175,14 @@
   .pc-body {
     padding: 10px 4px 6px;
   }
+
+  .product-card-link {
+    max-width: 100%;
+  }
+
+  .pc-image-wrap {
+    aspect-ratio: 1 / 1.35;
+  }
 }
 
 .pc-price-row {
