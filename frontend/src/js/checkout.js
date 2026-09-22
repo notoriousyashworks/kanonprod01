@@ -267,15 +267,9 @@ function calculateTotals() {
     if (couponRow) couponRow.style.display = 'none';
   }
 
-  const codDescEl = document.querySelector('#pay-cod-label .co-payment-desc');
-  if (codDescEl) {
-    const codAdvance = totalUnits > 0 ? (totalUnits * 99) : 99;
-    codDescEl.textContent = `₹${codAdvance.toLocaleString('en-IN')} advance collected by Sales Team via WhatsApp`;
-  }
 
   const total = subtotal - discount - couponDiscount + shipping;
 
-  if (subtitleEl) subtitleEl.textContent = `Sales Team will connect over WhatsApp to collect ₹${shipping.toLocaleString('en-IN')} advance`;
 
   // Update DOM
   const subtotalEl = document.getElementById('summary-subtotal');
