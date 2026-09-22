@@ -1,7 +1,7 @@
 /* ============================================
    Landing Page Logic
    ============================================ */
-import { getAllProducts, getNewArrivals, getTrendingProducts, getCategories, getCustomerReviews } from './api.js';
+import { getAllProducts, getNewArrivals, getTrendingProducts, getCategories, getCustomerReviews, filterProducts } from './api.js';
 import { addToCart, updateCartBadge } from './cart.js';
 import { getNavbarHTML, getFooterHTML, createProductCard, showToast, formatCloudinaryUrl, initSearch, initMobileMenu } from './ui.js';
 import { initWishlistSidebar, updateWishlistBadge } from './wishlist.js';
@@ -289,6 +289,10 @@ let arrivalsPage = 0;
 const ARRIVALS_PAGE_SIZE = 16;
 let hasMoreArrivals = true;
 
+let isFallbackMode = false;
+let fallbackPage = 0;
+const FALLBACK_CATEGORIES = ["Mens Watches", "Sneakers", "Mens Sunglasses", "Ladies Watches"];
+
 async function loadArrivals() {
   const grid = document.getElementById('new-arrivals-grid');
   const moreWrap = document.getElementById('new-arrivals-more-wrap');
@@ -296,6 +300,8 @@ async function loadArrivals() {
 
   try {
     arrivalsPage = 0;
+    fallbackPage = 0;
+    isFallbackMode = false;
     const products = await getNewArrivals(arrivalsPage, ARRIVALS_PAGE_SIZE);
     
     if (!products || products.length === 0) {
@@ -310,22 +316,55 @@ async function loadArrivals() {
 
     allNewArrivals = products;
     hasMoreArrivals = products.length === ARRIVALS_PAGE_SIZE;
+    isFallbackMode = !hasMoreArrivals;
 
     renderArrivalsGrid();
 
     if (viewMoreBtn) {
       viewMoreBtn.addEventListener('click', async () => {
-        if (!hasMoreArrivals) return;
-        
         viewMoreBtn.textContent = 'Loading...';
         viewMoreBtn.disabled = true;
         
         try {
-          arrivalsPage++;
-          const moreProducts = await getNewArrivals(arrivalsPage, ARRIVALS_PAGE_SIZE);
-          allNewArrivals = allNewArrivals.concat(moreProducts);
-          hasMoreArrivals = moreProducts.length === ARRIVALS_PAGE_SIZE;
-          renderArrivalsGrid();
+          let fetchedProducts = [];
+          
+          if (!isFallbackMode) {
+            arrivalsPage++;
+            const moreProducts = await getNewArrivals(arrivalsPage, ARRIVALS_PAGE_SIZE);
+            if (moreProducts.length > 0) {
+              fetchedProducts = moreProducts;
+            }
+            hasMoreArrivals = moreProducts.length === ARRIVALS_PAGE_SIZE;
+            if (!hasMoreArrivals) {
+              isFallbackMode = true;
+            }
+          }
+          
+          if (fetchedProducts.length === 0 && isFallbackMode) {
+             const filters = { categories: FALLBACK_CATEGORIES };
+             const fallbacks = await filterProducts(filters, fallbackPage, 30);
+             fallbackPage++;
+             
+             const existingIds = new Set(allNewArrivals.map(p => p.id));
+             const uniqueFallbacks = fallbacks.filter(p => !existingIds.has(p.id));
+             
+             uniqueFallbacks.sort(() => Math.random() - 0.5);
+             
+             fetchedProducts = uniqueFallbacks.slice(0, ARRIVALS_PAGE_SIZE);
+             
+             if (fallbacks.length === 0) {
+               renderArrivalsGrid(true);
+               return; 
+             }
+          }
+          
+          if (fetchedProducts.length > 0) {
+             allNewArrivals = allNewArrivals.concat(fetchedProducts);
+             renderArrivalsGrid();
+          } else {
+             viewMoreBtn.textContent = 'View More';
+             viewMoreBtn.disabled = false;
+          }
         } catch (err) {
           console.error("Failed to fetch more arrivals", err);
           viewMoreBtn.textContent = 'View More';
@@ -344,7 +383,7 @@ async function loadArrivals() {
   }
 }
 
-function renderArrivalsGrid() {
+function renderArrivalsGrid(hideButton = false) {
   const grid = document.getElementById('new-arrivals-grid');
   const moreWrap = document.getElementById('new-arrivals-more-wrap');
   const viewMoreBtn = document.getElementById('new-arrivals-view-more');
@@ -353,7 +392,7 @@ function renderArrivalsGrid() {
   attachCardListeners(allNewArrivals);
 
   if (moreWrap) {
-    moreWrap.style.display = hasMoreArrivals ? 'block' : 'none';
+    moreWrap.style.display = hideButton ? 'none' : 'block';
   }
   if (viewMoreBtn) {
     viewMoreBtn.textContent = 'View More';
