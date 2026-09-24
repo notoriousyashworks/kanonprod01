@@ -53,9 +53,32 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     public Page<ProductResponseDTO> getNewArrivals(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        return productRepository.findByIsNewArrivalTrueAndIsVisibleTrueOrderByCreatedAtDesc(pageable)
-                .map(this::mapToResponseDTO);
+        int sneakersSize = (int) Math.round(size * 0.70);
+        int restSize = size - sneakersSize;
+
+        Pageable sneakersPageable = PageRequest.of(page, sneakersSize > 0 ? sneakersSize : 1);
+        Pageable restPageable = PageRequest.of(page, restSize > 0 ? restSize : 1);
+
+        Page<Product> sneakers = productRepository.findByCategoryIgnoreCaseAndIsNewArrivalTrueAndIsVisibleTrueOrderByCreatedAtDesc("Sneakers", sneakersPageable);
+        Page<Product> rest = productRepository.findRestOfNewArrivals(restPageable);
+
+        List<ProductResponseDTO> combined = new ArrayList<>();
+        
+        // Interleave them so it looks natural, rather than all sneakers then all rest
+        List<ProductResponseDTO> sneakersList = sneakers.getContent().stream().map(this::mapToResponseDTO).collect(Collectors.toList());
+        List<ProductResponseDTO> restList = rest.getContent().stream().map(this::mapToResponseDTO).collect(Collectors.toList());
+        
+        int sIdx = 0, rIdx = 0;
+        while (sIdx < sneakersList.size() || rIdx < restList.size()) {
+            // Add roughly 2 sneakers for every 1 rest item to maintain 70/30 visually
+            if (sIdx < sneakersList.size()) combined.add(sneakersList.get(sIdx++));
+            if (sIdx < sneakersList.size()) combined.add(sneakersList.get(sIdx++));
+            if (rIdx < restList.size()) combined.add(restList.get(rIdx++));
+        }
+
+        long totalElements = sneakers.getTotalElements() + rest.getTotalElements();
+
+        return new org.springframework.data.domain.PageImpl<>(combined, PageRequest.of(page, size), totalElements);
     }
 
     @Transactional(readOnly = true)

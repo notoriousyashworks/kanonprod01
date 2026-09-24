@@ -677,6 +677,8 @@ img, video, iframe, embed, object {
   /* Gallery: side-by-side thumbnails → horizontal strip */
   .gallery-inner {
     flex-direction: column-reverse;
+    align-items: stretch;
+    width: 100%;
     gap: 8px;
   }
 

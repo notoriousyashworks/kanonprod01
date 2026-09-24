@@ -321,7 +321,7 @@ function renderProduct(product) {
   // Video thumbnails: use the primary product image as a cover, overlaid with a play icon
   const thumbnailsHTML = mediaItems.map((item, i) => {
     if (item.type === 'video') {
-      const coverImage = images.length > 0 ? images[0] : item.url;
+      const coverImage = formatVideoPoster(item.url);
       return `
         <div class="thumb-item thumb-video ${i === 0 ? 'active' : ''}" data-idx="${i}" title="Watch video">
           <div class="thumb-video-placeholder">
