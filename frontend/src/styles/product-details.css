@@ -598,6 +598,8 @@
   .gallery-inner {
     flex-direction: column-reverse;
     gap: 10px;
+    align-items: stretch;
+    width: 100%;
   }
 
   /* Horizontal thumb strip */
@@ -622,7 +624,11 @@
   .main-image-container {
     min-height: auto;
     width: 100%;
-    aspect-ratio: 1 / 1;
+    /* Explicit height so children's height:100% resolves correctly on all mobile browsers */
+    height: min(90vw, 420px);
+    max-height: min(90vw, 420px);
+    aspect-ratio: unset;
+    overflow: hidden;
   }
 
   /* Typography */
@@ -699,6 +705,10 @@
   .size-options { gap: 6px; }
   .size-btn { padding: 7px 8px; min-width: 40px; font-size: 11px; }
   .thumb-item { width: 52px; height: 52px; }
+  .main-image-container {
+    height: min(88vw, 360px);
+    max-height: min(88vw, 360px);
+  }
 
   /* Tighten up spacing at smallest screens */
   .pd-pricing-section { margin-bottom: 4px; }

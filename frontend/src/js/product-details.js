@@ -386,7 +386,7 @@ function renderProduct(product) {
                id="main-image-${idx}"
                loading="${idx === 0 ? 'eager' : 'lazy'}"
                decoding="async"
-               style="width:100%; height:100%; object-fit:contain; background:transparent;"
+               style="width:100%; max-width:100%; height:100%; max-height:100%; object-fit:contain; background:transparent; display:block;"
              />`
       }
       </div>

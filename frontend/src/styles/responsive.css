@@ -705,7 +705,11 @@ img, video, iframe, embed, object {
 
   .main-image-container {
     min-height: auto;
-    aspect-ratio: 1 / 1;
+    /* Explicit height so height:100% on children resolves correctly on all mobile browsers */
+    height: min(90vw, 420px);
+    max-height: min(90vw, 420px);
+    aspect-ratio: unset;
+    overflow: hidden;
   }
 
   .pd-title-modern {
