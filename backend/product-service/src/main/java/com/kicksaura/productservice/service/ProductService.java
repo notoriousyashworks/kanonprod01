@@ -287,6 +287,11 @@ public class ProductService {
     }
 
     @Transactional
+    public void setAllProductsInStock() {
+        productRepository.setAllProductsInStock();
+    }
+
+    @Transactional
     public void deductStock(String productId, String variantId, Integer quantity) {
         Product product = productRepository.findById(UUID.fromString(productId))
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + productId));

@@ -73,6 +73,12 @@ public class AdminProductController {
         return ResponseEntity.ok(productService.updateStockStatus(id, payload.get("inStock")));
     }
 
+    @PostMapping("/stock/all-true")
+    public ResponseEntity<Void> setAllProductsInStock() {
+        productService.setAllProductsInStock();
+        return ResponseEntity.ok().build();
+    }
+
     @PatchMapping("/{id}/variants/{variantId}/deduct-stock")
     public ResponseEntity<Void> deductStock(@PathVariable String id, @PathVariable String variantId,
             @RequestParam Integer quantity) {

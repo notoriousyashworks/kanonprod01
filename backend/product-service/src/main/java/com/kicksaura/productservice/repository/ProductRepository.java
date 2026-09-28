@@ -11,7 +11,9 @@ import org.springframework.data.domain.Pageable;
 
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, UUID>, JpaSpecificationExecutor<Product> {
@@ -41,4 +43,9 @@ public interface ProductRepository extends JpaRepository<Product, UUID>, JpaSpec
 
     @Query("SELECT p.sourceProductId FROM Product p WHERE p.sourceSite = :sourceSite AND p.sourceProductId IN :sourceProductIds")
     List<String> findExistingSourceProductIds(@Param("sourceSite") String sourceSite, @Param("sourceProductIds") List<String> sourceProductIds);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE Product p SET p.isInStockFlag = true")
+    void setAllProductsInStock();
 }
