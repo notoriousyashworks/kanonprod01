@@ -77,7 +77,7 @@
       <span class="pc-sold-out-label">SOLD OUT</span>
     </div>
   `:"";return`
-    <a href="/product-details?id=${e.id}" class="product-card-link" aria-label="${e.name}">
+    <a href="/product-details?id=${e.id}" class="product-card-link" aria-label="${e.name}" target="_blank" rel="noopener noreferrer">
       <article class="product-card product-card-new ${p?"is-handbag":""} ${S?"is-sold-out":""}" data-product-id="${e.id}">
         <div class="pc-image-wrap">
           ${d}
