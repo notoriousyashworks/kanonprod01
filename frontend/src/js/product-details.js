@@ -514,10 +514,16 @@ function renderProduct(product) {
         </div>
       </div>
 
+      ${product.inStockFlag === false ? `
+      <div class="action-row" style="display:flex;width:100%;">
+        <button class="btn-out-of-stock" disabled style="flex:1;background:#e2e8f0;color:#64748b;font-weight:700;font-size:15px;letter-spacing:1px;border:none;border-radius:30px;padding:16px;cursor:not-allowed;">OUT OF STOCK</button>
+      </div>
+      ` : `
       <div class="action-row">
         <button class="btn-add-to-cart" id="add-to-cart-btn">ADD TO CART</button>
         <button class="btn-buy-now" id="buy-now-btn">BUY NOW</button>
       </div>
+      `}
       <div style="text-align: left; margin-top: -12px; margin-bottom: 32px; padding-left: 2px;">
         <span style="font-size: 14px; font-weight: 600; color: #475569; display: flex; align-items: center; gap: 6px;">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>

@@ -249,40 +249,29 @@
 .pc-sold-out-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.52);
+  background: rgba(0, 0, 0, 0.35);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 5;
   border-radius: 10px;
-  backdrop-filter: blur(1px);
 }
 
 .pc-sold-out-label {
   font-family: var(--font-primary), 'Plus Jakarta Sans', sans-serif;
-  font-size: 15px;
-  font-weight: 800;
-  letter-spacing: 3px;
-  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #fff;
   text-transform: uppercase;
-  padding: 8px 18px;
-  border: 2px solid rgba(255, 255, 255, 0.75);
-  border-radius: 6px;
-  background: rgba(0, 0, 0, 0.35);
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+  padding: 6px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.6);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .product-card-new.is-sold-out .pc-image-wrap img,
 .product-card-new.is-sold-out .pc-video-preview {
-  filter: grayscale(60%);
-  opacity: 0.85;
+  opacity: 0.9;
 }
-
-.product-card-new.is-sold-out .pc-name {
-  color: #6b7280;
-}
-
-.product-card-new.is-sold-out .pc-price {
-  color: #9ca3af;
-}
-
