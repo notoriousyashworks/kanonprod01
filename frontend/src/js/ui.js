@@ -332,7 +332,8 @@ export function createProductCard(product) {
 
   const safeProductName = (product.name || '').replace(/"/g, '&quot;');
   const isHandbag = (product.category || '').trim().toLowerCase() === 'handbags';
-  const isOutOfStock = product.inStockFlag === false;
+  // Temporary override: Force everything to in-stock for now
+  const isOutOfStock = false; // product.inStockFlag === false;
 
   const soldOutOverlay = isOutOfStock ? `
     <div class="pc-sold-out-overlay">

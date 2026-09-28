@@ -514,7 +514,7 @@ function renderProduct(product) {
         </div>
       </div>
 
-      ${product.inStockFlag === false ? `
+      ${false /* product.inStockFlag === false */ ? `
       <div class="action-row" style="display:flex;width:100%;">
         <button class="btn-out-of-stock" disabled style="flex:1;background:#e2e8f0;color:#64748b;font-weight:700;font-size:15px;letter-spacing:1px;border:none;border-radius:30px;padding:16px;cursor:not-allowed;">OUT OF STOCK</button>
       </div>
