@@ -332,10 +332,17 @@ export function createProductCard(product) {
 
   const safeProductName = (product.name || '').replace(/"/g, '&quot;');
   const isHandbag = (product.category || '').trim().toLowerCase() === 'handbags';
+  const isOutOfStock = product.inStockFlag === false;
+
+  const soldOutOverlay = isOutOfStock ? `
+    <div class="pc-sold-out-overlay">
+      <span class="pc-sold-out-label">SOLD OUT</span>
+    </div>
+  ` : '';
 
   return `
     <a href="/product-details?id=${product.id}" class="product-card-link" aria-label="${product.name}">
-      <article class="product-card product-card-new ${isHandbag ? 'is-handbag' : ''}" data-product-id="${product.id}">
+      <article class="product-card product-card-new ${isHandbag ? 'is-handbag' : ''} ${isOutOfStock ? 'is-sold-out' : ''}" data-product-id="${product.id}">
         <div class="pc-image-wrap">
           ${badgesContainer}
           <button class="pc-heart-btn ${isLiked ? 'active' : ''}" onclick="event.preventDefault(); event.stopPropagation(); toggleWishlistItem('${product.id}'); this.classList.toggle('active'); this.querySelector('svg').setAttribute('fill', this.classList.contains('active') ? '#c82333' : 'none'); this.querySelector('svg').setAttribute('stroke', this.classList.contains('active') ? '#c82333' : 'currentColor')">
@@ -349,6 +356,7 @@ export function createProductCard(product) {
             </svg>
           </button>
           ${mediaHTML}
+          ${soldOutOverlay}
         </div>
         <div class="pc-body">
           ${product.category ? `<div class="pc-category">${product.category}</div>` : ''}

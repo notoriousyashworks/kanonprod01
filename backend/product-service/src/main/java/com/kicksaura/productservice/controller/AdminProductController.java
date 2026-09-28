@@ -64,6 +64,15 @@ public class AdminProductController {
         return ResponseEntity.ok(productService.updateVisibility(id, payload.get("isVisible")));
     }
 
+    @PatchMapping("/{id}/stock")
+    public ResponseEntity<ProductResponseDTO> updateStockStatus(@PathVariable String id,
+            @RequestBody Map<String, Boolean> payload) {
+        if (!payload.containsKey("inStock")) {
+            return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.ok(productService.updateStockStatus(id, payload.get("inStock")));
+    }
+
     @PatchMapping("/{id}/variants/{variantId}/deduct-stock")
     public ResponseEntity<Void> deductStock(@PathVariable String id, @PathVariable String variantId,
             @RequestParam Integer quantity) {

@@ -773,6 +773,41 @@ svg {
   border-color: var(--neutral-text);
 }
 
+/* ── Stock Toggle ─────────────────────────────────────────── */
+.toggle-stock {
+  padding: 4px 12px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.15s;
+  border: 1.5px solid;
+  cursor: pointer;
+}
+
+.stock-in {
+  background: #dbeafe;
+  color: #1d4ed8;
+  border-color: #dbeafe;
+}
+
+.stock-in:hover {
+  background: #1d4ed8;
+  color: #fff;
+  border-color: #1d4ed8;
+}
+
+.stock-out {
+  background: #fee2e2;
+  color: #b91c1c;
+  border-color: #fee2e2;
+}
+
+.stock-out:hover {
+  background: #b91c1c;
+  color: #fff;
+  border-color: #b91c1c;
+}
+
 /* ── Customer Cells ──────────────────────────────────────── */
 .customer-name {
   display: flex;

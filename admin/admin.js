@@ -80,6 +80,7 @@ const api = {
   updateProduct: (id, d) => api.req(`/api/v1/admin/products/${id}`, { method: 'PUT', body: JSON.stringify(d) }),
   deleteProduct: (id) => api.req(`/api/v1/admin/products/${id}`, { method: 'DELETE' }),
   toggleVisibility: (id, v) => api.req(`/api/v1/admin/products/${id}/visibility`, { method: 'PATCH', body: JSON.stringify({ isVisible: v }) }),
+  toggleStock: (id, v) => api.req(`/api/v1/admin/products/${id}/stock`, { method: 'PATCH', body: JSON.stringify({ inStock: v }) }),
   // Orders
   getAdminOrders: () => api.req('/api/v1/admin/orders?size=1000').then(d => d.content || d),
   getOrderStats: () => api.req('/api/v1/admin/orders/stats'),
@@ -602,7 +603,7 @@ function _renderProductsUI() {
         <table class="table">
           <thead><tr>
             <th>Product</th><th>Category</th><th>Price</th>
-            <th>Variants</th><th>Status</th><th>Actions</th>
+            <th>Variants</th><th>Status</th><th>Stock</th><th>Actions</th>
           </tr></thead>
           <tbody>
             ${paged.length === 0
@@ -634,6 +635,12 @@ function _renderProductsUI() {
                     </button>
                   </td>
                   <td>
+                    <button class="toggle-stock ${p.inStockFlag !== false ? 'stock-in' : 'stock-out'}"
+                            data-id="${p.id}" data-stock="${p.inStockFlag !== false}">
+                      ${p.inStockFlag !== false ? 'In Stock' : 'Out of Stock'}
+                    </button>
+                  </td>
+                  <td>
                     <div class="action-btns">
                       <button class="btn-icon btn-icon--edit" data-action="edit" data-id="${p.id}" title="Edit">
                         ${iconEdit()}</button>
@@ -662,6 +669,17 @@ function _renderProductsUI() {
       const p = S.products.find(p => p.id === btn.dataset.id);
       if (p) p.visible = !curVis;
       toast(`Product ${!curVis ? 'visible' : 'hidden'}`);
+      _renderProductsUI();
+    } catch (e) { toast(e.message, 'error'); }
+  }));
+
+  document.querySelectorAll('.toggle-stock').forEach(btn => btn.addEventListener('click', async () => {
+    const curStock = btn.dataset.stock === 'true';
+    try {
+      await api.toggleStock(btn.dataset.id, !curStock);
+      const p = S.products.find(p => p.id === btn.dataset.id);
+      if (p) p.inStockFlag = !curStock;
+      toast(`Product marked as ${!curStock ? 'In Stock' : 'Out of Stock'}`);
       _renderProductsUI();
     } catch (e) { toast(e.message, 'error'); }
   }));

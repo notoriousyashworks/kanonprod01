@@ -241,3 +241,48 @@
   text-decoration-thickness: 1px;
   line-height: 1.2;
 }
+
+/* ============================================
+   Sold Out Overlay
+   ============================================ */
+
+.pc-sold-out-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.52);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+  border-radius: 10px;
+  backdrop-filter: blur(1px);
+}
+
+.pc-sold-out-label {
+  font-family: var(--font-primary), 'Plus Jakarta Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 3px;
+  color: #ffffff;
+  text-transform: uppercase;
+  padding: 8px 18px;
+  border: 2px solid rgba(255, 255, 255, 0.75);
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.35);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+}
+
+.product-card-new.is-sold-out .pc-image-wrap img,
+.product-card-new.is-sold-out .pc-video-preview {
+  filter: grayscale(60%);
+  opacity: 0.85;
+}
+
+.product-card-new.is-sold-out .pc-name {
+  color: #6b7280;
+}
+
+.product-card-new.is-sold-out .pc-price {
+  color: #9ca3af;
+}
+

@@ -278,6 +278,15 @@ public class ProductService {
     }
 
     @Transactional
+    public ProductResponseDTO updateStockStatus(String id, boolean inStock) {
+        Product product = productRepository.findById(UUID.fromString(id))
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
+        product.setInStockFlag(inStock);
+        Product savedProduct = productRepository.save(product);
+        return mapToAdminResponseDTO(savedProduct);
+    }
+
+    @Transactional
     public void deductStock(String productId, String variantId, Integer quantity) {
         Product product = productRepository.findById(UUID.fromString(productId))
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + productId));

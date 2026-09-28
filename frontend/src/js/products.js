@@ -438,8 +438,14 @@ async function fetchPage(page) {
 function renderProducts(grid) {
   const hasMore = currentPage + 1 < totalPages;
 
+  // Show in-stock products first, out-of-stock products at the end
+  const sortedProducts = [
+    ...allLoadedProducts.filter(p => p.inStockFlag !== false),
+    ...allLoadedProducts.filter(p => p.inStockFlag === false),
+  ];
+
   grid.innerHTML = `
-    ${allLoadedProducts.map(createProductCard).join('')}
+    ${sortedProducts.map(createProductCard).join('')}
     ${hasMore ? `
       <div class="products-view-more">
         <button class="products-view-more-btn" type="button" ${isLoadingMore ? 'disabled' : ''}>
