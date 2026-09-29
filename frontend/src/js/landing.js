@@ -396,11 +396,8 @@ function renderArrivalsGrid(hideButton = false) {
   const moreWrap = document.getElementById('new-arrivals-more-wrap');
   const viewMoreBtn = document.getElementById('new-arrivals-view-more');
 
-  // Show in-stock products first, out-of-stock products at the end
-  const sortedArrivals = [
-    ...allNewArrivals.filter(p => p.inStockFlag !== false),
-    ...allNewArrivals.filter(p => p.inStockFlag === false),
-  ];
+  // Only show in-stock products
+  const sortedArrivals = allNewArrivals.filter(p => p.inStockFlag !== false);
   grid.innerHTML = sortedArrivals.map(createProductCard).join('');
   attachCardListeners(allNewArrivals);
 

@@ -471,7 +471,7 @@ function renderProduct(product) {
       </div>
       ` : ''}
 
-
+      ${product.inStockFlag === false ? '' : `
       ${sizeChooserHTML}
 
       <div class="quantity-section">
@@ -494,6 +494,7 @@ function renderProduct(product) {
           <span style="font-size: 12.5px; color: #64748b; line-height: 1.4; cursor: pointer;">Get a 1-on-1 live video call with our team to verify quality right before dispatch.</span>
         </div>
       </div>
+      `}
 
       ${product.inStockFlag === false ? `
       <div class="action-row" style="display:flex;width:100%;">
