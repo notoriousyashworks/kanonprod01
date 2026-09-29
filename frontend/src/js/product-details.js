@@ -74,13 +74,7 @@ window.initVideoPlayback = function(video, isWarmup = false) {
        return;
     }
     if (video.dataset.initState === 'ready' || video.dataset.initState === 'playing') {
-      console.log('[HLS] Already initialized. Toggling play/pause.');
-      if (video.paused) {
-        const p = video.play();
-        if (p !== undefined) p.catch(e => console.warn('[HLS] Resume error:', e));
-      } else {
-        video.pause();
-      }
+      // Allow native controls to handle play/pause after initialization
       return;
     }
   }
