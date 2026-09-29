@@ -370,7 +370,7 @@ function renderProduct(product) {
                data-hls-src="${formatVideoHls(item.url) || ''}"
                data-mp4-src="${formatVideoMp4(item.url) || ''}"
                controls
-               controlsList="nofullscreen nodownload noplaybackrate"
+               controlsList="nodownload noplaybackrate"
                disablePictureInPicture
                preload="metadata"
                playsinline
