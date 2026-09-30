@@ -2097,12 +2097,12 @@ function _initCatImageUploader(editingCat = null) {
     }
     if (dropzone) {
       const hint = dropzone.querySelector('.upload-hint');
-      if (hint) hint.innerHTML = '<span style="color:#f39c12; font-weight:600;">⏳ Uploading to Cloudinary...</span>';
+      if (hint) hint.innerHTML = '<span style="color:#f39c12; font-weight:600;">⏳ Uploading to Bunny...</span>';
     }
     if (bar) bar.style.display = 'block';
     if (fill) fill.style.width = '30%';
     try {
-      const url = await uploadToCloudinary(file, 'image', 'kicks-aura/categories');
+      const url = await uploadToBackend(file, 'image', 'kicks-aura/categories');
       if (fill) fill.style.width = '100%';
       setTimeout(() => { if (bar) bar.style.display = 'none'; if (fill) fill.style.width = '0'; }, 400);
       renderPreview(url);
