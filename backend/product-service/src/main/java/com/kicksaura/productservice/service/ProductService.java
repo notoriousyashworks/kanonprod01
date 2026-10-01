@@ -40,14 +40,14 @@ public class ProductService {
                 .and(ProductSpecification.hasPriceBetween(minPrice, maxPrice))
                 .and(ProductSpecification.hasSizeIn(sizes));
 
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size, org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "isInStockFlag").and(org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "createdAt")));
         return productRepository.findAll(spec, pageable).map(this::mapToResponseDTO);
     }
 
     @Transactional(readOnly = true)
     public Page<ProductResponseDTO> getAllVisibleProducts(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        return productRepository.findByIsVisibleTrueOrderByCreatedAtDesc(pageable)
+        Pageable pageable = PageRequest.of(page, size, org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "isInStockFlag").and(org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "createdAt")));
+        return productRepository.findByIsVisibleTrue(pageable)
                 .map(this::mapToResponseDTO);
     }
 
@@ -337,14 +337,14 @@ public class ProductService {
         if (query == null || query.trim().isEmpty()) {
             return getAllVisibleProducts(page, size);
         }
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size, org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "isInStockFlag").and(org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "createdAt")));
         return productRepository.searchProductsByQuery(query.trim(), pageable)
                 .map(this::mapToResponseDTO);
     }
 
     @Transactional(readOnly = true)
     public Page<ProductResponseDTO> getProductsByCategory(String category, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size, org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "isInStockFlag").and(org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "createdAt")));
         return productRepository.findByCategoryIgnoreCaseAndIsVisibleTrue(category, pageable)
                 .map(this::mapToResponseDTO);
     }
