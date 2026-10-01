@@ -102,9 +102,11 @@ export async function getProductsByCategory(category) {
 }
 
 export async function getRelatedProducts(categoryName, excludeId, limit = 8) {
-  const data = await filterProducts({ categories: [categoryName] }, 0, limit + 2);
+  // Fetch a larger pool to ensure we have enough in-stock items after filtering
+  const data = await filterProducts({ categories: [categoryName] }, 0, 40);
   const all = data.content || data;
-  const filtered = (all || []).filter(p => String(p.id) !== String(excludeId));
+  // Filter out the current product AND out-of-stock products
+  const filtered = (all || []).filter(p => String(p.id) !== String(excludeId) && p.inStockFlag !== false);
   // Shuffle and return up to `limit` products
   for (let i = filtered.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
