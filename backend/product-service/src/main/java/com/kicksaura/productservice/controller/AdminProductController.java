@@ -79,6 +79,12 @@ public class AdminProductController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/sneakers/new-arrival")
+    public ResponseEntity<Void> markAllSneakersAsNewArrival() {
+        productService.markAllSneakersAsNewArrival();
+        return ResponseEntity.ok().build();
+    }
+
     @PatchMapping("/{id}/variants/{variantId}/deduct-stock")
     public ResponseEntity<Void> deductStock(@PathVariable String id, @PathVariable String variantId,
             @RequestParam Integer quantity) {

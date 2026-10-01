@@ -310,6 +310,10 @@ public class ProductService {
         productRepository.setAllProductsInStock();
     }
 
+    public void markAllSneakersAsNewArrival() {
+        productRepository.markAllSneakersAsNewArrival();
+    }
+
     @Transactional
     public void deductStock(String productId, String variantId, Integer quantity) {
         Product product = productRepository.findById(UUID.fromString(productId))

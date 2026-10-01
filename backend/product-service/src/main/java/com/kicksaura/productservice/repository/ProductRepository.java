@@ -50,4 +50,9 @@ public interface ProductRepository extends JpaRepository<Product, UUID>, JpaSpec
     @Transactional
     @Query("UPDATE Product p SET p.isInStockFlag = true")
     void setAllProductsInStock();
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE Product p SET p.isNewArrival = true WHERE LOWER(p.category) = 'sneakers'")
+    void markAllSneakersAsNewArrival();
 }
