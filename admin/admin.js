@@ -583,7 +583,6 @@ function _renderProductsUI() {
   const paged = paginate(filtered, page, PER_PAGE);
 
   document.getElementById('page-actions').innerHTML = `
-    <button class="btn" style="background:#eab308;color:white;margin-right:10px;" id="btn-fix-stock">Set All to In-Stock</button>
     <button class="btn btn-primary" id="btn-add-product">+ Add Product</button>
   `;
 
@@ -661,25 +660,7 @@ function _renderProductsUI() {
     </div>`);
 
   // Bind events
-  document.getElementById('btn-fix-stock').addEventListener('click', async (e) => {
-    e.target.disabled = true;
-    e.target.innerText = 'Updating...';
-    try {
-      await api.req('/api/v1/admin/products/stock/all-true', { method: 'POST' });
-    } catch(err) {
-      console.warn("Bulk endpoint failed, falling back to loop...", err);
-      const outOfStockIds = S.products.filter(p => p.inStockFlag === false).map(p => p.id);
-      let count = 0;
-      for (const id of outOfStockIds) {
-        await api.toggleStock(id, true);
-        count++;
-        if(count % 10 === 0) e.target.innerText = `Updating ${count}/${outOfStockIds.length}...`;
-      }
-    }
-    // Refresh products
-    S.products = await api.getAdminProducts();
-    _renderProductsUI();
-  });
+
   document.getElementById('btn-add-product').addEventListener('click', () => showProductForm());
   document.getElementById('prod-search').addEventListener('input', e => { S.pf.search = e.target.value; S.pf.page = 1; _renderProductsUI(); });
   document.getElementById('cat-filter').addEventListener('change', e => { S.pf.category = e.target.value; S.pf.page = 1; _renderProductsUI(); });
