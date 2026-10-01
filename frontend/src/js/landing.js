@@ -326,52 +326,20 @@ async function loadArrivals() {
         viewMoreBtn.disabled = true;
         
         try {
-          let fetchedProducts = [];
+          arrivalsPage++;
+          const moreProducts = await getNewArrivals(arrivalsPage, ARRIVALS_PAGE_SIZE);
           
-          if (!isFallbackMode) {
-            arrivalsPage++;
-            const moreProducts = await getNewArrivals(arrivalsPage, ARRIVALS_PAGE_SIZE);
-            if (moreProducts.length > 0) {
-              fetchedProducts = moreProducts;
-            }
-            hasMoreArrivals = moreProducts.length === ARRIVALS_PAGE_SIZE;
-            if (!hasMoreArrivals) {
-              isFallbackMode = true;
-            }
+          if (moreProducts.length > 0) {
+            allNewArrivals = allNewArrivals.concat(moreProducts);
+            renderArrivalsGrid();
           }
           
-          if (fetchedProducts.length === 0 && isFallbackMode) {
-             const filters = { categories: FALLBACK_CATEGORIES };
-             
-             while (fetchedProducts.length < ARRIVALS_PAGE_SIZE) {
-               const fallbacks = await filterProducts(filters, fallbackPage, 30);
-               fallbackPage++;
-               
-               if (fallbacks.length === 0) {
-                 break;
-               }
-               
-               const existingIds = new Set(allNewArrivals.map(p => p.id).concat(fetchedProducts.map(p => p.id)));
-               const uniqueFallbacks = fallbacks.filter(p => !existingIds.has(p.id));
-               
-               fetchedProducts = fetchedProducts.concat(uniqueFallbacks);
-             }
-             
-             fetchedProducts.sort(() => Math.random() - 0.5);
-             fetchedProducts = fetchedProducts.slice(0, ARRIVALS_PAGE_SIZE);
-             
-             if (fetchedProducts.length === 0) {
-               renderArrivalsGrid(true);
-               return; 
-             }
-          }
-          
-          if (fetchedProducts.length > 0) {
-             allNewArrivals = allNewArrivals.concat(fetchedProducts);
-             renderArrivalsGrid();
+          hasMoreArrivals = moreProducts.length === ARRIVALS_PAGE_SIZE;
+          if (!hasMoreArrivals) {
+            moreWrap.style.display = 'none';
           } else {
-             viewMoreBtn.textContent = 'View More';
-             viewMoreBtn.disabled = false;
+            viewMoreBtn.textContent = 'View More';
+            viewMoreBtn.disabled = false;
           }
         } catch (err) {
           console.error("Failed to fetch more arrivals", err);

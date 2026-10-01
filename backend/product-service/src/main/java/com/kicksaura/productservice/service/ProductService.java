@@ -53,34 +53,51 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     public Page<ProductResponseDTO> getNewArrivals(int page, int size) {
-        int sneakersSize = (int) Math.round(size * 0.90);
-        int watchesSize = size - sneakersSize;
+        // Fetch up to a large number of sneakers and watches to process in memory
+        Pageable fetchAll = PageRequest.of(0, 10000);
+        List<Product> allSneakers = productRepository.findByCategoryIgnoreCaseAndIsNewArrivalTrueAndIsVisibleTrueOrderByIsInStockFlagDescCreatedAtDesc("Sneakers", fetchAll).getContent();
+        List<Product> allWatches = productRepository.findByCategoryIgnoreCaseAndIsNewArrivalTrueAndIsVisibleTrueOrderByIsInStockFlagDescCreatedAtDesc("Mens Watches", fetchAll).getContent();
 
-        Pageable sneakersPageable = PageRequest.of(page, sneakersSize > 0 ? sneakersSize : 1);
-        Pageable watchesPageable = PageRequest.of(page, watchesSize > 0 ? watchesSize : 1);
+        // Separate into in-stock and out-of-stock
+        List<Product> inStockSneakers = allSneakers.stream().filter(Product::isInStockFlag).collect(Collectors.toList());
+        List<Product> outOfStockSneakers = allSneakers.stream().filter(p -> !p.isInStockFlag()).collect(Collectors.toList());
 
-        Page<Product> sneakers = productRepository.findByCategoryIgnoreCaseAndIsNewArrivalTrueAndIsVisibleTrueOrderByIsInStockFlagDescCreatedAtDesc("Sneakers", sneakersPageable);
-        Page<Product> watches = productRepository.findByCategoryIgnoreCaseAndIsNewArrivalTrueAndIsVisibleTrueOrderByIsInStockFlagDescCreatedAtDesc("Mens Watches", watchesPageable);
+        List<Product> inStockWatches = allWatches.stream().filter(Product::isInStockFlag).collect(Collectors.toList());
+        List<Product> outOfStockWatches = allWatches.stream().filter(p -> !p.isInStockFlag()).collect(Collectors.toList());
 
-        List<ProductResponseDTO> combined = new ArrayList<>();
+        List<Product> combined = new ArrayList<>();
         
-        List<ProductResponseDTO> sneakersList = sneakers.getContent().stream().map(this::mapToResponseDTO).collect(Collectors.toList());
-        List<ProductResponseDTO> watchesList = watches.getContent().stream().map(this::mapToResponseDTO).collect(Collectors.toList());
-        
+        // Interleave in-stock: 9 sneakers per 1 watch
         int sIdx = 0, wIdx = 0;
-        while (sIdx < sneakersList.size() || wIdx < watchesList.size()) {
-            // Add roughly 9 sneakers for every 1 watch item to maintain 90/10 visually
-            for (int i = 0; i < 9 && sIdx < sneakersList.size(); i++) {
-                combined.add(sneakersList.get(sIdx++));
+        while (sIdx < inStockSneakers.size() || wIdx < inStockWatches.size()) {
+            for (int i = 0; i < 9 && sIdx < inStockSneakers.size(); i++) {
+                combined.add(inStockSneakers.get(sIdx++));
             }
-            if (wIdx < watchesList.size()) {
-                combined.add(watchesList.get(wIdx++));
+            if (wIdx < inStockWatches.size()) {
+                combined.add(inStockWatches.get(wIdx++));
             }
         }
 
-        long totalElements = sneakers.getTotalElements() + watches.getTotalElements();
+        // Interleave out-of-stock: 9 sneakers per 1 watch
+        sIdx = 0; wIdx = 0;
+        while (sIdx < outOfStockSneakers.size() || wIdx < outOfStockWatches.size()) {
+            for (int i = 0; i < 9 && sIdx < outOfStockSneakers.size(); i++) {
+                combined.add(outOfStockSneakers.get(sIdx++));
+            }
+            if (wIdx < outOfStockWatches.size()) {
+                combined.add(outOfStockWatches.get(wIdx++));
+            }
+        }
 
-        return new org.springframework.data.domain.PageImpl<>(combined, PageRequest.of(page, size), totalElements);
+        // Apply pagination
+        int start = Math.min(page * size, combined.size());
+        int end = Math.min(start + size, combined.size());
+        
+        List<ProductResponseDTO> pagedResult = combined.subList(start, end).stream()
+                .map(this::mapToResponseDTO)
+                .collect(Collectors.toList());
+
+        return new org.springframework.data.domain.PageImpl<>(pagedResult, PageRequest.of(page, size), combined.size());
     }
 
     @Transactional(readOnly = true)
