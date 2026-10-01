@@ -43,7 +43,7 @@ const CLOUDINARY_CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME_ADMIN;
 const CLOUDINARY_UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 
 // ── ImageKit (new product image/video uploads) ──────────────
-const IMAGEKIT_PUBLIC_KEY   = import.meta.env.VITE_IMAGEKIT_PUBLIC_KEY;
+const IMAGEKIT_PUBLIC_KEY = import.meta.env.VITE_IMAGEKIT_PUBLIC_KEY;
 const IMAGEKIT_URL_ENDPOINT = import.meta.env.VITE_IMAGEKIT_URL_ENDPOINT;
 
 // ── State ──────────────────────────────────────────────────
@@ -176,7 +176,7 @@ async function uploadToBackend(file, resourceType = 'image', folder = null) {
 
   if (!res.ok) {
     let errMsg = `Upload failed (HTTP ${res.status})`;
-    try { const e = await res.json(); errMsg = e.error || e.message || errMsg; } catch (_) {}
+    try { const e = await res.json(); errMsg = e.error || e.message || errMsg; } catch (_) { }
     throw new Error(errMsg);
   }
 
@@ -221,7 +221,7 @@ function initMediaUploader(containerId, key, resourceType, accept, folder = null
     }).join('');
 
     const isUploading = _uploaderState['isUploading_' + key] || false;
-    const dropzoneHint = isUploading 
+    const dropzoneHint = isUploading
       ? `<span class="upload-hint" style="color:#f39c12; font-weight:600;">⏳ Uploading ${resourceType}(s)... Please wait...</span>`
       : `<span class="upload-hint">Drop files here or <u>browse</u></span>`;
 
@@ -1299,11 +1299,11 @@ function _renderOrdersUI() {
             ${paged.length === 0
       ? `<tr><td colspan="12" class="empty-row">No orders found</td></tr>`
       : paged.map(o => {
-          const c = S.customers.find(c => c.uuid === o.userId);
-          const custName = c ? esc(c.firstName + ' ' + (c.lastName || '')).trim() : 'Guest';
-          const pNames = (o.items || []).map(i => { const p = S.products.find(p => p.id === i.productId); return p ? esc(p.name) : 'Unknown'; });
-          const prodStr = pNames.length > 0 ? pNames[0] + (pNames.length > 1 ? ` (+${pNames.length - 1})` : '') : '—';
-          return `<tr>
+        const c = S.customers.find(c => c.uuid === o.userId);
+        const custName = c ? esc(c.firstName + ' ' + (c.lastName || '')).trim() : 'Guest';
+        const pNames = (o.items || []).map(i => { const p = S.products.find(p => p.id === i.productId); return p ? esc(p.name) : 'Unknown'; });
+        const prodStr = pNames.length > 0 ? pNames[0] + (pNames.length > 1 ? ` (+${pNames.length - 1})` : '') : '—';
+        return `<tr>
                   <td><strong class="order-number">${esc(o.orderNumber)}</strong></td>
                   <td>${custName}</td>
                   <td><span title="${pNames.join(', ')}">${prodStr}</span></td>
@@ -1322,7 +1322,7 @@ function _renderOrdersUI() {
                     </div>
                   </td>
                 </tr>`;
-        }).join('')}
+      }).join('')}
           </tbody>
         </table>
       </div>
@@ -1348,7 +1348,7 @@ function showOrderDetail(order) {
   const itemRows = (order.items || []).map(item => {
     const prod = S.products.find(p => p.id === item.productId);
     const vari = prod?.variants?.find(v => v.id === item.variantId);
-    
+
     // Status Dropdown for Item
     const itemStatuses = ['PENDING', 'ACCEPTED', 'EDITED', 'CANCELLED'];
     const statusSelect = `<select class="item-status-select" data-id="${item.id}" style="padding: 2px 4px; font-size: 12px; border: 1px solid #ddd; border-radius: 4px;">
@@ -1457,7 +1457,7 @@ function showOrderDetail(order) {
     const adminStatus = document.getElementById('order-admin-status').value;
     const paymentMethod = document.getElementById('order-payment-method').value;
     const itemRows = document.querySelectorAll('.item-row-data');
-    
+
     const itemUpdates = Array.from(itemRows).map(row => {
       const vSelect = row.querySelector('.item-variant-select');
       return {
@@ -1474,7 +1474,7 @@ function showOrderDetail(order) {
       const trackingLink = document.getElementById('order-tracking-link').value;
       const shippingFees = document.getElementById('order-shipping-fees').value;
       const phoneNumber = document.getElementById('order-phone-number').value;
-      
+
       const updatedOrder = await api.updateOrderFull(order.id, {
         paymentMethod: paymentMethod,
         items: itemUpdates,
@@ -1485,18 +1485,18 @@ function showOrderDetail(order) {
       });
       // 2. Update global status if changed
       if (globalStatus !== order.status || adminStatus !== (order.adminStatus || 'PENDING_REVIEW')) {
-         const res = await api.updateOrderStatus(order.id, globalStatus, adminStatus);
-         updatedOrder.status = res.status;
-         updatedOrder.adminStatus = res.adminStatus;
+        const res = await api.updateOrderStatus(order.id, globalStatus, adminStatus);
+        updatedOrder.status = res.status;
+        updatedOrder.adminStatus = res.adminStatus;
       }
-      
+
       const idx = S.orders.findIndex(o => o.id === order.id);
       if (idx !== -1) S.orders[idx] = updatedOrder;
-      
+
       toast('Order updated successfully');
       hideModal();
       _renderOrdersUI();
-    } catch(e) {
+    } catch (e) {
       toast('Failed to update order: ' + e.message, 'error');
       throw e;
     }
@@ -1514,7 +1514,7 @@ function showOrderDetail(order) {
     document.querySelectorAll('.item-row-data').forEach(row => {
       const qty = parseInt(row.querySelector('.item-qty-input').value, 10) || 1;
       const price = parseFloat(row.querySelector('.item-subtotal-display').dataset.price);
-      
+
       const subDisplay = row.querySelector('.item-subtotal-display');
       subDisplay.textContent = fmt.currency(price * qty);
 
@@ -1525,9 +1525,9 @@ function showOrderDetail(order) {
     const isPrepaid = paymentSelect.value === 'PREPAID';
     let discount = isPrepaid ? (totalUnits * 200) : 0;
     let shipping = (!isPrepaid && totalUnits > 0) ? (totalUnits * 99) : 0;
-    
+
     if (subtotal === 0) { discount = 0; shipping = 0; }
-    
+
     const newTotal = subtotal - discount + shipping;
     if (totalDisplay) totalDisplay.textContent = fmt.currency(newTotal);
   }
@@ -1584,8 +1584,8 @@ function showReceiptModal(order) {
       </div>`;
   });
 
-  const shippingNum   = isPrepaid ? 0 : totalUnits * 99;
-  const discountNum   = isPrepaid ? totalUnits * 200 : 0;
+  const shippingNum = isPrepaid ? 0 : totalUnits * 99;
+  const discountNum = isPrepaid ? totalUnits * 200 : 0;
   const computedTotal = subtotalNum - discountNum + shippingNum;
   const fmtINR = n => '₹' + n.toLocaleString('en-IN', { minimumFractionDigits: 2 });
   const addrLine = [addr?.houseNumberOrAddress, addr?.landmark, addr?.city, addr?.state, addr?.pinCode].filter(Boolean).join(', ');
@@ -2257,7 +2257,7 @@ function showCouponForm(coupon = null) {
       showOnCheckout: f.querySelector('[name="showOnCheckout"]').checked,
     };
     if ((discountType === 'PERCENTAGE' && !data.discountPercent) ||
-        (discountType === 'PER_PRODUCT' && !data.discountAmount)) {
+      (discountType === 'PER_PRODUCT' && !data.discountAmount)) {
       toast('Please enter a discount value', 'error');
       return false; // keep modal open
     }
