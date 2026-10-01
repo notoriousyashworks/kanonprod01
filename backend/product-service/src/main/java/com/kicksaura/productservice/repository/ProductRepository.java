@@ -23,6 +23,8 @@ public interface ProductRepository extends JpaRepository<Product, UUID>, JpaSpec
 
     Page<Product> findByCategoryIgnoreCaseAndIsNewArrivalTrueAndIsVisibleTrueOrderByCreatedAtDesc(String category, Pageable pageable);
 
+    Page<Product> findByCategoryIgnoreCaseAndIsNewArrivalTrueAndIsVisibleTrueOrderByIsInStockFlagDescCreatedAtDesc(String category, Pageable pageable);
+
     @Query("SELECT p FROM Product p WHERE p.isNewArrival = true AND p.isVisible = true AND LOWER(p.category) != 'sneakers' " +
            "ORDER BY CASE WHEN LOWER(p.category) = 'mens watches' THEN 1 " +
            "WHEN LOWER(p.category) = 'mens sunglasses' THEN 2 ELSE 3 END ASC, p.createdAt DESC")

@@ -53,30 +53,32 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     public Page<ProductResponseDTO> getNewArrivals(int page, int size) {
-        int sneakersSize = (int) Math.round(size * 0.70);
-        int restSize = size - sneakersSize;
+        int sneakersSize = (int) Math.round(size * 0.90);
+        int watchesSize = size - sneakersSize;
 
         Pageable sneakersPageable = PageRequest.of(page, sneakersSize > 0 ? sneakersSize : 1);
-        Pageable restPageable = PageRequest.of(page, restSize > 0 ? restSize : 1);
+        Pageable watchesPageable = PageRequest.of(page, watchesSize > 0 ? watchesSize : 1);
 
-        Page<Product> sneakers = productRepository.findByCategoryIgnoreCaseAndIsNewArrivalTrueAndIsVisibleTrueOrderByCreatedAtDesc("Sneakers", sneakersPageable);
-        Page<Product> rest = productRepository.findRestOfNewArrivals(restPageable);
+        Page<Product> sneakers = productRepository.findByCategoryIgnoreCaseAndIsNewArrivalTrueAndIsVisibleTrueOrderByIsInStockFlagDescCreatedAtDesc("Sneakers", sneakersPageable);
+        Page<Product> watches = productRepository.findByCategoryIgnoreCaseAndIsNewArrivalTrueAndIsVisibleTrueOrderByIsInStockFlagDescCreatedAtDesc("Mens Watches", watchesPageable);
 
         List<ProductResponseDTO> combined = new ArrayList<>();
         
-        // Interleave them so it looks natural, rather than all sneakers then all rest
         List<ProductResponseDTO> sneakersList = sneakers.getContent().stream().map(this::mapToResponseDTO).collect(Collectors.toList());
-        List<ProductResponseDTO> restList = rest.getContent().stream().map(this::mapToResponseDTO).collect(Collectors.toList());
+        List<ProductResponseDTO> watchesList = watches.getContent().stream().map(this::mapToResponseDTO).collect(Collectors.toList());
         
-        int sIdx = 0, rIdx = 0;
-        while (sIdx < sneakersList.size() || rIdx < restList.size()) {
-            // Add roughly 2 sneakers for every 1 rest item to maintain 70/30 visually
-            if (sIdx < sneakersList.size()) combined.add(sneakersList.get(sIdx++));
-            if (sIdx < sneakersList.size()) combined.add(sneakersList.get(sIdx++));
-            if (rIdx < restList.size()) combined.add(restList.get(rIdx++));
+        int sIdx = 0, wIdx = 0;
+        while (sIdx < sneakersList.size() || wIdx < watchesList.size()) {
+            // Add roughly 9 sneakers for every 1 watch item to maintain 90/10 visually
+            for (int i = 0; i < 9 && sIdx < sneakersList.size(); i++) {
+                combined.add(sneakersList.get(sIdx++));
+            }
+            if (wIdx < watchesList.size()) {
+                combined.add(watchesList.get(wIdx++));
+            }
         }
 
-        long totalElements = sneakers.getTotalElements() + rest.getTotalElements();
+        long totalElements = sneakers.getTotalElements() + watches.getTotalElements();
 
         return new org.springframework.data.domain.PageImpl<>(combined, PageRequest.of(page, size), totalElements);
     }
