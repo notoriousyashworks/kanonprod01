@@ -426,9 +426,6 @@ async function fetchPage(page) {
     }
 
     let currentBatchSize = PRODUCTS_BATCH_SIZE;
-    if (state.categories && state.categories.some(c => c.toLowerCase() === 'sneakers')) {
-        currentBatchSize = 1000;
-    }
 
     const pageData = await filterProducts({
       query: state.searchQuery,
