@@ -342,7 +342,7 @@ export function createProductCard(product) {
   ` : '';
 
   return `
-    <a href="/product-details?id=${product.id}" class="product-card-link" aria-label="${product.name}" target="_blank" rel="noopener noreferrer">
+    <a href="/product-details?id=${product.id}" class="product-card-link" aria-label="${product.name}">
       <article class="product-card product-card-new ${isHandbag ? 'is-handbag' : ''} ${isOutOfStock ? 'is-sold-out' : ''}" data-product-id="${product.id}">
         <div class="pc-image-wrap">
           ${badgesContainer}
