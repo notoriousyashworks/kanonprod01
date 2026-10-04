@@ -2,6 +2,7 @@
    Products Page — Search + Filter Engine
    ============================================ */
 import { filterProducts, getCategories, getBrands, getAllProducts, getTrendingProducts as apiGetTrendingProducts } from './api.js';
+import { timeSeededShuffle } from './shuffle.js';
 import { updateCartBadge } from './cart.js';
 import { getNavbarHTML, getFooterHTML, createProductCard, showToast, initSearch, initMobileMenu } from './ui.js';
 import { initWishlistSidebar, updateWishlistBadge } from './wishlist.js';
@@ -440,11 +441,10 @@ async function fetchPage(page) {
 function renderProducts(grid) {
   const hasMore = currentPage + 1 < totalPages;
 
-  // Show in-stock products first, out-of-stock products at the end
-  const sortedProducts = [
-    ...allLoadedProducts.filter(p => p.inStockFlag !== false),
-    ...allLoadedProducts.filter(p => p.inStockFlag === false),
-  ];
+  // Separate in-stock and out-of-stock, shuffle in-stock ones every 12 hours
+  const inStock = allLoadedProducts.filter(p => p.inStockFlag !== false);
+  const outOfStock = allLoadedProducts.filter(p => p.inStockFlag === false);
+  const sortedProducts = [...timeSeededShuffle(inStock, 2), ...outOfStock];
 
   grid.innerHTML = `
     ${sortedProducts.map(createProductCard).join('')}

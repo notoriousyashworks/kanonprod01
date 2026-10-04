@@ -2,6 +2,7 @@
    Landing Page Logic
    ============================================ */
 import { getAllProducts, getNewArrivals, getTrendingProducts, getCategories, getCustomerReviews, filterProducts } from './api.js';
+import { timeSeededShuffle } from './shuffle.js';
 import { addToCart, updateCartBadge } from './cart.js';
 import { getNavbarHTML, getFooterHTML, createProductCard, showToast, formatCloudinaryUrl, initSearch, initMobileMenu } from './ui.js';
 import { initWishlistSidebar, updateWishlistBadge } from './wishlist.js';
@@ -364,8 +365,11 @@ function renderArrivalsGrid(hideButton = false) {
   const moreWrap = document.getElementById('new-arrivals-more-wrap');
   const viewMoreBtn = document.getElementById('new-arrivals-view-more');
 
-  // Render all products since they are already sorted by in-stock flag on the backend
-  grid.innerHTML = allNewArrivals.map(createProductCard).join('');
+  // Separate in-stock and out-of-stock, shuffle in-stock ones every 12 hours
+  const inStock = allNewArrivals.filter(p => p.inStockFlag !== false);
+  const outOfStock = allNewArrivals.filter(p => p.inStockFlag === false);
+  const shuffledArrivals = [...timeSeededShuffle(inStock, 1), ...outOfStock];
+  grid.innerHTML = shuffledArrivals.map(createProductCard).join('');
   attachCardListeners(allNewArrivals);
 
   if (moreWrap) {
