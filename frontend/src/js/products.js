@@ -28,7 +28,7 @@ initSearch();
    ============================================================ */
 const PRICE_MIN_DEFAULT = 0;
 const PRICE_MAX_DEFAULT = 35000;
-const PRODUCTS_BATCH_SIZE = 500;
+const PRODUCTS_BATCH_SIZE = 16;
 let currentPage = 0;
 let totalPages = 0;
 let totalElements = 0;
