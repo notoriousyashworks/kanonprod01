@@ -192,7 +192,7 @@ jobs:
           SSH="ssh -i ~/.ssh/deploy_key -p $VPS_SSH_PORT -o StrictHostKeyChecking=accept-new -o BatchMode=yes $VPS_USER@$VPS_HOST"
           $SSH "mkdir -p /opt/kicksaura"
           scp -i ~/.ssh/deploy_key -P "$VPS_SSH_PORT" \
-              docker-compose.yml Caddyfile \
+              docker-compose.yml \
               "$VPS_USER@$VPS_HOST:/opt/kicksaura/"
           scp -i ~/.ssh/deploy_key -P "$VPS_SSH_PORT" \
               "$ENV_FILE" "$VPS_USER@$VPS_HOST:/opt/kicksaura/.env"
@@ -223,7 +223,7 @@ jobs:
           	set -uo pipefail
           	cd /opt/kicksaura
           	check_port() { timeout 1 bash -c "</dev/tcp/127.0.0.1/$1" 2>/dev/null; }
-          	for port in 8081 8082 8083 8080; do
+          	for port in 8081 8082 8083 8085; do
           		ok=""
           		for i in $(seq 1 60); do
           			if check_port "$port"; then ok=1; break; fi
