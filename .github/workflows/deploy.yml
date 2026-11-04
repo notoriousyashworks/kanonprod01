@@ -1,0 +1,251 @@
+name: Deploy
+# Build images on GHCR from GitHub, then SSH into the VPS and roll them out.
+# The VPS must already be authenticated for ghcr.io pulls — either:
+#   a) packages set to public once after first successful run, or
+#   b) one-time `docker login ghcr.io` as the github-actions user (PAT: read:packages).
+# The workflow fails loudly below with instructions if the pull cannot authorize.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  IMAGE_TAG: main
+
+jobs:
+  build-push:
+    name: Build & push images to GHCR
+    runs-on: ubuntu-latest
+    # Runtime env vars are supplied here only so that `docker compose build`
+    # can interpolate the Compose file — they are NOT baked into images.
+    env:
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+      SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+      SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+      MSG91_WIDGET_ID: ${{ secrets.MSG91_WIDGET_ID }}
+      MSG91_WIDGET_TOKEN: ${{ secrets.MSG91_WIDGET_TOKEN }}
+      MSG91_AUTHKEY: ${{ secrets.MSG91_AUTHKEY }}
+      BUNNY_STORAGE_ZONE: ${{ secrets.BUNNY_STORAGE_ZONE }}
+      BUNNY_STORAGE_API_KEY: ${{ secrets.BUNNY_STORAGE_API_KEY }}
+      BUNNY_STORAGE_HOST: ${{ secrets.BUNNY_STORAGE_HOST }}
+      BUNNY_CDN_BASE_URL: ${{ secrets.BUNNY_CDN_BASE_URL }}
+      PGHOST: host.docker.internal
+      PGPORT: "5432"
+      PGDATABASE: kicksaura_db
+      PGUSER: kicksaura_app
+      ALLOWED_ORIGINS: ${{ vars.ALLOWED_ORIGINS }}
+      COOKIE_SECURE: ${{ vars.COOKIE_SECURE || 'true' }}
+      # Public (Vite) build args — baked into JS bundles.
+      VITE_API_URL: ${{ vars.VITE_API_URL || '/api' }}
+      VITE_WHATSAPP_NUMBER: ${{ vars.VITE_WHATSAPP_NUMBER }}
+      VITE_CLOUDINARY_CLOUD_NAME_FRONTEND: ${{ vars.VITE_CLOUDINARY_CLOUD_NAME_FRONTEND }}
+      VITE_CLOUDINARY_CLOUD_NAME_ADMIN: ${{ vars.VITE_CLOUDINARY_CLOUD_NAME_ADMIN }}
+      VITE_CLOUDINARY_UPLOAD_PRESET: ${{ vars.VITE_CLOUDINARY_UPLOAD_PRESET }}
+      VITE_STORE_URL: ${{ vars.VITE_STORE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Assert required secrets/variables
+        run: |
+          missing=""
+          for v in JWT_SECRET POSTGRES_PASSWORD SMTP_USERNAME SMTP_PASSWORD \
+                   MSG91_WIDGET_ID MSG91_WIDGET_TOKEN MSG91_AUTHKEY \
+                   BUNNY_STORAGE_ZONE BUNNY_STORAGE_API_KEY BUNNY_STORAGE_HOST BUNNY_CDN_BASE_URL \
+                   ALLOWED_ORIGINS VITE_WHATSAPP_NUMBER \
+                   VITE_CLOUDINARY_CLOUD_NAME_FRONTEND VITE_CLOUDINARY_CLOUD_NAME_ADMIN \
+                   VITE_CLOUDINARY_UPLOAD_PRESET VITE_STORE_URL; do
+            if [ -z "${!v}" ]; then missing="$missing $v"; fi
+          done
+          if [ -n "$missing" ]; then
+            echo "::error::Missing required secrets/variables:$missing"
+            exit 1
+          fi
+
+      - name: Compute GHCR image prefix
+        run: |
+          GHCR_IMAGE_PREFIX="ghcr.io/$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')"
+          echo "GHCR_IMAGE_PREFIX=$GHCR_IMAGE_PREFIX" >> "$GITHUB_ENV"
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build images
+        run: docker compose build --pull user-service product-service order-service api-gateway frontend admin
+
+      - name: Push images
+        run: docker compose push user-service product-service order-service api-gateway frontend admin
+
+      - name: Summarize published images
+        run: |
+          for s in user-service product-service order-service api-gateway frontend admin; do
+            echo "- \`$GHCR_IMAGE_PREFIX/$s:$IMAGE_TAG\`" >> "$GITHUB_STEP_SUMMARY"
+          done
+
+  deploy:
+    name: Deploy on VPS
+    needs: build-push
+    runs-on: ubuntu-latest
+    env:
+      VPS_HOST: ${{ secrets.VPS_HOST }}
+      VPS_USER: ${{ secrets.VPS_USER }}
+      VPS_SSH_PORT: ${{ secrets.VPS_SSH_PORT }}
+      VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+      GHCR_IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}
+      PGHOST: host.docker.internal
+      PGPORT: "5432"
+      PGDATABASE: kicksaura_db
+      PGUSER: kicksaura_app
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+      ALLOWED_ORIGINS: ${{ vars.ALLOWED_ORIGINS }}
+      COOKIE_SECURE: ${{ vars.COOKIE_SECURE || 'true' }}
+      SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+      SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+      MSG91_WIDGET_ID: ${{ secrets.MSG91_WIDGET_ID }}
+      MSG91_WIDGET_TOKEN: ${{ secrets.MSG91_WIDGET_TOKEN }}
+      MSG91_AUTHKEY: ${{ secrets.MSG91_AUTHKEY }}
+      BUNNY_STORAGE_ZONE: ${{ secrets.BUNNY_STORAGE_ZONE }}
+      BUNNY_STORAGE_API_KEY: ${{ secrets.BUNNY_STORAGE_API_KEY }}
+      BUNNY_STORAGE_HOST: ${{ secrets.BUNNY_STORAGE_HOST }}
+      BUNNY_CDN_BASE_URL: ${{ secrets.BUNNY_CDN_BASE_URL }}
+      VITE_API_URL: ${{ vars.VITE_API_URL || '/api' }}
+      VITE_WHATSAPP_NUMBER: ${{ vars.VITE_WHATSAPP_NUMBER }}
+      VITE_CLOUDINARY_CLOUD_NAME_FRONTEND: ${{ vars.VITE_CLOUDINARY_CLOUD_NAME_FRONTEND }}
+      VITE_CLOUDINARY_CLOUD_NAME_ADMIN: ${{ vars.VITE_CLOUDINARY_CLOUD_NAME_ADMIN }}
+      VITE_CLOUDINARY_UPLOAD_PRESET: ${{ vars.VITE_CLOUDINARY_UPLOAD_PRESET }}
+      VITE_STORE_URL: ${{ vars.VITE_STORE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Assert required SSH secrets
+        run: |
+          missing=""
+          for v in VPS_HOST VPS_USER VPS_SSH_PORT VPS_SSH_KEY; do
+            if [ -z "${!v}" ]; then missing="$missing $v"; fi
+          done
+          if [ -n "$missing" ]; then
+            echo "::error::Missing required secrets:$missing"
+            exit 1
+          fi
+
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p "$VPS_SSH_PORT" "$VPS_HOST" 2>/dev/null >> ~/.ssh/known_hosts || true
+
+      - name: Render .env (on runner, never logged)
+        run: |
+          set -a
+          ENV_FILE="$(mktemp)"
+          chmod 600 "$ENV_FILE"
+          {
+            printf 'IMAGE_TAG=%s\n' "$IMAGE_TAG"
+            printf 'GHCR_IMAGE_PREFIX=%s\n' "${GHCR_IMAGE_PREFIX,,}"
+            printf 'PGHOST=%s\n' "$PGHOST"
+            printf 'PGPORT=%s\n' "$PGPORT"
+            printf 'PGDATABASE=%s\n' "$PGDATABASE"
+            printf 'PGUSER=%s\n' "$PGUSER"
+            printf 'PGPASSWORD=%s\n' "$POSTGRES_PASSWORD"
+            printf 'JWT_SECRET=%s\n' "$JWT_SECRET"
+            printf 'ALLOWED_ORIGINS=%s\n' "$ALLOWED_ORIGINS"
+            printf 'COOKIE_SECURE=%s\n' "$COOKIE_SECURE"
+            printf 'SMTP_USERNAME=%s\n' "$SMTP_USERNAME"
+            printf 'SMTP_PASSWORD=%s\n' "$SMTP_PASSWORD"
+            printf 'MSG91_WIDGET_ID=%s\n' "$MSG91_WIDGET_ID"
+            printf 'MSG91_WIDGET_TOKEN=%s\n' "$MSG91_WIDGET_TOKEN"
+            printf 'MSG91_AUTHKEY=%s\n' "$MSG91_AUTHKEY"
+            printf 'BUNNY_STORAGE_ZONE=%s\n' "$BUNNY_STORAGE_ZONE"
+            printf 'BUNNY_STORAGE_API_KEY=%s\n' "$BUNNY_STORAGE_API_KEY"
+            printf 'BUNNY_STORAGE_HOST=%s\n' "$BUNNY_STORAGE_HOST"
+            printf 'BUNNY_CDN_BASE_URL=%s\n' "$BUNNY_CDN_BASE_URL"
+            printf 'VITE_API_URL=%s\n' "$VITE_API_URL"
+            printf 'VITE_WHATSAPP_NUMBER=%s\n' "$VITE_WHATSAPP_NUMBER"
+            printf 'VITE_CLOUDINARY_CLOUD_NAME_FRONTEND=%s\n' "$VITE_CLOUDINARY_CLOUD_NAME_FRONTEND"
+            printf 'VITE_CLOUDINARY_CLOUD_NAME_ADMIN=%s\n' "$VITE_CLOUDINARY_CLOUD_NAME_ADMIN"
+            printf 'VITE_CLOUDINARY_UPLOAD_PRESET=%s\n' "$VITE_CLOUDINARY_UPLOAD_PRESET"
+            printf 'VITE_STORE_URL=%s\n' "$VITE_STORE_URL"
+          } > "$ENV_FILE"
+          set +a
+          echo "ENV_FILE=$ENV_FILE" >> "$GITHUB_ENV"
+
+      - name: Copy stack files to VPS
+        run: |
+          SSH="ssh -i ~/.ssh/deploy_key -p $VPS_SSH_PORT -o StrictHostKeyChecking=accept-new -o BatchMode=yes $VPS_USER@$VPS_HOST"
+          $SSH "mkdir -p /opt/kicksaura"
+          scp -i ~/.ssh/deploy_key -P "$VPS_SSH_PORT" \
+              docker-compose.yml Caddyfile \
+              "$VPS_USER@$VPS_HOST:/opt/kicksaura/"
+          scp -i ~/.ssh/deploy_key -P "$VPS_SSH_PORT" \
+              "$ENV_FILE" "$VPS_USER@$VPS_HOST:/opt/kicksaura/.env"
+          $SSH "chmod 600 /opt/kicksaura/.env"
+
+      # Pull and roll out. If the pulled image name reports 'denied'/'unauthorized',
+      # make packages public once on GitHub, or `docker login ghcr.io` as the VPS user.
+      - name: Pull images and roll out
+        run: |
+          SSH="ssh -i ~/.ssh/deploy_key -p $VPS_SSH_PORT -o StrictHostKeyChecking=accept-new -o BatchMode=yes $VPS_USER@$VPS_HOST"
+          $SSH bash -s <<-'REMOTE'
+          	set -euo pipefail
+          	cd /opt/kicksaura
+          	if ! docker compose pull user-service product-service order-service api-gateway frontend admin; then
+          		echo "::error::GHCR pull failed — either set the packages public once (GitHub -> Packages -> settings -> Public),"
+          		echo "::error::or run once on the VPS as the deploy user:"
+          		echo "::error::  cat <PAT> | docker login ghcr.io -u <GH_USERNAME> --password-stdin   # PAT scope: read:packages"
+          		exit 1
+          	fi
+          	docker compose up -d --remove-orphans
+          	docker compose ps
+          	REMOTE
+
+      - name: Verify backends are serving
+        run: |
+          SSH="ssh -i ~/.ssh/deploy_key -p $VPS_SSH_PORT -o StrictHostKeyChecking=accept-new -o BatchMode=yes $VPS_USER@$VPS_HOST"
+          $SSH bash -s <<-'REMOTE'
+          	set -uo pipefail
+          	cd /opt/kicksaura
+          	check_port() { timeout 1 bash -c "</dev/tcp/127.0.0.1/$1" 2>/dev/null; }
+          	for port in 8081 8082 8083 8080; do
+          		ok=""
+          		for i in $(seq 1 60); do
+          			if check_port "$port"; then ok=1; break; fi
+          			sleep 2
+          		done
+          		if [ -z "$ok" ]; then
+          			echo "::error::Backend port $port never became ready"
+          			docker compose logs --tail=80
+          			exit 1
+          		fi
+          		echo "port $port ready"
+          	done
+          	for port in 8082 8083; do
+          		if curl -fsS "http://127.0.0.1:$port/actuator/health" | grep -q '"status":"UP"'; then
+          			echo "service on $port: health UP"
+          		else
+          			echo "::error::actuator health on $port did not report UP"
+          			docker compose logs --tail=80
+          			exit 1
+          		fi
+          	done
+          	echo "All services healthy."
+          	REMOTE
+
+      - name: Prune old dangling images on VPS
+        run: |
+          ssh -i ~/.ssh/deploy_key -p "$VPS_SSH_PORT" -o StrictHostKeyChecking=accept-new -o BatchMode=yes \
+              "$VPS_USER@$VPS_HOST" "docker image prune -f"

@@ -1,45 +1,32 @@
+# KicksAura production stack on a single VPS.
+#
+# Postgres is a PRE-EXISTING instance on the host — not a compose service.
+#   Containers reach it via host.docker.internal (host-gateway mapping below);
+#   Postgres must be listening on the bridge interface and accept password auth
+#   for role `kicksaura_app` / db `kicksaura_db` / schema `prod`.
+#
+# All values come from /opt/kicksaura/.env, rendered by the Deploy workflow.
+# GHCR_IMAGE_PREFIX + IMAGE_TAG resolve the prebuilt GHCR images; `build:`
+# sections are kept only for CI/local rebuilds.
+#
+# Do NOT `docker volume prune` on the VPS — idle named volumes may hold data.
+
 services:
-  postgres:
-    image: postgres:15-alpine
-    container_name: postgres
-    hostname: postgres
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER?err}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD?err}
-      POSTGRES_DB: ${POSTGRES_DB?err}
-      TZ: Asia/Kolkata
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
-    networks:
-      kicksaura-net:
-        aliases:
-          - kicksaura
-          - postgres
-          - kicksaura-db
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U kicksaura -d kicksaura"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    restart: unless-stopped
-
-
-
   user-service:
-    build: ./backend/user-service
+    image: ${GHCR_IMAGE_PREFIX}/user-service:${IMAGE_TAG:-main}
+    build:
+      context: ./backend/user-service
+      args: {}
     container_name: kicksaura-user-service
     hostname: user-service
     ports:
-      - "8081:8081"
+      - "127.0.0.1:8081:8081"
     environment:
-      POSTGRES_HOST: postgres
-      POSTGRES_PORT: 5432
-      POSTGRES_USER: ${POSTGRES_USER?err}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD?err}
-      POSTGRES_DB: ${POSTGRES_DB?err}
+      PGHOST: ${PGHOST:-host.docker.internal}
+      PGPORT: ${PGPORT:-5432}
+      PGDATABASE: ${PGDATABASE?err}
+      PGUSER: ${PGUSER?err}
+      PGPASSWORD: ${PGPASSWORD?err}
 
       MSG91_WIDGET_ID: ${MSG91_WIDGET_ID?err}
       MSG91_WIDGET_TOKEN: ${MSG91_WIDGET_TOKEN?err}
@@ -47,9 +34,8 @@ services:
       JWT_SECRET: ${JWT_SECRET?err}
       COOKIE_SECURE: ${COOKIE_SECURE:-false}
       TZ: Asia/Kolkata
-    depends_on:
-      postgres:
-        condition: service_healthy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     networks:
       - kicksaura-net
     healthcheck:
@@ -61,26 +47,29 @@ services:
     restart: unless-stopped
 
   product-service:
-    build: ./backend/product-service
+    image: ${GHCR_IMAGE_PREFIX}/product-service:${IMAGE_TAG:-main}
+    build:
+      context: ./backend/product-service
+      args: {}
     container_name: kicksaura-product-service
     hostname: product-service
     ports:
-      - "8082:8082"
+      - "127.0.0.1:8082:8082"
     environment:
-      POSTGRES_HOST: postgres
-      POSTGRES_PORT: 5432
-      POSTGRES_USER: ${POSTGRES_USER?err}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD?err}
-      POSTGRES_DB: ${POSTGRES_DB?err}
+      PGHOST: ${PGHOST:-host.docker.internal}
+      PGPORT: ${PGPORT:-5432}
+      PGDATABASE: ${PGDATABASE?err}
+      PGUSER: ${PGUSER?err}
+      PGPASSWORD: ${PGPASSWORD?err}
 
       CLOUDINARY_CLOUD_NAME_ADMIN: ${VITE_CLOUDINARY_CLOUD_NAME_ADMIN?err}
-      IMAGEKIT_PRIVATE_KEY: ${IMAGEKIT_PRIVATE_KEY?err}
-      IMAGEKIT_PUBLIC_KEY: ${IMAGEKIT_PUBLIC_KEY?err}
-      IMAGEKIT_URL_ENDPOINT: ${IMAGEKIT_URL_ENDPOINT?err}
+      BUNNY_STORAGE_ZONE: ${BUNNY_STORAGE_ZONE?err}
+      BUNNY_STORAGE_API_KEY: ${BUNNY_STORAGE_API_KEY?err}
+      BUNNY_STORAGE_HOST: ${BUNNY_STORAGE_HOST?err}
+      BUNNY_CDN_BASE_URL: ${BUNNY_CDN_BASE_URL?err}
       TZ: Asia/Kolkata
-    depends_on:
-      postgres:
-        condition: service_healthy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     networks:
       - kicksaura-net
     healthcheck:
@@ -92,24 +81,29 @@ services:
     restart: unless-stopped
 
   order-service:
-    build: ./backend/order-service
+    image: ${GHCR_IMAGE_PREFIX}/order-service:${IMAGE_TAG:-main}
+    build:
+      context: ./backend/order-service
+      args: {}
     container_name: kicksaura-order-service
     hostname: order-service
     ports:
-      - "8083:8083"
+      - "127.0.0.1:8083:8083"
     environment:
-      POSTGRES_HOST: postgres
-      POSTGRES_PORT: 5432
-      POSTGRES_USER: ${POSTGRES_USER?err}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD?err}
-      POSTGRES_DB: ${POSTGRES_DB?err}
+      PGHOST: ${PGHOST:-host.docker.internal}
+      PGPORT: ${PGPORT:-5432}
+      PGDATABASE: ${PGDATABASE?err}
+      PGUSER: ${PGUSER?err}
+      PGPASSWORD: ${PGPASSWORD?err}
 
       SMTP_USERNAME: ${SMTP_USERNAME?err}
       SMTP_PASSWORD: ${SMTP_PASSWORD?err}
+      # Inter-service calls default to the compose DNS names on this network.
+      PRODUCT_SERVICE_URL: http://product-service:8082
+      USER_SERVICE_URL: http://user-service:8081
       TZ: Asia/Kolkata
-    depends_on:
-      postgres:
-        condition: service_healthy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     networks:
       - kicksaura-net
     healthcheck:
@@ -120,18 +114,24 @@ services:
       start_period: 600s
     restart: unless-stopped
 
-
-
   api-gateway:
-    build: ./backend/api-gateway
+    image: ${GHCR_IMAGE_PREFIX}/api-gateway:${IMAGE_TAG:-main}
+    build:
+      context: ./backend/api-gateway
+      args: {}
     container_name: kicksaura-api-gateway
     hostname: api-gateway
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"
     environment:
       JWT_SECRET: ${JWT_SECRET?err}
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS?err}
+      USER_SERVICE_URL: http://user-service:8081
+      PRODUCT_SERVICE_URL: http://product-service:8082
+      ORDER_SERVICE_URL: http://order-service:8083
       TZ: Asia/Kolkata
+    networks:
+      - kicksaura-net
     depends_on:
       user-service:
         condition: service_healthy
@@ -139,8 +139,6 @@ services:
         condition: service_healthy
       order-service:
         condition: service_healthy
-    networks:
-      - kicksaura-net
     healthcheck:
       test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/localhost/8080' || wget -q --spider http://localhost:8080 || exit 1"]
       interval: 5s
@@ -150,6 +148,7 @@ services:
     restart: unless-stopped
 
   frontend:
+    image: ${GHCR_IMAGE_PREFIX}/frontend:${IMAGE_TAG:-main}
     build:
       context: ./frontend
       args:
@@ -159,9 +158,7 @@ services:
     container_name: kicksaura-frontend
     hostname: frontend
     ports:
-      - "5173:80"
-    volumes:
-      - ./HeroBannerMain.png:/images-override/HeroBannerMain.png:ro
+      - "127.0.0.1:5173:80"
     depends_on:
       api-gateway:
         condition: service_healthy
@@ -170,18 +167,18 @@ services:
     restart: unless-stopped
 
   admin:
+    image: ${GHCR_IMAGE_PREFIX}/admin:${IMAGE_TAG:-main}
     build:
       context: ./admin
       args:
         VITE_API_URL: ${VITE_API_URL}
         VITE_CLOUDINARY_CLOUD_NAME_ADMIN: ${VITE_CLOUDINARY_CLOUD_NAME_ADMIN}
         VITE_CLOUDINARY_UPLOAD_PRESET: ${VITE_CLOUDINARY_UPLOAD_PRESET}
-        VITE_IMAGEKIT_PUBLIC_KEY: ${IMAGEKIT_PUBLIC_KEY}
-        VITE_IMAGEKIT_URL_ENDPOINT: ${IMAGEKIT_URL_ENDPOINT}
+        VITE_STORE_URL: ${VITE_STORE_URL}
     container_name: kicksaura-admin
     hostname: admin
     ports:
-      - "5174:80"
+      - "127.0.0.1:5174:80"
     depends_on:
       api-gateway:
         condition: service_healthy
@@ -189,8 +186,29 @@ services:
       - kicksaura-net
     restart: unless-stopped
 
+  caddy:
+    image: caddy:2-alpine
+    container_name: kicksaura-caddy
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      frontend:
+        condition: service_started
+      admin:
+        condition: service_started
+    networks:
+      - kicksaura-net
+    restart: unless-stopped
+
 volumes:
-  postgres_data:
+  caddy_data:
+  caddy_config:
 
 networks:
   kicksaura-net:
