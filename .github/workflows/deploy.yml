@@ -82,7 +82,9 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          # Push needs package-write: use a PAT (classic, scope write:packages) saved
+          # as GHCR_PAT. Falls back to GITHUB_TOKEN when GHCR_PAT is not configured.
+          password: ${{ secrets.GHCR_PAT || secrets.GITHUB_TOKEN }}
 
       - name: Build images
         run: docker compose build --pull user-service product-service order-service api-gateway frontend admin
