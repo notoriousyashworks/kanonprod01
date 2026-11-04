@@ -30,6 +30,7 @@ jobs:
     env:
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
       POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+      PGPASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
       SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
       SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
       MSG91_WIDGET_ID: ${{ secrets.MSG91_WIDGET_ID }}
