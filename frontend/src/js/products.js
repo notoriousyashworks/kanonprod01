@@ -438,13 +438,19 @@ async function fetchPage(page) {
     return pageData;
 }
 
+// Shuffle in-stock ones (12-hour seed), out-of-stock last — within ONE batch only.
+function orderBatch(batch, page) {
+  const inStock = batch.filter(p => p.inStockFlag !== false);
+  const outOfStock = batch.filter(p => p.inStockFlag === false);
+  return [...timeSeededShuffle(inStock, 2 + page), ...outOfStock];
+}
+
 function renderProducts(grid) {
   const hasMore = currentPage + 1 < totalPages;
 
-  // Separate in-stock and out-of-stock, shuffle in-stock ones every 12 hours
-  const inStock = allLoadedProducts.filter(p => p.inStockFlag !== false);
-  const outOfStock = allLoadedProducts.filter(p => p.inStockFlag === false);
-  const sortedProducts = [...timeSeededShuffle(inStock, 2), ...outOfStock];
+  // allLoadedProducts is already ordered per batch (see orderBatch), so
+  // earlier cards never move when "View More" appends the next batch.
+  const sortedProducts = allLoadedProducts;
 
   grid.innerHTML = `
     ${sortedProducts.map(createProductCard).join('')}
@@ -473,7 +479,7 @@ async function loadMore() {
   try {
     const nextPage = currentPage + 1;
     const pageData = await fetchPage(nextPage);
-    allLoadedProducts = [...allLoadedProducts, ...(pageData.content || [])];
+    allLoadedProducts = [...allLoadedProducts, ...orderBatch(pageData.content || [], nextPage)];
     currentPage = pageData.number;
     totalPages = pageData.totalPages;
     totalElements = pageData.totalElements;
@@ -514,7 +520,7 @@ async function loadAndRender() {
     allLoadedProducts = [];
     
     const pageData = await fetchPage(currentPage);
-    allLoadedProducts = pageData.content || [];
+    allLoadedProducts = orderBatch(pageData.content || [], 0);
     totalPages = pageData.totalPages || 0;
     totalElements = pageData.totalElements || 0;
 
