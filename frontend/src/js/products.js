@@ -426,7 +426,9 @@ async function fetchPage(page) {
       };
     }
 
-    let currentBatchSize = PRODUCTS_BATCH_SIZE;
+    // Sneakers: load everything at once (no View More); other categories stay at 16
+    const isSneakerCategory = state.categories.some(c => /sneaker/i.test(c));
+    let currentBatchSize = isSneakerCategory ? 500 : PRODUCTS_BATCH_SIZE;
 
     const pageData = await filterProducts({
       query: state.searchQuery,
