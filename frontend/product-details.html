@@ -4,7 +4,7 @@
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Product Details — KicksAura</title>
+  <title>Product Details — Kicks Aura</title>
   <meta name="description" content="View product details, select your size, and add to cart on KicksAura." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,10 +18,10 @@
   <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.7/dist/hls.min.js"></script>
 </head>
 <body>
-  <div id="navbar-container"></div>
+  <div id="navbar-container"><!--ssr:navbar--><!--/ssr:navbar--></div>
   
   <main class="product-page">
-    <div class="product-container" id="product-container">
+    <div class="product-container" id="product-container"><!--ssr:product-->
       <!-- Loading state -->
       <div id="product-loading" style="grid-column: 1/-1;">
         <div class="ka-loader">
@@ -31,10 +31,10 @@
           <span class="ka-loader__text">Loading product…</span>
         </div>
       </div>
-    </div>
+    <!--/ssr:product--></div>
   </main>
   
-  <div id="footer-container"></div>
+  <div id="footer-container"><!--ssr:footer--><!--/ssr:footer--></div>
   
   <script type="module" src="/src/js/product-details.js"></script>
 </body>

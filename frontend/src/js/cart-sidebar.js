@@ -128,7 +128,7 @@ export function renderCartSidebar() {
 
         <div class="modern-bottom-nav">
           <a href="/products" class="modern-continue-link" style="color: #315bfb; font-weight: 700; text-decoration: none;">← Continue Shopping</a>
-          <a href="/cart" class="modern-view-cart-link" style="color: #315bfb; font-weight: 700; text-decoration: none;">View Cart →</a>
+          <a href="/checkout" class="modern-view-cart-link" style="color: #315bfb; font-weight: 700; text-decoration: none;">View Cart →</a>
         </div>
       </div>`;
 

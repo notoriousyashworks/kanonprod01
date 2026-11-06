@@ -7,7 +7,7 @@
   <title>Shop Sneakers, Watches & Accessories — Kicks Aura</title>
   <meta name="description" content="Browse our full collection of premium sneakers, watches, sunglasses, perfumes & more. COD available. Extra ₹200 off on prepaid orders at Kicks Aura." />
   <meta name="robots" content="index, follow" />
-  <link rel="canonical" href="https://kicksaura.in/products" />
+  <!-- Canonical is set per URL by the SSR renderer (frontend/ssr). -->
   <meta property="og:type" content="website" />
   <meta property="og:title" content="Shop Sneakers, Watches & Accessories — Kicks Aura" />
   <meta property="og:description" content="Browse our full collection at Kicks Aura. COD available. Extra ₹200 off on prepaid orders." />
@@ -53,7 +53,7 @@
       }
     })();
   </script>
-  <div id="navbar-container"></div>
+  <div id="navbar-container"><!--ssr:navbar--><!--/ssr:navbar--></div>
 
   <div class="products-layout">
     <!-- Left Column -->
@@ -133,15 +133,15 @@
       </div>
 
       <!-- Active Filter Chips -->
-      <div class="active-chips-row" id="active-chips-row"></div>
+      <div class="active-chips-row" id="active-chips-row"><!--ssr:chips--><!--/ssr:chips--></div>
 
-      <div class="products-grid" id="products-grid">
+      <div class="products-grid" id="products-grid"><!--ssr:grid-->
         <!-- Products injected by JS -->
-      </div>
+      <!--/ssr:grid--></div>
     </main>
   </div>
 
-  <div id="footer-container"></div>
+  <div id="footer-container"><!--ssr:footer--><!--/ssr:footer--></div>
 
   <script type="module" src="/src/js/products.js"></script>
 </body>

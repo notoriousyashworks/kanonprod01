@@ -1,0 +1,4 @@
+# Never send host-built artifacts into the image build: the build stage
+# installs its own (Linux) node_modules and runs `vite build` itself.
+node_modules
+dist

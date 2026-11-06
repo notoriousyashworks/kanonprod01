@@ -5,6 +5,7 @@ import { getAllProducts, getNewArrivals, getTrendingProducts, getCategories, get
 import { timeSeededShuffle } from './shuffle.js';
 import { addToCart, updateCartBadge } from './cart.js';
 import { getNavbarHTML, getFooterHTML, createProductCard, showToast, formatCloudinaryUrl, initSearch, initMobileMenu } from './ui.js';
+import { categoryCardHTML } from './shared/templates.js';
 import { initWishlistSidebar, updateWishlistBadge } from './wishlist.js';
 import { initCartSidebar } from './cart-sidebar.js';
 import { initProfileDropdown } from './profile.js';
@@ -198,19 +199,13 @@ async function loadCategories() {
       return;
     }
 
-    const categoryCards = categories.map(cat => `
-      <a href="/products?category=${encodeURIComponent(cat.name)}" class="category-card">
-        <div class="category-image-wrap">
-          ${cat.imageUrl
-            ? `<img src="${formatCloudinaryUrl(cat.imageUrl)}" alt="${cat.name}" loading="lazy">`
-            : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#f5f5f5;color:#aaa;font-size:13px;">No image</div>`}
-        </div>
-        <div class="category-name">${cat.name}</div>
-      </a>`).join('');
+    // Markup shared with the SSR renderer; links use the canonical ?categories= URL.
+    const categoryCards = categories.map(cat => categoryCardHTML(cat)).join('');
 
     grid.innerHTML = categoryCards;
   } catch (err) {
     console.error('Failed to load categories:', err);
+    if (grid.querySelector('.category-card')) return; // keep server-rendered cards
     grid.innerHTML = '';   // hide the section gracefully on error
   }
 }
@@ -350,6 +345,7 @@ async function loadArrivals() {
       });
     }
   } catch (error) {
+    if (grid.querySelector('.product-card-link')) return; // keep server-rendered cards
     grid.innerHTML = `
       <div style="grid-column: 1/-1; text-align:center; padding: 60px 20px;">
         <p style="font-size:18px; font-weight:600;">Couldn't load products</p>

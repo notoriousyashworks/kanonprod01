@@ -3,6 +3,8 @@
    ============================================ */
 import { getProductById, getRelatedProducts } from './api.js';
 import { getNavbarHTML, getFooterHTML, showToast, formatCloudinaryUrl, formatCloudinaryVideoPoster, formatCloudinaryVideoHls, formatCloudinaryVideoMp4, formatMediaUrl, formatVideoPoster, formatVideoHls, formatVideoMp4, formatVideoHoverPreview, initSearch, initMobileMenu, createProductCard } from './ui.js';
+import { buildProductView, productDetailHTML } from './shared/templates.js';
+import { productTitle } from './shared/seo.js';
 import { addToCart, updateCartBadge } from './cart.js';
 import { initWishlistSidebar, updateWishlistBadge, isWishlisted, toggleWishlistItem } from './wishlist.js';
 import { initCartSidebar, openShippingPolicyModal } from './cart-sidebar.js';
@@ -24,7 +26,22 @@ initProfileDropdown();
 initSearch();
 initLoginModalTrigger();
 
-const fmtPrice = (p) => p != null ? '₹' + p.toLocaleString('en-IN') : '';
+// Product JSON embedded by the SSR renderer (same data it used for the HTML),
+// so the page doesn't need a second API round-trip.
+function readSsrProduct(productId) {
+  try {
+    const el = document.getElementById('ka-ssr-data');
+    if (!el) return null;
+    const data = JSON.parse(el.textContent || 'null');
+    return data && data.product && String(data.product.id) === String(productId) ? data.product : null;
+  } catch {
+    return null;
+  }
+}
+
+function hasSsrProductMarkup() {
+  return !!document.querySelector('#product-container .product-details');
+}
 
 async function loadProduct() {
   const params = new URLSearchParams(window.location.search);
@@ -35,11 +52,20 @@ async function loadProduct() {
     return;
   }
 
+  const ssrProduct = readSsrProduct(productId);
+  if (ssrProduct) {
+    await null; // let the navbar/footer bootstrap below run first, as with a fetch
+    renderProduct(ssrProduct);
+    return;
+  }
+
   try {
     const product = await getProductById(productId);
     renderProduct(product);
   } catch (err) {
     console.error('Failed to load product:', err);
+    // Keep server-rendered content rather than replacing it with an error.
+    if (hasSsrProductMarkup()) return;
     renderError('Could not load product. Please try again.');
   }
 }
@@ -283,238 +309,20 @@ window.centerPlayBtnClick = function(btn) {
 };
 
 function renderProduct(product) {
-  // Update page title
-  document.title = `${product.name} — KicksAura`;
+  // Update page title (same formula as the SSR renderer)
+  document.title = productTitle(product);
 
-  // formatMediaUrl routes Cloudinary URLs through Cloudinary transforms and
-  // ImageKit URLs through ImageKit transforms transparently.
-  const images = (product.imageUrls?.length > 0 ? product.imageUrls : []).map(formatMediaUrl);
-  // Show all videos — videoVisible is an admin badge flag, not a storefront visibility gate
-  const videos = product.videoUrls?.length > 0 ? product.videoUrls : [];
-  const mediaItems = [
-    ...images.map(url => ({ type: 'image', url })),
-    ...videos.map(url => ({ type: 'video', url }))
-  ];
-
-
-
-  const currentPrice = product.discountedPrice || product.basePrice;
-  const originalPrice = product.discountedPrice ? product.basePrice : null;
+  // Markup is shared with the SSR renderer (src/js/shared/templates.js) so the
+  // server-rendered HTML and this client render are identical.
+  const view = buildProductView(product);
+  const { mediaItems, hasVariants } = view;
   const liked = isWishlisted(product.id);
 
-  const vendorText = (product.brand?.name || product.brandName || product.category?.name || 'KICKS AURA').toUpperCase();
-  const discountPct = originalPrice ? Math.round((1 - currentPrice / originalPrice) * 100) : 0;
-  const totalStock = product.variants?.length > 0
-    ? product.variants.reduce((sum, v) => sum + (v.stockQuantity || 0), 0)
-    : (product.stockQuantity ?? 10);
-  const isInStock = product.inStockFlag ?? (totalStock > 0);
-  const initialViewers = Math.floor(Math.random() * 8) + 8; // 8 to 15 (always >= 8)
-  const initialCarts = Math.floor(Math.random() * 4) + 1; // 1 to 4
-
-  // Thumbnails HTML — vertical strip
-  // Video thumbnails: use the primary product image as a cover, overlaid with a play icon
-  const thumbnailsHTML = mediaItems.map((item, i) => {
-    if (item.type === 'video') {
-      const coverImage = formatVideoPoster(item.url) || images[0] || '';
-      return `
-        <div class="thumb-item thumb-video ${i === 0 ? 'active' : ''}" data-idx="${i}" title="Watch video">
-          <div class="thumb-video-placeholder">
-            <img src="${coverImage}" loading="lazy" alt="Video cover" />
-            <div class="thumb-video-overlay">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="white" stroke="none"><polygon points="5,3 19,12 5,21"/></svg>
-            </div>
-          </div>
-        </div>`;
-    } else {
-      // First image: eager (already in viewport). Rest: lazy.
-      return `
-        <div class="thumb-item ${i === 0 ? 'active' : ''}" data-idx="${i}">
-          <img src="${item.url}" alt="${product.name} ${i + 1}" loading="${i === 0 ? 'eager' : 'lazy'}" decoding="async" />
-        </div>`;
-    }
-  }).join('');
-
-  function getMainMediaHTML(isLiked) {
-    const wishlistBtn = `
-      <button class="wishlist-btn-detail ${isLiked ? 'active' : ''}" id="wishlist-detail-btn" aria-label="Add to wishlist">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="${isLiked ? '#c82333' : 'none'}" stroke="${isLiked ? '#c82333' : 'currentColor'}" stroke-width="2">
-          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-        </svg>
-      </button>`;
-    const expandBtn = `
-      <button class="expand-btn" id="expand-btn" aria-label="View larger">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
-        </svg>
-      </button>`;
-
-    if (!mediaItems || mediaItems.length === 0) {
-      return `<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:48px;background:transparent;">👟</div>` + wishlistBtn;
-    }
-    // Main slides:
-    // - Images: first slide gets src immediately (eager). Others use data-src (lazy loaded on demand).
-    // - Videos: preload="none" + src only injected when activated — saves huge bandwidth.
-    const slidesHTML = mediaItems.map((item, idx) => `
-      <div class="main-media-slide" data-idx="${idx}" style="position: relative; display: flex; align-items: center; justify-content: center;">
-        ${item.type === 'video'
-        ? `<video
-               class="ka-lazy-video"
-               id="main-video-${idx}"
-               poster="${formatVideoPoster(item.url) || ''}"
-               data-hls-src="${formatVideoHls(item.url) || ''}"
-               data-mp4-src="${formatVideoMp4(item.url) || ''}"
-               controls
-               controlsList="nodownload noplaybackrate"
-               disablePictureInPicture
-               preload="metadata"
-               playsinline
-               onclick="window.initVideoPlayback(this, false)"
-               style="cursor:pointer; width:100%; height:100%; object-fit:contain; background:transparent;"
-             ></video>
-             <button class="center-play-btn" onclick="window.centerPlayBtnClick(this)" aria-label="Play video">
-               <svg width="32" height="32" viewBox="0 0 24 24" fill="white"><polygon points="6,4 20,12 6,20"/></svg>
-             </button>`
-        : `<img
-               ${idx === 0 ? `src="${item.url}"` : `data-src="${item.url}"`}
-               alt="${product.name}"
-               id="main-image-${idx}"
-               loading="${idx === 0 ? 'eager' : 'lazy'}"
-               decoding="async"
-               style="width:100%; max-width:100%; height:100%; max-height:100%; object-fit:contain; background:transparent; display:block;"
-             />`
-      }
-      </div>
-    `).join('');
-    return `
-      <div class="main-media-track" id="main-media-track">
-        ${slidesHTML}
-      </div>
-      ${wishlistBtn}
-      ${expandBtn}
-    `;
-  }
-
-  const hasVariants = product.variants && product.variants.length > 0;
-
-  // Size variant buttons — sort numerically so UK 6 < UK 6.5 < UK 10 etc.
-  const sortedVariants = hasVariants
-    ? [...product.variants].sort((a, b) => {
-        const aNum = parseFloat((String(a.size || '')).replace(/[^0-9.]/g, '')) || 0;
-        const bNum = parseFloat((String(b.size || '')).replace(/[^0-9.]/g, '')) || 0;
-        return aNum - bNum;
-      })
-    : [];
-
-  const variantsHTML = hasVariants
-    ? sortedVariants.map(v => `
-        <button class="size-btn ${v.stockQuantity <= 0 ? 'size-btn--oos' : ''}"
-          data-variant-id="${v.id}"
-          data-stock="${v.stockQuantity}"
-          ${v.stockQuantity <= 0 ? 'disabled title="Out of stock"' : ''}> 
-          ${v.size}
-        </button>`).join('')
-    : '';
-  const sizeChooserHTML = hasVariants ? `
-      <div style="margin-bottom: 26px;">
-        <button id="size-chart-btn" style="background: none; border: none; padding: 0; color: #000; text-decoration: underline; cursor: pointer; font-size: 14.5px; font-weight: 400; font-family: inherit;">Size Chart</button>
-      </div>
-
-      <div class="size-section">
-        <p class="size-label">Select Size</p>
-        <div class="size-options" id="size-options">
-          ${variantsHTML}
-        </div>
-      </div>` : '';
-
-  const whatsappUrl = `https://wa.me/${import.meta.env.VITE_WHATSAPP_NUMBER || '916239379751'}?text=${encodeURIComponent('I am interested in ' + product.name + ' - ' + window.location.origin + '/product-details?id=' + product.id)}`;
-
-  document.getElementById('product-container').innerHTML = `
-    <!-- Left: Gallery -->
-    <div class="product-gallery">
-      <div class="gallery-inner">
-        <!-- Vertical thumbnails strip -->
-        ${mediaItems.length > 1 ? `
-        <div class="thumb-strip" id="thumb-strip">
-          ${thumbnailsHTML}
-        </div>` : ''}
-        <!-- Main image -->
-        <div class="main-image-container" id="main-media-wrap">
-          ${getMainMediaHTML(liked)}
-        </div>
-      </div>
-    </div>
-
-    <!-- Right: Details -->
-    <div class="product-details">
-      <h1 class="product-title pd-title-modern">${product.name}</h1>
-      
-      <div class="pd-pricing-section">
-        <div class="pd-curr-price">${fmtPrice(currentPrice)}</div>
-        ${originalPrice && discountPct > 0 ? `<div class="pd-orig-price">${fmtPrice(originalPrice)}</div>` : ''}
-      </div>
-      
-      <p class="pd-shipping-link"><a href="/shipping-policy" class="pd-open-shipping-modal" style="color: #2563eb; text-decoration: underline; cursor: pointer;">Shipping</a> calculated at checkout.</p>
-      
-      <a href="${whatsappUrl}" target="_blank" rel="noopener noreferrer" class="pd-whatsapp-inquiry-btn">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="none">
-          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
-        </svg>
-        WhatsApp Inquiry
-      </a>
-
-      ${product.withOgBox ? `
-      <div class="pd-og-box-row" style="margin-bottom: 16px; display: flex; align-items: center; gap: 10px;">
-        <div style="font-size: 22px; display: flex; align-items: center; justify-content: center;">
-          📦
-        </div>
-        <span style="font-size: 15px; font-weight: 600; color: #111;">With OG Box</span>
-      </div>
-      ` : ''}
-
-      ${product.inStockFlag === false ? '' : `
-      ${sizeChooserHTML}
-
-      <div class="quantity-section">
-        <p class="quantity-label">Quantity</p>
-        <div class="quantity-stepper" id="quantity-stepper">
-          <button class="qty-btn qty-btn--minus" id="qty-minus" aria-label="Decrease quantity">−</button>
-          <span class="qty-value" id="qty-value">1</span>
-          <button class="qty-btn qty-btn--plus" id="qty-plus" aria-label="Increase quantity">+</button>
-        </div>
-      </div>
-
-      <div id="live-video-option-box" style="margin: 20px 0 22px; padding: 14px 16px; background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 12px; display: flex; align-items: flex-start; gap: 12px; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
-        <input type="checkbox" id="live-video-check" checked style="margin-top: 2px; width: 18px; height: 18px; accent-color: #2563eb; cursor: pointer; flex-shrink: 0;" />
-        <div style="display: flex; flex-direction: column; gap: 4px; flex: 1;">
-          <label for="live-video-check" style="font-size: 14.5px; font-weight: 700; color: #1e293b; cursor: pointer; margin: 0; display: flex; align-items: center; justify-content: space-between; gap: 6px;">
-            <span style="display: flex; align-items: center; gap: 6px;">
-              <span>📹 Live video call before dispatch</span>
-            </span>
-          </label>
-          <span style="font-size: 12.5px; color: #64748b; line-height: 1.4; cursor: pointer;">Get a 1-on-1 live video call with our team to verify quality right before dispatch.</span>
-        </div>
-      </div>
-      `}
-
-      ${product.inStockFlag === false ? `
-      <div class="action-row" style="display:flex;width:100%;">
-        <button class="btn-out-of-stock" disabled style="flex:1;background:#e2e8f0;color:#64748b;font-weight:700;font-size:15px;letter-spacing:1px;border:none;border-radius:30px;padding:16px;cursor:not-allowed;">OUT OF STOCK</button>
-      </div>
-      ` : `
-      <div class="action-row">
-        <button class="btn-add-to-cart" id="add-to-cart-btn">ADD TO CART</button>
-        <button class="btn-buy-now" id="buy-now-btn">BUY NOW</button>
-      </div>
-      `}
-      <div style="text-align: left; margin-top: -12px; margin-bottom: 32px; padding-left: 2px;">
-        <span style="font-size: 14px; font-weight: 600; color: #475569; display: flex; align-items: center; gap: 6px;">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-          Guaranteed Safe Checkout
-        </span>
-      </div>
-
-    </div>
-  `;
+  document.getElementById('product-container').innerHTML = productDetailHTML(product, view, {
+    liked,
+    whatsappNumber: import.meta.env.VITE_WHATSAPP_NUMBER,
+    origin: window.location.origin,
+  });
 
 
   // Intersection Observer for Video Warmup

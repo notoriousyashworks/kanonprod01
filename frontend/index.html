@@ -58,7 +58,7 @@
     })();
   </script>
   
-  <div id="navbar-container"></div>
+  <div id="navbar-container"><!--ssr:navbar--><!--/ssr:navbar--></div>
 
   <main>
     <!-- Hero Banner -->
@@ -350,10 +350,10 @@
               <div class="hero-slide hero-slide--poster is-active" aria-label="Offer 1" data-href="/products?categories=Sneakers" style="cursor: pointer;">
                 <img src="/images/banner_01.jpg" alt="Kicks Aura Banner 1" fetchpriority="high">
               </div>
-              <div class="hero-slide hero-slide--poster" aria-label="Offer 2" data-href="/products?categories=Mens Watches" style="cursor: pointer;">
+              <div class="hero-slide hero-slide--poster" aria-label="Offer 2" data-href="/products?categories=Mens%20Watches" style="cursor: pointer;">
                 <img src="/images/banner_02.jpg" alt="Kicks Aura Banner 2" loading="lazy">
               </div>
-              <div class="hero-slide hero-slide--poster" aria-label="Offer 3" data-href="/products?categories=Mens Sunglasses" style="cursor: pointer;">
+              <div class="hero-slide hero-slide--poster" aria-label="Offer 3" data-href="/products?categories=Mens%20Sunglasses" style="cursor: pointer;">
                 <img src="/images/banner_03.jpg" alt="Kicks Aura Banner 3" loading="lazy">
               </div>
             </div>
@@ -371,7 +371,7 @@
     <section id="new-arrivals" class="new-arrivals">
       <div class="container">
         <h2 class="section-title">NEW ARRIVALS</h2>
-        <div id="new-arrivals-grid" class="new-arrivals-grid">
+        <div id="new-arrivals-grid" class="new-arrivals-grid"><!--ssr:new-arrivals-->
           <!-- Skeleton placeholders -->
           <div class="product-card skeleton"></div>
           <div class="product-card skeleton"></div>
@@ -381,7 +381,7 @@
           <div class="product-card skeleton"></div>
           <div class="product-card skeleton"></div>
           <div class="product-card skeleton"></div>
-        </div>
+        <!--/ssr:new-arrivals--></div>
         <div id="new-arrivals-more-wrap" style="display:none; text-align:center; margin-top: 40px;">
           <button id="new-arrivals-view-more" class="btn-explore" style="cursor:pointer;">View More</button>
         </div>
@@ -443,9 +443,9 @@
     <section id="shop-category" class="shop-category">
       <div class="container">
         <h2 class="section-title">SHOP BY CATEGORY</h2>
-        <div class="category-grid" id="category-grid">
+        <div class="category-grid" id="category-grid"><!--ssr:categories-->
           <!-- Populated dynamically from the database via /api/v1/categories -->
-        </div>
+        <!--/ssr:categories--></div>
       </div>
     </section>
 
@@ -453,7 +453,7 @@
 
   </main>
 
-  <div id="footer-container"></div>
+  <div id="footer-container"><!--ssr:footer--><!--/ssr:footer--></div>
 
   <script type="module" src="/src/js/landing.js"></script>
 </body>

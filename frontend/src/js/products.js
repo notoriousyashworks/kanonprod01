@@ -3,6 +3,7 @@
    ============================================ */
 import { filterProducts, getCategories, getBrands, getAllProducts, getTrendingProducts as apiGetTrendingProducts } from './api.js';
 import { timeSeededShuffle } from './shuffle.js';
+import { activeChipsHTML } from './shared/templates.js';
 import { updateCartBadge } from './cart.js';
 import { getNavbarHTML, getFooterHTML, createProductCard, showToast, initSearch, initMobileMenu } from './ui.js';
 import { initWishlistSidebar, updateWishlistBadge } from './wishlist.js';
@@ -160,15 +161,7 @@ function renderActiveChips() {
     return;
   }
 
-  row.innerHTML = chips
-    .map(
-      (chip, i) => `
-      <button class="filter-chip filter-chip--active" data-chip-index="${i}">
-        ${chip.label}
-        <span class="filter-chip__remove">✕</span>
-      </button>`
-    )
-    .join('');
+  row.innerHTML = activeChipsHTML(chips.map(c => c.label)); // markup shared with SSR
 
   row.querySelectorAll('.filter-chip').forEach((el, i) => {
     el.addEventListener('click', () => chips[i].onRemove());
@@ -493,6 +486,8 @@ async function loadMore() {
   }
 }
 
+let isFirstLoad = true;
+
 async function loadAndRender() {
   if (isLoading) return;
   isLoading = true;
@@ -500,8 +495,14 @@ async function loadAndRender() {
   const grid          = document.getElementById('products-grid');
   const resultsCount  = document.getElementById('results-count');
 
+  // On first load the server may already have rendered the first batch of
+  // cards (same API call, same ordering). Keep them on screen instead of
+  // flashing the loader, and never replace them with an error state.
+  const keepSsrGrid = isFirstLoad && !!grid.querySelector('.product-card-link');
+  isFirstLoad = false;
+
   // Show branded loader
-  grid.innerHTML = `
+  if (!keepSsrGrid) grid.innerHTML = `
     <div style="grid-column: 1/-1;">
       <div class="ka-loader">
         <div class="ka-loader__badge">
@@ -560,6 +561,7 @@ async function loadAndRender() {
 
   } catch (err) {
     console.error('loadAndRender error:', err);
+    if (keepSsrGrid) return; // keep server-rendered products
     grid.innerHTML = `
       <div class="empty-state" style="grid-column: 1/-1;">
         <div class="empty-state__icon">⚠️</div>

@@ -187,6 +187,9 @@ services:
       - kicksaura-net
     restart: unless-stopped
 
+# The frontend container also runs the storefront SSR renderer (frontend/ssr) on
+# 127.0.0.1:3000 inside the container; nginx proxies /, /products, /product-details
+# and /sitemap*.xml to it and falls back to static files if it is unavailable.
 # Frontends are published on 127.0.0.1:5173 (storefront) and 127.0.0.1:5174 (admin).
 # The HOST nginx (80/443, shared with other apps on this VPS) terminates TLS and
 # proxies kicksaura.in -> 127.0.0.1:5173 and admin.kicksaura.in -> 127.0.0.1:5174.
