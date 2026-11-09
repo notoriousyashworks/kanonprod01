@@ -9,18 +9,64 @@
    - Every value that comes from the API is escaped.
    ============================================ */
 import { escapeHtml, escapeAttr } from './escape.js';
-import { formatMediaUrl, formatCloudinaryUrl, formatVideoPoster, formatVideoHls, formatVideoMp4, formatVideoHoverPreview } from './media.js';
+import { formatMediaUrl, formatCardImageUrl, formatCloudinaryUrl, formatVideoPoster, formatVideoHls, formatVideoMp4, formatVideoHoverPreview } from './media.js';
 
 export const DEFAULT_WHATSAPP_NUMBER = '916239379751';
 
-/** Canonical listing URL for a category (single source of truth for category links). */
-export function categoryHref(name) {
-  return `/products?categories=${encodeURIComponent(name)}`;
+/** URL-safe slug: "Men's Watches" → "men-s-watches"; capped so URLs stay readable. */
+export function slugify(text, max = 80) {
+  return String(text || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .slice(0, max)
+    .replace(/^-+|-+$/g, '');
 }
 
-/** Canonical product detail URL. */
-export function productHref(id) {
-  return `/product-details?id=${encodeURIComponent(id)}`;
+/** Canonical listing URL for a category (single source of truth for category links). */
+export function categoryHref(name) {
+  return `/category/${slugify(name)}`;
+}
+
+/**
+ * Canonical product URL: /product/<name-slug>-<uuid>. The UUID identifies the
+ * product (names can repeat); a stale slug simply 301s to the current one.
+ * Without a name it uses the legacy form, which also 301s to the canonical URL.
+ */
+export function productHref(id, name) {
+  const lowerId = String(id).toLowerCase();
+  if (name === undefined) return `/product-details?id=${encodeURIComponent(lowerId)}`;
+  const slug = slugify(name);
+  return `/product/${slug ? `${slug}-` : ''}${encodeURIComponent(lowerId)}`;
+}
+
+/** Visible breadcrumb trail. items: [{ name, href? }], last item is the current page. */
+export function breadcrumbsHTML(items = []) {
+  if (!items.length) return '';
+  const parts = items.map((item, i) => (item.href && i < items.length - 1
+    ? `<a href="${escapeAttr(item.href)}">${escapeHtml(item.name)}</a>`
+    : `<span aria-current="page">${escapeHtml(item.name)}</span>`));
+  return `<nav class="ka-breadcrumbs" aria-label="Breadcrumb">${parts.join('<span class="ka-breadcrumbs__sep" aria-hidden="true">/</span>')}</nav>`;
+}
+
+/** "View More" as a real link, so further batches are crawlable; JS intercepts the click. */
+export function viewMoreHTML(href, { loading = false } = {}) {
+  return `
+      <div class="products-view-more">
+        <a class="products-view-more-btn" href="${escapeAttr(href)}" style="display:inline-block;text-decoration:none;${loading ? 'pointer-events:none;opacity:.7;' : ''}">${loading ? 'Loading...' : 'View More'}</a>
+      </div>`;
+}
+
+/**
+ * Product description safe to show or use in meta tags. Imported products carry
+ * template text about belts, some of it wrongly attached to other categories,
+ * so that text is ignored outside the Belts category.
+ */
+export function displayDescription(product) {
+  const text = String(product.description || '').trim();
+  if (text.length < 40) return '';
+  const isBelt = /belt/i.test(String(product.category || ''));
+  if (!isBelt && /\bbelts?\b/i.test(text)) return '';
+  return text;
 }
 
 /** Links rendered inside the desktop "CATEGORIES" dropdown. */
@@ -34,12 +80,13 @@ export function categoryLinksHTML(categories = []) {
 /**
  * Product card markup (listing grids, new arrivals, related products).
  * @param {object} product  ProductResponseDTO
- * @param {{liked?: boolean}} [opts]  liked = wishlist state (client only; SSR renders false)
+ * @param {{liked?: boolean, eager?: boolean}} [opts]  liked = wishlist state (client only);
+ *   eager = above-the-fold card (first row), loaded immediately rather than lazily
  */
-export function productCardHTML(product, { liked = false } = {}) {
+export function productCardHTML(product, { liked = false, eager = false } = {}) {
   // formatMediaUrl handles both Cloudinary and ImageKit URLs transparently.
   // Existing Cloudinary URLs continue using Cloudinary transforms internally.
-  const image = formatMediaUrl(product.imageUrls?.[0] || '');
+  const image = formatCardImageUrl(product.imageUrls?.[0] || '');
   const hasVideo = product.videoUrls?.length > 0;
   const firstVideo = hasVideo ? product.videoUrls[0] : null;
 
@@ -52,7 +99,7 @@ export function productCardHTML(product, { liked = false } = {}) {
 
   let mediaHTML = '';
   if (image) {
-    mediaHTML = `<img src="${escapeAttr(image)}" alt="${name}" loading="lazy" />`;
+    mediaHTML = `<img src="${escapeAttr(image)}" alt="${name}" width="400" height="432" loading="${eager ? 'eager' : 'lazy'}" decoding="async" />`;
   } else if (firstVideo) {
     mediaHTML = `<video 
       poster="${escapeAttr(formatVideoPoster(firstVideo))}"
@@ -80,7 +127,7 @@ export function productCardHTML(product, { liked = false } = {}) {
   ` : '';
 
   return `
-    <a href="${escapeAttr(productHref(product.id))}" class="product-card-link" aria-label="${name}" target="_blank" rel="noopener noreferrer">
+    <a href="${escapeAttr(productHref(product.id, product.name || ''))}" class="product-card-link" aria-label="${name}" target="_blank" rel="noopener noreferrer">
       <article class="product-card product-card-new ${isHandbag ? 'is-handbag' : ''} ${isOutOfStock ? 'is-sold-out' : ''}" data-product-id="${id}">
         <div class="pc-image-wrap">
           ${badgesContainer}
@@ -209,7 +256,7 @@ export function navbarHTML(activePage = 'home', { categories } = {}) {
               ${categories && categories.length ? categoryLinksHTML(categories) : '<!-- Categories injected via JS -->'}
             </div>
           </div>
-          <a href="/#new-arrivals" class="nav-link">NEW ARRIVALS</a>
+          <a href="/new-arrivals" class="nav-link">NEW ARRIVALS</a>
           <a href="/shipping-policy" class="nav-link ${activePage === 'shipping' ? 'nav-link--active' : ''}">SHIPPING POLICY</a>
         </div>
       </nav>
@@ -231,7 +278,7 @@ export function navbarHTML(activePage = 'home', { categories } = {}) {
           <a href="/#shop-category" class="mobile-nav-link ${activePage === 'products' ? 'mobile-nav-link--active' : ''}">
             Categories
           </a>
-          <a href="/#new-arrivals" class="mobile-nav-link">
+          <a href="/new-arrivals" class="mobile-nav-link">
             New Arrivals
           </a>
           <a href="/shipping-policy" class="mobile-nav-link ${activePage === 'shipping' ? 'mobile-nav-link--active' : ''}">
@@ -239,7 +286,7 @@ export function navbarHTML(activePage = 'home', { categories } = {}) {
           </a>
         </nav>
         <div class="mobile-nav-drawer__footer">
-          <span>© 2025 Kicks Aura. All rights reserved.</span>
+          <span>© 2026 Kicks Aura. All rights reserved.</span>
         </div>
       </div>
 
@@ -287,9 +334,8 @@ export function navbarHTML(activePage = 'home', { categories } = {}) {
 
 /**
  * Footer markup.
- * @param {{whatsappNumber?: string}} [opts]
  */
-export function footerHTML({ whatsappNumber } = {}) {
+export function footerHTML() {
   return `
     <footer id="footer" class="footer">
       <div class="footer__features">
@@ -322,12 +368,16 @@ export function footerHTML({ whatsappNumber } = {}) {
         <div class="footer__col footer__col--links-wrapper">
           <div class="footer__links-col">
             <a href="/">Home</a>
+            <a href="/products">All Products</a>
+            <a href="/new-arrivals">New Arrivals</a>
+            <a href="/blog">Blog</a>
             <a href="/about-us">About Us</a>
-            <a href="https://wa.me/${escapeAttr(whatsappNumber || DEFAULT_WHATSAPP_NUMBER)}?text=Hey!" target="_blank" rel="noopener">Contact Us</a>
+            <a href="/contact-us">Contact Us</a>
           </div>
           <div class="footer__links-col">
             <a href="/shipping-policy">Shipping & Delivery Policy</a>
-            <a href="/return-exchange">Return, Exchange & Refund</a>
+            <a href="/return-exchange">Return & Exchange</a>
+            <a href="/refund-policy">Refund Policy</a>
             <a href="/terms-conditions">Terms & Conditions</a>
             <a href="/privacy-policy">Privacy Policy</a>
           </div>
@@ -349,6 +399,19 @@ export function footerHTML({ whatsappNumber } = {}) {
       </div>
     </footer>
   `;
+}
+
+/** "You May Also Like" section (server-rendered; the browser refreshes it with its own picks). */
+export function relatedSectionHTML(products = []) {
+  return `
+    <section id="related-products-section" class="related-products-section">
+      <div class="related-products-inner">
+        <h2 class="related-products-title">You May Also Like</h2>
+        <div class="related-products-grid" id="related-products-grid">
+          ${products.map(p => productCardHTML(p)).join('')}
+        </div>
+      </div>
+    </section>`;
 }
 
 /** Active filter chips row on /products (labels are escaped). */
@@ -411,6 +474,7 @@ export function buildProductView(product) {
  * @param {{liked?: boolean, whatsappNumber?: string, origin?: string}} [opts]
  */
 export function productDetailHTML(product, view = buildProductView(product), { liked = false, whatsappNumber, origin = 'https://kicksaura.in' } = {}) {
+  const description = displayDescription(product);
   const { images, mediaItems, currentPrice, originalPrice, discountPct, hasVariants } = view;
   const name = escapeHtml(product.name || '');
 
@@ -482,6 +546,7 @@ export function productDetailHTML(product, view = buildProductView(product), { l
                alt="${name}"
                id="main-image-${idx}"
                loading="${idx === 0 ? 'eager' : 'lazy'}"
+               ${idx === 0 ? 'fetchpriority="high"' : ''}
                decoding="async"
                style="width:100%; max-width:100%; height:100%; max-height:100%; object-fit:contain; background:transparent; display:block;"
              />`
@@ -526,7 +591,7 @@ export function productDetailHTML(product, view = buildProductView(product), { l
         </div>
       </div>` : '';
 
-  const whatsappUrl = `https://wa.me/${whatsappNumber || DEFAULT_WHATSAPP_NUMBER}?text=${encodeURIComponent('I am interested in ' + product.name + ' - ' + origin + productHref(product.id))}`;
+  const whatsappUrl = `https://wa.me/${whatsappNumber || DEFAULT_WHATSAPP_NUMBER}?text=${encodeURIComponent('I am interested in ' + product.name + ' - ' + origin + productHref(product.id, product.name || ''))}`;
 
   return `
     <!-- Left: Gallery -->
@@ -612,6 +677,16 @@ export function productDetailHTML(product, view = buildProductView(product), { l
           Guaranteed Safe Checkout
         </span>
       </div>
+
+      <section class="pd-info" aria-label="Product information">
+        ${description ? `<p class="pd-info__description">${escapeHtml(description)}</p>` : ''}
+        <ul class="pd-info__list">
+          ${product.category ? `<li><strong>Category:</strong> ${escapeHtml(product.category)}</li>` : ''}
+          <li><strong>Delivery:</strong> 4–5 working days across India. See our <a href="/shipping-policy">shipping policy</a>.</li>
+          <li><strong>Payment:</strong> Prepaid or cash on delivery (₹99 advance per product).</li>
+          <li><strong>Returns:</strong> See our <a href="/return-exchange">return and exchange policy</a>.</li>
+        </ul>
+      </section>
 
     </div>
   `;

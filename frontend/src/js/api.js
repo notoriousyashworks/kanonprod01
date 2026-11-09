@@ -47,6 +47,10 @@ export async function getAllProducts() {
   return data.content || data;
 }
 
+export async function getNewArrivalsPage(page = 0, size = 16) {
+  return request(`/products/new-arrivals?page=${page}&size=${size}`);
+}
+
 export async function getNewArrivals(page = 0, size = 16) {
   const data = await request(`/products/new-arrivals?page=${page}&size=${size}`);
   return data.content || data;

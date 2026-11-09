@@ -1,17 +1,18 @@
 /* ============================================
    XML sitemaps (sitemap index + child sitemaps), generated from live catalog data.
 
-   Included: homepage, /products, active category listings, public info/policy
-   pages, and every visible product whose category is active.
+   Included: homepage, /products, /new-arrivals, active categories, public info
+   and policy pages, the blog, and every visible product in an active category.
    Excluded: checkout, orders, profile, search/filter/price URLs, admin, API,
    products in categories the admin has deactivated.
 
-   No <lastmod>: the catalog has no reliable modification timestamp yet
-   (Product only has createdAt). Adding updatedAt is a Phase 5 backend task.
+   <lastmod> is only emitted when the product has a real updatedAt; createdAt
+   is never used as a stand-in for "last modified".
    ============================================ */
 import { escapeHtml } from '../src/js/shared/escape.js';
 import { categoryHref, productHref } from '../src/js/shared/templates.js';
-import { SITE, STATIC_PAGES } from '../src/js/shared/seo.js';
+import { SITE, STATIC_PAGES, safeHttpUrl } from '../src/js/shared/seo.js';
+import { BLOG_POSTS } from '../src/js/shared/blog-posts.js';
 
 export const PRODUCTS_PER_SITEMAP = 5000;
 
@@ -23,7 +24,7 @@ function urlset(paths) {
 }
 
 export function pagesSitemap() {
-  return urlset(['/', '/products', ...Object.keys(STATIC_PAGES)]);
+  return urlset(['/', '/products', '/new-arrivals', ...Object.keys(STATIC_PAGES), '/blog', ...BLOG_POSTS.map(p => `/blog/${p.slug}`)]);
 }
 
 export function categoriesSitemap(categories) {
@@ -49,7 +50,15 @@ export function productChunkCount(products) {
 /** @param {number} n 1-based chunk number */
 export function productsSitemap(products, n) {
   const start = (n - 1) * PRODUCTS_PER_SITEMAP;
-  return urlset(products.slice(start, start + PRODUCTS_PER_SITEMAP).map(p => productHref(p.id)));
+  const body = products.slice(start, start + PRODUCTS_PER_SITEMAP).map((p) => {
+    const image = safeHttpUrl(p.imageUrls?.[0]);
+    const lastmod = /^\d{4}-\d{2}-\d{2}/.test(String(p.updatedAt || '')) ? String(p.updatedAt).slice(0, 10) : '';
+    return `  <url><loc>${escapeHtml(SITE + productHref(p.id, p.name || ''))}</loc>`
+      + (lastmod ? `<lastmod>${lastmod}</lastmod>` : '')
+      + (image ? `<image:image><image:loc>${escapeHtml(image)}</image:loc></image:image>` : '')
+      + '</url>';
+  }).join('\n');
+  return `${XML_HEAD}<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n${body}\n</urlset>\n`;
 }
 
 export function sitemapIndex(productChunks) {

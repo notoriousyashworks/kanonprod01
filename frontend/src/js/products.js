@@ -1,9 +1,11 @@
 /* ============================================
    Products Page — Search + Filter Engine
    ============================================ */
-import { filterProducts, getCategories, getBrands, getAllProducts, getTrendingProducts as apiGetTrendingProducts } from './api.js';
+import { filterProducts, getCategories, getBrands, getAllProducts, getNewArrivalsPage, getTrendingProducts as apiGetTrendingProducts } from './api.js';
 import { timeSeededShuffle } from './shuffle.js';
-import { activeChipsHTML } from './shared/templates.js';
+import { activeChipsHTML, breadcrumbsHTML, categoryHref, slugify, viewMoreHTML } from './shared/templates.js';
+import { categoryCopyHTML } from './shared/category-content.js';
+import { parseCategoryPath, findCategoryBySlug, listingTitle } from './shared/seo.js';
 import { updateCartBadge } from './cart.js';
 import { getNavbarHTML, getFooterHTML, createProductCard, showToast, initSearch, initMobileMenu } from './ui.js';
 import { initWishlistSidebar, updateWishlistBadge } from './wishlist.js';
@@ -43,7 +45,22 @@ const state = {
   minPrice: PRICE_MIN_DEFAULT,
   maxPrice: PRICE_MAX_DEFAULT,
   trending: false,
+  newArrivals: false, // /new-arrivals
+  startPage: 0,       // from ?page=N (crawlable pagination), 0-based
 };
+
+// Set when /category/<slug> has to be resolved against the category list.
+let pendingCategorySlug = null;
+let knownCategories = [];
+
+function readSsrListingCategory() {
+  try {
+    const data = JSON.parse(document.getElementById('ka-ssr-data')?.textContent || 'null');
+    return data?.listing?.category || null;
+  } catch {
+    return null;
+  }
+}
 
 // ── Read initial state from URL ────────────────────────────
 function readStateFromURL() {
@@ -55,6 +72,23 @@ function readStateFromURL() {
   state.minPrice    = p.has('minPrice') ? Number(p.get('minPrice')) : PRICE_MIN_DEFAULT;
   state.maxPrice    = p.has('maxPrice') ? Number(p.get('maxPrice')) : PRICE_MAX_DEFAULT;
   state.trending    = p.get('trending') === 'true';
+  state.newArrivals = window.location.pathname === '/new-arrivals';
+  const rawPage = Number(p.get('page'));
+  state.startPage = Number.isInteger(rawPage) && rawPage > 1 ? rawPage - 1 : 0;
+
+  // Clean category URL: /category/<slug>
+  const slug = parseCategoryPath(window.location.pathname);
+  if (slug) {
+    const known = readSsrListingCategory();
+    const fromList = findCategoryBySlug(knownCategories, slug);
+    if (fromList) {
+      state.categories = [fromList.name];
+    } else if (known && slugify(known) === slug) {
+      state.categories = [known];
+    } else {
+      pendingCategorySlug = slug;
+    }
+  }
 
   // Legacy: single ?category=... param (from homepage card clicks)
   const legacyCategory = p.get('category');
@@ -74,7 +108,18 @@ function pushStateToURL() {
   if (state.maxPrice !== PRICE_MAX_DEFAULT) p.set('maxPrice', state.maxPrice);
   if (state.trending) p.set('trending', 'true');
 
-  const newUrl = `${window.location.pathname}${p.toString() ? '?' + p.toString() : ''}`;
+  // Keep shareable URLs clean: one category and nothing else has its own page.
+  const onlyOneCategory = state.categories.length === 1 && [...p.keys()].every(k => k === 'categories');
+  let path = '/products';
+  if (onlyOneCategory) {
+    path = categoryHref(state.categories[0]);
+    p.delete('categories');
+  } else if (state.newArrivals && !p.toString()) {
+    path = '/new-arrivals';
+  }
+  if (state.startPage > 0) p.set('page', state.startPage + 1);
+
+  const newUrl = `${path}${p.toString() ? '?' + p.toString() : ''}`;
   // On the very first load the URL is already correct — replace instead of push
   // so the browser doesn't create a duplicate history entry (which forces the
   // user to press Back twice to leave the page).
@@ -175,7 +220,32 @@ function updatePageTitle() {
   const title = document.getElementById('products-page-title');
   if (!title) return;
 
-  if (state.trending) {
+  document.title = listingTitle({
+    indexable: true,
+    newArrivals: state.newArrivals,
+    category: state.categories.length === 1 ? state.categories[0] : null,
+  }, state.startPage + 1);
+
+  const crumbs = document.getElementById('listing-breadcrumbs');
+  if (crumbs) {
+    const current = state.newArrivals ? 'New Arrivals'
+      : state.categories.length === 1 && !state.searchQuery ? state.categories[0]
+      : null;
+    crumbs.innerHTML = current
+      ? breadcrumbsHTML([{ name: 'Home', href: '/' }, { name: 'All Products', href: '/products' }, { name: current }])
+      : '';
+  }
+
+  const copy = document.getElementById('category-copy');
+  if (copy) {
+    copy.innerHTML = state.categories.length === 1 && state.startPage === 0 && !state.searchQuery
+      ? categoryCopyHTML(slugify(state.categories[0]), state.categories[0])
+      : '';
+  }
+
+  if (state.newArrivals) {
+    title.textContent = 'New Arrivals';
+  } else if (state.trending) {
     title.textContent = 'Trending Products';
   } else if (state.searchQuery) {
     title.textContent = 'Search Results';
@@ -218,6 +288,12 @@ filterOverlay?.addEventListener('click', closeSidebar);
 async function initSidebarCategories() {
   try {
     const cats = await getCategories();
+    knownCategories = cats || [];
+    if (pendingCategorySlug) {
+      const match = findCategoryBySlug(cats, pendingCategorySlug);
+      if (match) state.categories = [match.name];
+      pendingCategorySlug = null;
+    }
     const catGroup = document.getElementById('category-filter-group');
     if (!catGroup || !cats?.length) return;
 
@@ -408,6 +484,9 @@ async function getTrendingProducts() {
 let isLoading = false;
 
 async function fetchPage(page) {
+    if (state.newArrivals) {
+      return getNewArrivalsPage(page, PRODUCTS_BATCH_SIZE);
+    }
     if (state.trending) {
       // If trending is explicitly requested via filters/URL
       const trendingAll = await getTrendingProducts();
@@ -440,6 +519,12 @@ function orderBatch(batch, page) {
   return [...timeSeededShuffle(inStock, 2 + page), ...outOfStock];
 }
 
+function nextPageHref() {
+  const q = new URLSearchParams(window.location.search);
+  q.set('page', currentPage + 2);
+  return `${window.location.pathname}?${q}`;
+}
+
 function renderProducts(grid) {
   const hasMore = currentPage + 1 < totalPages;
 
@@ -449,16 +534,11 @@ function renderProducts(grid) {
 
   grid.innerHTML = `
     ${sortedProducts.map(createProductCard).join('')}
-    ${hasMore ? `
-      <div class="products-view-more">
-        <button class="products-view-more-btn" type="button" ${isLoadingMore ? 'disabled' : ''}>
-          ${isLoadingMore ? 'Loading...' : 'View More'}
-        </button>
-      </div>
-    ` : ''}
+    ${hasMore ? viewMoreHTML(nextPageHref(), { loading: isLoadingMore }) : ''}
   `;
 
-  grid.querySelector('.products-view-more-btn')?.addEventListener('click', () => {
+  grid.querySelector('.products-view-more-btn')?.addEventListener('click', (e) => {
+    e.preventDefault();
     if (!isLoadingMore) {
       loadMore();
     }
@@ -519,11 +599,11 @@ async function loadAndRender() {
 
   try {
     // Fetch from backend with structural filters and search query (server-side)
-    currentPage = 0;
+    currentPage = state.startPage;
     allLoadedProducts = [];
     
     const pageData = await fetchPage(currentPage);
-    allLoadedProducts = orderBatch(pageData.content || [], 0);
+    allLoadedProducts = orderBatch(pageData.content || [], currentPage);
     totalPages = pageData.totalPages || 0;
     totalElements = pageData.totalElements || 0;
 
@@ -579,6 +659,9 @@ async function loadAndRender() {
    ============================================================ */
 let triggerDebounce;
 function triggerLoad() {
+  // Any filter change leaves the /new-arrivals view and starts from the first batch.
+  state.newArrivals = false;
+  state.startPage = 0;
   clearTimeout(triggerDebounce);
   triggerDebounce = setTimeout(loadAndRender, 0);
 }

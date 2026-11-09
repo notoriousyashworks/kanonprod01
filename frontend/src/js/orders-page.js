@@ -196,7 +196,7 @@ function renderOrderDetail(order, indexFallback) {
   // Items HTML
   const itemsHTML = (order.items || []).map(item => {
     const imgSrc = item.productImage ? formatCloudinaryUrl(item.productImage) : '';
-    const imgHtml = imgSrc ? `<img src="${imgSrc}" />` : '';
+    const imgHtml = imgSrc ? `<img src="${imgSrc}" alt="Ordered product" />` : '';
     const itemTotal = ((item.price || 0) * (item.quantity || 1)).toLocaleString('en-IN', { minimumFractionDigits: 2 });
     
     return `

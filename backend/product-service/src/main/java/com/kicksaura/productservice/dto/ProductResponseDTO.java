@@ -40,6 +40,7 @@ public class ProductResponseDTO {
     private boolean isInStockFlag;
     private boolean limitedStock;
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     private List<VariantDTO> variants;
 

@@ -15,12 +15,13 @@
   <link rel="stylesheet" href="/src/styles/product-card.css">
   <link rel="stylesheet" href="/src/styles/product-details.css">
   <!-- HLS.js for Adaptive Bitrate Video Streaming -->
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.7/dist/hls.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/hls.js@1.5.7/dist/hls.min.js"></script>
 </head>
 <body>
   <div id="navbar-container"><!--ssr:navbar--><!--/ssr:navbar--></div>
   
   <main class="product-page">
+    <!--ssr:breadcrumbs--><!--/ssr:breadcrumbs-->
     <div class="product-container" id="product-container"><!--ssr:product-->
       <!-- Loading state -->
       <div id="product-loading" style="grid-column: 1/-1;">
@@ -32,6 +33,7 @@
         </div>
       </div>
     <!--/ssr:product--></div>
+    <!--ssr:related--><!--/ssr:related-->
   </main>
   
   <div id="footer-container"><!--ssr:footer--><!--/ssr:footer--></div>

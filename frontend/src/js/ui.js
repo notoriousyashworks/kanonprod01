@@ -4,7 +4,7 @@
 import { isWishlisted, toggleWishlistItem } from './wishlist.js';
 import { initLoginModalTrigger } from './login-modal.js';
 import { getAllProducts, getCategories } from './api.js';
-import { productCardHTML, navbarHTML, footerHTML, categoryLinksHTML } from './shared/templates.js';
+import { productCardHTML, navbarHTML, footerHTML, categoryLinksHTML, productHref } from './shared/templates.js';
 
 // Toast notifications
 export function showToast(message, type = 'info') {
@@ -166,7 +166,7 @@ export * from './shared/media.js';
 
 export function openProductWhatsApp(name, id) {
   const number = import.meta.env.VITE_WHATSAPP_NUMBER || '916239379751';
-  const text = `I am interested in ${name} - ${window.location.origin}/product-details?id=${id}`;
+  const text = `I am interested in ${name} - ${window.location.origin}${productHref(id, name || '')}`;
   const url = `https://wa.me/${number}?text=${encodeURIComponent(text)}`;
   window.open(url, '_blank', 'noopener,noreferrer');
 }
@@ -188,7 +188,7 @@ export function getNavbarHTML(activePage = 'home') {
 
 // Generate footer HTML (markup shared with the SSR renderer)
 export function getFooterHTML() {
-  return footerHTML({ whatsappNumber: import.meta.env.VITE_WHATSAPP_NUMBER });
+  return footerHTML();
 }
 
 // Inject footer into the page

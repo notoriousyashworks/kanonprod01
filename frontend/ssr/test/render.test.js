@@ -73,14 +73,21 @@ test('sitemap XML: absolute canonical URLs, encoded, chunked', () => {
   assert.ok(pagesSitemap().includes('<loc>https://kicksaura.in/</loc>'));
   assert.ok(pagesSitemap().includes('<loc>https://kicksaura.in/shipping-policy</loc>'));
   assert.ok(!pagesSitemap().includes('checkout') && !pagesSitemap().includes('profile'));
-  assert.ok(categoriesSitemap(CATS).includes('<loc>https://kicksaura.in/products?categories=Mens%20Watches</loc>'));
-  const many = Array.from({ length: PRODUCTS_PER_SITEMAP + 1 }, (_, i) => ({ id: `id-${i}` }));
+  assert.ok(categoriesSitemap(CATS).includes('<loc>https://kicksaura.in/category/mens-watches</loc>'));
+  assert.ok(pagesSitemap().includes('<loc>https://kicksaura.in/blog/sneaker-care-guide</loc>'));
+  const many = Array.from({ length: PRODUCTS_PER_SITEMAP + 1 }, (_, i) => ({ id: `id-${i}`, name: 'A B' }));
   assert.equal(productChunkCount(many), 2);
   assert.equal(productChunkCount([]), 1);
   assert.equal((productsSitemap(many, 2).match(/<loc>/g) || []).length, 1);
   assert.ok(sitemapIndex(2).includes('<loc>https://kicksaura.in/sitemaps/products-2.xml</loc>'));
 });
 
-test('sitemap XML escapes ampersands', () => {
-  assert.ok(categoriesSitemap([{ name: 'A&B' }]).includes('categories=A%26B'));
+test('product sitemap: slug URLs, image tag, lastmod only from a real updatedAt', () => {
+  const xml = productsSitemap([
+    { id: 'x1', name: 'Red Shoe', imageUrls: ['https://cdn/a.webp?x=1&y=2'], updatedAt: '2026-11-01T10:00:00', createdAt: '2026-01-01T00:00:00' },
+    { id: 'x2', name: 'Blue Shoe', createdAt: '2026-01-01T00:00:00' },
+  ], 1);
+  assert.ok(xml.includes('/product/red-shoe-x1</loc><lastmod>2026-11-01</lastmod>'));
+  assert.ok(xml.includes('a.webp?x=1&amp;y=2'));
+  assert.ok(xml.includes('/product/blue-shoe-x2</loc></url>'), 'createdAt is not used as lastmod');
 });

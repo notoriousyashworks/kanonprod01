@@ -23,12 +23,15 @@ import * as api from './api.js';
 import * as sitemap from './sitemap.js';
 import {
   navbarHTML, footerHTML, productCardHTML, categoryCardHTML, productDetailHTML,
-  buildProductView, activeChipsHTML,
+  buildProductView, activeChipsHTML, breadcrumbsHTML, viewMoreHTML, relatedSectionHTML,
+  categoryHref, slugify,
 } from '../src/js/shared/templates.js';
+import { categoryCopyHTML } from '../src/js/shared/category-content.js';
 import {
   SITE, UUID_RE, ROBOTS_INDEX, ROBOTS_NOINDEX, absoluteUrl, productTitle,
   productDescription, classifyListing, listingTitle, listingDescription,
-  productCanonicalPath, buildHeadTags, safeHttpUrl,
+  productCanonicalPath, buildHeadTags, safeHttpUrl, parseProductPath, parseCategoryPath,
+  findCategoryBySlug, organizationLd, websiteLd, breadcrumbLd, productLd,
 } from '../src/js/shared/seo.js';
 import { timeSeededShuffle } from '../src/js/shuffle.js';
 
@@ -48,7 +51,7 @@ function log(level, msg, extra = {}) {
 
 function withChrome(html, activePage, categories) {
   let out = fillRegion(html, 'navbar', navbarHTML(activePage, { categories: categories || [] }));
-  out = fillRegion(out, 'footer', footerHTML({ whatsappNumber: WHATSAPP }));
+  out = fillRegion(out, 'footer', footerHTML());
   return out;
 }
 
@@ -79,16 +82,95 @@ export async function renderHome() {
   ]);
   let html = loadTemplate('index.html');
   html = stripManagedHead(html);
-  html = appendToHead(html, buildHeadTags({ canonical: `${SITE}/`, robots: ROBOTS_INDEX }));
+  html = appendToHead(html, buildHeadTags({ canonical: `${SITE}/`, robots: ROBOTS_INDEX, jsonLd: [organizationLd(), websiteLd()] }));
   html = withChrome(html, 'home', categories);
   if (arrivals && arrivals.length) {
     // landing.js: timeSeededShuffle(inStock, 1) + outOfStock, rendered with createProductCard
-    html = fillRegion(html, 'new-arrivals', orderInStockFirst(arrivals, 1).map(p => productCardHTML(p)).join(''));
+    html = fillRegion(html, 'new-arrivals', orderInStockFirst(arrivals, 1).map((p, i) => productCardHTML(p, { eager: i < 4 })).join(''));
   }
   if (categories && categories.length) {
     html = fillRegion(html, 'categories', categories.map(c => categoryCardHTML(c)).join(''));
   }
   return { status: 200, html };
+}
+
+/** ?page=N (1-based). Returns null for anything that isn't a clean page number > 1. */
+function parsePage(params) {
+  const raw = params.get('page');
+  return raw && /^[1-9]\d{0,4}$/.test(raw) && Number(raw) > 1 ? Number(raw) : null;
+}
+
+/** Render products.html for an indexable or faceted listing state. */
+async function renderListingPage(info, categories, pageNumber = 1) {
+  const page0 = pageNumber - 1;
+  let html = loadTemplate('products.html');
+  html = stripManagedHead(html, { og: info.indexable });
+
+  let gridHTML = '';
+  let totalPages = 1;
+  if (info.indexable) {
+    const cats = info.category ? [info.category] : [];
+    // products.js: Sneakers load 500 at once, other listings 16 (orderBatch seed 2 + page)
+    const size = cats.some(c => /sneaker/i.test(c)) ? 500 : 16;
+    const load = info.newArrivals
+      ? api.getNewArrivalsPage(page0, 16)
+      : api.filterProducts({ categories: cats }, page0, size);
+    const data = await load.catch(() => null);
+    if (data && Array.isArray(data.content)) {
+      if (!data.content.length && page0 > 0) return renderNotFound(categories);
+      totalPages = data.totalPages || 1;
+      gridHTML = orderInStockFirst(data.content, 2 + page0)
+        .slice(0, MAX_CARDS)
+        .map((p, i) => productCardHTML(p, { eager: i < 4 }))
+        .join('');
+    } else if (page0 > 0) {
+      return { status: 503, html: loadTemplate('products.html'), headers: { 'Retry-After': '120' } };
+    }
+  }
+
+  const basePath = info.canonicalPath;
+  const pagePath = (n) => (n > 1 ? `${basePath}?page=${n}` : basePath);
+  const canonical = basePath ? absoluteUrl(pagePath(pageNumber)) : null;
+  const title = listingTitle(info, pageNumber);
+  const description = listingDescription(info, pageNumber);
+  const crumbs = info.indexable && basePath !== '/products'
+    ? [{ name: 'Home', href: '/' }, { name: 'All Products', href: '/products' }, { name: info.h1 }]
+    : null;
+
+  html = setTitle(html, title);
+  html = setMetaDescription(html, description);
+  html = appendToHead(html, buildHeadTags({
+    canonical,
+    robots: info.indexable ? ROBOTS_INDEX : ROBOTS_NOINDEX,
+    og: info.indexable ? {
+      title: title || 'Shop Sneakers, Watches & Accessories Online | Kicks Aura',
+      description: description || 'Browse sneakers, watches, sunglasses, perfumes and more at Kicks Aura.',
+      url: canonical,
+    } : undefined,
+    jsonLd: crumbs ? [breadcrumbLd(crumbs)] : [],
+  }));
+  html = replaceH1Text(html, 'products-page-title', info.h1);
+  html = withChrome(html, 'products', categories);
+  if (crumbs) html = fillRegion(html, 'breadcrumbs', breadcrumbsHTML(crumbs));
+  if (info.category) html = fillRegion(html, 'chips', activeChipsHTML([info.category]));
+  if (gridHTML) {
+    const more = pageNumber < totalPages ? viewMoreHTML(pagePath(pageNumber + 1)) : '';
+    html = fillRegion(html, 'grid', gridHTML + more);
+  }
+  if (info.category && pageNumber === 1) {
+    html = fillRegion(html, 'category-copy', categoryCopyHTML(slugify(info.category), info.category));
+  }
+  if (info.category) html = embedData(html, { listing: { category: info.category } });
+
+  return { status: 200, html, headers: info.indexable ? {} : { 'X-Robots-Tag': ROBOTS_NOINDEX } };
+}
+
+/** Query string to keep across a redirect (campaign tags, not the params being consolidated). */
+function keptQuery(params, drop) {
+  const kept = new URLSearchParams();
+  for (const [k, v] of params) if (!drop.includes(k)) kept.append(k, v);
+  const qs = kept.toString();
+  return qs ? `?${qs}` : '';
 }
 
 export async function renderListing(params) {
@@ -98,61 +180,91 @@ export async function renderListing(params) {
     // Can't tell whether the category exists — ask crawlers to retry, users get the normal page.
     return { status: 503, html: loadTemplate('products.html'), headers: { 'Retry-After': '120' } };
   }
-
   const info = classifyListing(params, (categories || []).map(c => c.name));
-  let html = loadTemplate('products.html');
-  html = stripManagedHead(html, { og: !!info.category });
-
-  let total;
-  let gridHTML = '';
-  if (info.indexable) {
-    const cats = info.category ? [info.category] : [];
-    // products.js: Sneakers load 500 at once, other listings 16 (orderBatch seed 2 + page)
-    const size = cats.some(c => /sneaker/i.test(c)) ? 500 : 16;
-    const page = await api.filterProducts({ categories: cats }, 0, size).catch(() => null);
-    if (page && Array.isArray(page.content) && page.content.length) {
-      total = page.totalElements;
-      gridHTML = orderInStockFirst(page.content, 2).slice(0, MAX_CARDS).map(p => productCardHTML(p)).join('');
-    }
+  // One known category and nothing else → its clean URL is the only version.
+  if (info.category) {
+    return { status: 301, location: info.canonicalPath + keptQuery(params, ['categories', 'category']) };
   }
-
-  const canonical = info.canonicalPath ? absoluteUrl(info.canonicalPath) : null;
-  const title = listingTitle(info);
-  const description = listingDescription(info, total);
-  html = setTitle(html, title);
-  html = setMetaDescription(html, description);
-  html = appendToHead(html, buildHeadTags({
-    canonical,
-    robots: info.indexable ? ROBOTS_INDEX : ROBOTS_NOINDEX,
-    og: info.category ? { title, description, url: canonical } : undefined,
-  }));
-  html = replaceH1Text(html, 'products-page-title', info.h1);
-  html = withChrome(html, 'products', categories);
-  if (info.category) html = fillRegion(html, 'chips', activeChipsHTML([info.category]));
-  if (gridHTML) html = fillRegion(html, 'grid', gridHTML);
-
-  return { status: 200, html, headers: info.indexable ? {} : { 'X-Robots-Tag': ROBOTS_NOINDEX } };
+  if (params.has('page') && !parsePage(params) && info.indexable) {
+    return { status: 301, location: `/products${keptQuery(params, ['page'])}` };
+  }
+  return renderListingPage(info, categories, info.indexable ? (parsePage(params) || 1) : 1);
 }
 
-export async function renderProductPage(params) {
+export async function renderCategory(slug, params) {
+  const categories = await categoriesOrNull();
+  if (!categories) return { status: 503, html: loadTemplate('products.html'), headers: { 'Retry-After': '120' } };
+  const category = findCategoryBySlug(categories, slug);
+  if (!category) return renderNotFound(categories);
+  const path = categoryHref(category.name);
+  if (params.has('page') && !parsePage(params)) return { status: 301, location: path + keptQuery(params, ['page']) };
+  const info = { indexable: true, canonicalPath: path, category: category.name, trending: false, h1: category.name };
+  return renderListingPage(info, categories, parsePage(params) || 1);
+}
+
+export async function renderNewArrivals(params) {
+  const categories = await categoriesOrNull();
+  if (params.has('page') && !parsePage(params)) return { status: 301, location: `/new-arrivals${keptQuery(params, ['page'])}` };
+  const info = { indexable: true, canonicalPath: '/new-arrivals', newArrivals: true, category: null, trending: false, h1: 'New Arrivals' };
+  return renderListingPage(info, categories, parsePage(params) || 1);
+}
+
+/** Legacy /product-details?id=<uuid> → 301 to the canonical slug URL. */
+export async function renderLegacyProduct(params) {
   const rawId = (params.get('id') || '').trim();
   if (!rawId) return { status: 301, location: '/products' };
   if (!UUID_RE.test(rawId)) return renderNotFound(await categoriesOrNull());
+  try {
+    const product = await api.getProduct(rawId.toLowerCase());
+    return { status: 301, location: productCanonicalPath(product) + keptQuery(params, ['id']) };
+  } catch (err) {
+    if (err instanceof api.NotFoundError) return renderNotFound(await categoriesOrNull());
+    return { status: 503, html: loadTemplate('product-details.html'), headers: { 'Retry-After': '120' } };
+  }
+}
 
-  const [catsResult, productResult] = await Promise.allSettled([api.getCategories(), api.getProduct(rawId.toLowerCase())]);
+/** Up to 8 in-stock products from the same category, stable per product for 12h. */
+async function relatedProducts(product) {
+  if (!product.category) return [];
+  const data = await api.filterProducts({ categories: [product.category] }, 0, 40).catch(() => null);
+  const pool = (data?.content || []).filter(p => String(p.id) !== String(product.id) && p.inStockFlag !== false);
+  const seed = [...String(product.id)].reduce((sum, ch) => sum + ch.charCodeAt(0), 0);
+  return timeSeededShuffle(pool, seed).slice(0, 8);
+}
+
+export async function renderProductPage(pathname, params) {
+  const id = parseProductPath(pathname);
+  if (!id) return renderNotFound(await categoriesOrNull());
+
+  const [catsResult, productResult] = await Promise.allSettled([api.getCategories(), api.getProduct(id)]);
   const categories = catsResult.status === 'fulfilled' ? catsResult.value : null;
   if (productResult.status === 'rejected') {
     if (productResult.reason instanceof api.NotFoundError) return renderNotFound(categories);
-    log('warn', 'product unavailable', { id: rawId, err: String(productResult.reason?.message || productResult.reason) });
+    log('warn', 'product unavailable', { id, err: String(productResult.reason?.message || productResult.reason) });
     return { status: 503, html: loadTemplate('product-details.html'), headers: { 'Retry-After': '120' } };
   }
 
   const product = { ...productResult.value };
   for (const f of PRIVATE_PRODUCT_FIELDS) delete product[f];
 
-  const canonical = absoluteUrl(productCanonicalPath(product.id));
+  // A stale or edited slug resolves to the one canonical URL.
+  const canonicalPath = productCanonicalPath(product);
+  if (pathname !== canonicalPath) return { status: 301, location: canonicalPath + keptQuery(params, []) };
+
+  const canonical = absoluteUrl(canonicalPath);
   const title = productTitle(product);
   const description = productDescription(product);
+  const view = buildProductView(product);
+  const image = safeHttpUrl(product.imageUrls?.[0]);
+
+  // Link the category only while it is active: deactivated ones have no page.
+  const activeCategory = (categories || []).find(c => c.name.toLowerCase() === String(product.category || '').toLowerCase());
+  const crumbs = [
+    { name: 'Home', href: '/' },
+    activeCategory ? { name: activeCategory.name, href: categoryHref(activeCategory.name) } : { name: 'All Products', href: '/products' },
+    { name: product.name },
+  ];
+  const related = await relatedProducts(product);
 
   let html = loadTemplate('product-details.html');
   html = setTitle(html, title);
@@ -161,12 +273,16 @@ export async function renderProductPage(params) {
   html = appendToHead(html, buildHeadTags({
     canonical,
     robots: ROBOTS_INDEX,
-    og: { type: 'product', title: product.name, description, url: canonical, image: safeHttpUrl(product.imageUrls?.[0]) },
+    og: { type: 'product', title, description, url: canonical, image },
+    jsonLd: [productLd(product, canonical), breadcrumbLd(crumbs)],
+    preloadImage: view.images[0],
   }));
   html = withChrome(html, 'product', categories);
-  html = fillRegion(html, 'product', productDetailHTML(product, buildProductView(product), {
+  html = fillRegion(html, 'breadcrumbs', breadcrumbsHTML(crumbs));
+  html = fillRegion(html, 'product', productDetailHTML(product, view, {
     liked: false, whatsappNumber: WHATSAPP, origin: SITE,
   }));
+  if (related.length) html = fillRegion(html, 'related', relatedSectionHTML(related));
   html = embedData(html, { product });
   return { status: 200, html };
 }
@@ -201,11 +317,17 @@ export async function renderSitemap(path) {
 const ROUTES = {
   '/': () => renderHome(),
   '/products': (params) => renderListing(params),
-  '/product-details': (params) => renderProductPage(params),
+  '/new-arrivals': (params) => renderNewArrivals(params),
+  '/product-details': (params) => renderLegacyProduct(params),
 };
 
-// Template to fall back to if a renderer throws unexpectedly.
-const RAW_TEMPLATE = { '/': 'index.html', '/products': 'products.html', '/product-details': 'product-details.html' };
+function routeFor(path) {
+  if (ROUTES[path]) return { handler: ROUTES[path], template: path === '/' ? 'index.html' : path === '/product-details' ? 'product-details.html' : 'products.html' };
+  if (path.startsWith('/product/')) return { handler: (params) => renderProductPage(path, params), template: 'product-details.html', critical: true };
+  const slug = parseCategoryPath(path);
+  if (slug) return { handler: (params) => renderCategory(slug, params), template: 'products.html', critical: true };
+  return null;
+}
 
 /* ---------- HTTP ---------- */
 
@@ -220,14 +342,14 @@ export async function handle(method, rawUrl) {
   if (path === '/healthz') return { status: 200, body: 'ok', type: 'text/plain; charset=utf-8' };
   if (path === '/sitemap.xml' || path.startsWith('/sitemaps/')) return renderSitemap(path);
 
-  const route = ROUTES[path];
+  const route = routeFor(path);
   if (!route) return renderNotFound(await categoriesOrNull());
   try {
-    return await route(url.searchParams);
+    return await route.handler(url.searchParams);
   } catch (err) {
     log('error', 'render failed', { path, err: String(err.stack || err) });
-    const status = path === '/product-details' ? 503 : 200;
-    return { status, html: loadTemplate(RAW_TEMPLATE[path]), headers: { 'X-SSR': 'error', ...(status === 503 ? { 'Retry-After': '120' } : {}) } };
+    const status = route.critical ? 503 : 200;
+    return { status, html: loadTemplate(route.template), headers: { 'X-SSR': 'error', ...(status === 503 ? { 'Retry-After': '120' } : {}) } };
   }
 }
 

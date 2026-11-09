@@ -46,6 +46,8 @@ before(async () => {
     if (p === '/api/v1/products/new-arrivals') return json(200, page([PRODUCT, OTHER]));
     if (p === '/api/v1/products/filter') {
       const cat = url.searchParams.get('categories');
+      const n = Number(url.searchParams.get('page') || 0);
+      if (cat === 'Belts') return json(200, page(n < 2 ? [OTHER] : [], { totalPages: 2, totalElements: 17 }));
       return json(200, page([PRODUCT, OTHER].filter(x => !cat || x.category === cat)));
     }
     if (p === '/api/v1/products') return json(200, page([PRODUCT, OTHER, HIDDEN_CATEGORY]));
@@ -60,8 +62,10 @@ before(async () => {
 <div id="category-grid"><!--ssr:categories--><!--/ssr:categories--></div>`));
   writeFileSync(join(dist, 'products.html'), TEMPLATE(`<h1 class="category-title" id="products-page-title">All Products</h1>
 <div id="active-chips-row"><!--ssr:chips--><!--/ssr:chips--></div>
-<div id="products-grid"><!--ssr:grid--><!--/ssr:grid--></div>`));
-  writeFileSync(join(dist, 'product-details.html'), TEMPLATE(`<div id="product-container"><!--ssr:product--><span>Loading product…</span><!--/ssr:product--></div>`));
+<!--ssr:breadcrumbs--><!--/ssr:breadcrumbs-->
+<div id="products-grid"><!--ssr:grid--><!--/ssr:grid--></div>
+<div id="category-copy"><!--ssr:category-copy--><!--/ssr:category-copy--></div>`));
+  writeFileSync(join(dist, 'product-details.html'), TEMPLATE(`<!--ssr:breadcrumbs--><!--/ssr:breadcrumbs--><div id="product-container"><!--ssr:product--><span>Loading product…</span><!--/ssr:product--></div><!--ssr:related--><!--/ssr:related-->`));
   writeFileSync(join(dist, '404.html'), TEMPLATE(`<h1>Page Not Found</h1>`).replace('index, follow', 'noindex, follow'));
 
   process.env.SSR_DIST = dist;
@@ -82,29 +86,47 @@ async function get(path, { fresh = true } = {}) {
 const canonicalOf = (html) => (html.match(/<link rel="canonical" href="([^"]*)"/) || [])[1];
 const robotsOf = (html) => [...html.matchAll(/<meta name="robots" content="([^"]*)"/g)].map(m => m[1]);
 
-test('product page: 200, real title, canonical, escaped H1, embedded data without internal fields', async () => {
-  const r = await get(`/product-details?id=${ID.toUpperCase()}&utm_source=x`);
+const PRODUCT_PATH = `/product/nike-cortez-silver-${ID}`;
+
+test('product page: 200, real title, canonical, escaped H1, JSON-LD, embedded data without internal fields', async () => {
+  const r = await get(`${PRODUCT_PATH}?utm_source=x`);
   assert.equal(r.status, 200);
   assert.ok(r.html.includes('<title>Nike Cortez $&amp; &lt;Silver&gt; | Kicks Aura</title>'));
-  assert.equal(canonicalOf(r.html), `https://kicksaura.in/product-details?id=${ID}`);
+  assert.equal(canonicalOf(r.html), `https://kicksaura.in${PRODUCT_PATH}`);
   assert.deepEqual(robotsOf(r.html), ['index, follow, max-image-preview:large']);
   assert.ok(r.html.includes('<h1 class="product-title pd-title-modern">Nike Cortez $&amp; &lt;Silver&gt;</h1>'));
   assert.ok(r.html.includes('og:image" content="https://cdn.example.com/a.webp"'));
+  assert.ok(r.html.includes('name="twitter:card"'));
+  assert.ok(r.html.includes('rel="preload" as="image" href="https://cdn.example.com/a.webp"'));
   assert.ok(!r.html.includes('Loading product…'));
-  assert.ok(r.html.includes('href="/products?categories=Belts" class="nav-dropdown-link"'), 'navbar categories pre-filled');
+  assert.ok(r.html.includes('href="/category/belts" class="nav-dropdown-link"'), 'navbar categories pre-filled');
+  assert.ok(r.html.includes('<a href="/category/sneakers">Sneakers</a>'), 'breadcrumb links the active category');
+  const ld = [...r.html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map(m => JSON.parse(m[1]));
+  assert.deepEqual(ld.map(x => x['@type']), ['Product', 'BreadcrumbList']);
+  assert.equal(ld[0].offers.price, '2598.00');
+  assert.equal(ld[0].brand, undefined);
   const data = JSON.parse(r.html.match(/id="ka-ssr-data">([\s\S]*?)<\/script>/)[1]);
   assert.equal(data.product.id, ID);
   assert.equal(data.product.sourceSite, undefined);
-  assert.equal(data.product.searchText, undefined);
   assert.ok(!r.html.includes('supplier.example'));
 });
 
+test('product URLs: legacy, stale slug and uppercase ids 301 to the canonical URL', async () => {
+  for (const path of [`/product-details?id=${ID.toUpperCase()}`, `/product/old-name-${ID}`, `/product/${ID}`]) {
+    const r = await get(path);
+    assert.equal(r.status, 301, path);
+    assert.equal(r.location, PRODUCT_PATH, path);
+  }
+  assert.equal((await get(`/product-details?id=${ID}&utm_source=x`)).location, `${PRODUCT_PATH}?utm_source=x`);
+});
+
 test('product page: unknown, malformed and missing ids', async () => {
-  const unknown = await get(`/product-details?id=${MISSING}`);
+  const unknown = await get(`/product/foo-${MISSING}`);
   assert.equal(unknown.status, 404);
   assert.match(unknown.headers['X-Robots-Tag'], /noindex/);
+  assert.equal((await get(`/product-details?id=${MISSING}`)).status, 404);
+  assert.equal((await get('/product/no-uuid')).status, 404);
   assert.equal((await get('/product-details?id=../../admin')).status, 404);
-  assert.equal((await get('/product-details?id=abc')).status, 404);
   const missing = await get('/product-details');
   assert.equal(missing.status, 301);
   assert.equal(missing.location, '/products');
@@ -113,7 +135,7 @@ test('product page: unknown, malformed and missing ids', async () => {
 test('product page: API failure → 503 + Retry-After with the untouched static page', async () => {
   apiDown = true;
   try {
-    const r = await get(`/product-details?id=${ID}`);
+    const r = await get(PRODUCT_PATH);
     assert.equal(r.status, 503);
     assert.equal(r.headers['Retry-After'], '120');
     assert.ok(r.html.includes('Loading product…'));
@@ -122,17 +144,48 @@ test('product page: API failure → 503 + Retry-After with the untouched static 
   }
 });
 
-test('category listing: indexable, self canonical, H1, chips and cards', async () => {
-  const r = await get('/products?categories=sneakers&utm_campaign=x');
+test('category page: indexable, self canonical, H1, chips, breadcrumb, copy, cards', async () => {
+  const r = await get('/category/sneakers?utm_campaign=x');
   assert.equal(r.status, 200);
-  assert.equal(canonicalOf(r.html), 'https://kicksaura.in/products?categories=Sneakers');
+  assert.equal(canonicalOf(r.html), 'https://kicksaura.in/category/sneakers');
   assert.deepEqual(robotsOf(r.html), ['index, follow, max-image-preview:large']);
-  assert.ok(r.html.includes('<title>Sneakers | Kicks Aura</title>'));
+  assert.ok(r.html.includes('<title>Buy Sneakers Online in India | Kicks Aura</title>'));
   assert.ok(r.html.includes('id="products-page-title">Sneakers</h1>'));
   assert.ok(r.html.includes('filter-chip filter-chip--active'));
-  assert.ok(r.html.includes(`href="/product-details?id=${ID}"`));
+  assert.ok(r.html.includes('class="category-copy"'));
+  assert.ok(r.html.includes('aria-current="page">Sneakers'));
+  assert.ok(r.html.includes(`-${ID}"`));
   assert.ok(!r.html.includes('Classic Belt'), 'only this category');
   assert.ok(!r.html.includes('og:url" content="https://kicksaura.in/products"'), 'static og replaced');
+  assert.equal((await get('/category/handbags')).status, 404, 'deactivated categories have no page');
+});
+
+test('legacy category URLs 301 to the clean URL, keeping campaign tags', async () => {
+  const s = await get('/products?categories=sneakers&utm_campaign=x');
+  assert.equal(s.status, 301);
+  assert.equal(s.location, '/category/sneakers?utm_campaign=x');
+  assert.equal((await get('/products?category=Belts')).location, '/category/belts');
+});
+
+test('pagination: crawlable next link, self canonical per page, out of range 404', async () => {
+  const first = await get('/category/belts');
+  assert.ok(first.html.includes('href="/category/belts?page=2"'), 'next link');
+  const second = await get('/category/belts?page=2');
+  assert.equal(second.status, 200);
+  assert.equal(canonicalOf(second.html), 'https://kicksaura.in/category/belts?page=2');
+  assert.ok(second.html.includes('Page 2'));
+  assert.ok(!second.html.includes('class="category-copy"'), 'intro copy only on page 1');
+  assert.equal((await get('/category/belts?page=99')).status, 404);
+  assert.equal((await get('/category/belts?page=1')).location, '/category/belts');
+  assert.equal((await get('/category/belts?page=abc')).location, '/category/belts');
+});
+
+test('new arrivals page', async () => {
+  const r = await get('/new-arrivals');
+  assert.equal(r.status, 200);
+  assert.equal(canonicalOf(r.html), 'https://kicksaura.in/new-arrivals');
+  assert.ok(r.html.includes('id="products-page-title">New Arrivals</h1>'));
+  assert.ok(r.html.includes('product-card-link'));
 });
 
 test('listing: faceted / unknown views are noindex without canonical and without a grid', async () => {
@@ -150,6 +203,7 @@ test('listing: category requested while the API is down → 503', async () => {
   apiDown = true;
   try {
     assert.equal((await get('/products?categories=Sneakers')).status, 503);
+    assert.equal((await get('/category/sneakers')).status, 503);
   } finally {
     apiDown = false;
   }
@@ -161,7 +215,9 @@ test('homepage: canonical, new arrivals and category cards rendered', async () =
   assert.equal(canonicalOf(r.html), 'https://kicksaura.in/');
   assert.ok(!r.html.includes('class="skeleton"'));
   assert.ok(r.html.includes('class="category-card"'));
-  assert.ok(r.html.includes('href="/products?categories=Sneakers" class="category-card"'));
+  assert.ok(r.html.includes('href="/category/sneakers" class="category-card"'));
+  const ld = [...r.html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map(m => JSON.parse(m[1]));
+  assert.deepEqual(ld.map(x => x['@type']), ['OnlineStore', 'WebSite']);
 });
 
 test('homepage still renders (200) when the API is down', async () => {
@@ -181,7 +237,7 @@ test('sitemaps: index + children, hidden categories excluded, valid structure', 
   assert.match(index.type, /xml/);
   assert.ok(index.body.includes('<sitemapindex'));
   const products = await get('/sitemaps/products-1.xml');
-  assert.ok(products.body.includes(`https://kicksaura.in/product-details?id=${ID}`));
+  assert.ok(products.body.includes(`https://kicksaura.in${PRODUCT_PATH}`));
   assert.ok(!products.body.includes(HIDDEN_CATEGORY.id));
   assert.equal((await get('/sitemaps/products-9.xml')).status, 404);
   apiDown = true;

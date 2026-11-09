@@ -13,5 +13,8 @@ importer/tmp/
 *.jpeg
 *.png
 *.gif
+# Storefront assets are served from here and must ship with the code.
+!frontend/public/images/**
+!frontend/public/logos/**
 importer/scratch/
 importer/test*.js

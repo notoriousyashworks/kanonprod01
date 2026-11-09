@@ -3,6 +3,7 @@ import { resolve, basename } from 'path';
 import { existsSync } from 'fs';
 import { navbarHTML, footerHTML } from './src/js/shared/templates.js';
 import { fillRegion } from './ssr/render.js';
+import { BLOG_POSTS } from './src/js/shared/blog-posts.js';
 
 function cleanUrlPlugin() {
   return {
@@ -11,7 +12,10 @@ function cleanUrlPlugin() {
       server.middlewares.use((req, res, next) => {
         if (!req.url.includes('.') && req.url !== '/' && !req.url.startsWith('/api') && !req.url.startsWith('/@') && !req.url.startsWith('/src/')) {
           const url = new URL(req.url, `http://${req.headers.host}`);
-          const page = existsSync(resolve(__dirname, `.${url.pathname}.html`)) ? url.pathname : '/404';
+          // Dev server: slug URLs are rendered client-side by their page templates.
+          const page = url.pathname.startsWith('/product/') ? '/product-details'
+            : url.pathname.startsWith('/category/') || url.pathname === '/new-arrivals' ? '/products'
+            : existsSync(resolve(__dirname, `.${url.pathname}.html`)) ? url.pathname : '/404';
           req.url = req.url.replace(url.pathname, page + '.html');
         }
         next();
@@ -31,13 +35,13 @@ const NAV_ACTIVE_PAGE = {
   'orders.html': 'home',
   'profile.html': 'home',
 };
-function staticShellPlugin(whatsappNumber) {
+function staticShellPlugin() {
   return {
     name: 'ka-static-shell',
     transformIndexHtml(html, ctx) {
       const file = basename(ctx.filename || ctx.path || '');
       let out = fillRegion(html, 'navbar', navbarHTML(NAV_ACTIVE_PAGE[file] || 'policy'));
-      out = fillRegion(out, 'footer', footerHTML({ whatsappNumber }));
+      out = fillRegion(out, 'footer', footerHTML());
       return out;
     },
   };
@@ -45,9 +49,8 @@ function staticShellPlugin(whatsappNumber) {
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
-  const whatsappNumber = process.env.VITE_WHATSAPP_NUMBER || env.VITE_WHATSAPP_NUMBER;
   return {
-    plugins: [cleanUrlPlugin(), staticShellPlugin(whatsappNumber)],
+    plugins: [cleanUrlPlugin(), staticShellPlugin()],
     root: '.',
     publicDir: 'public',
     build: {
@@ -66,6 +69,9 @@ export default defineConfig(({ mode }) => {
           profile: resolve(__dirname, 'profile.html'),
           refundPolicy: resolve(__dirname, 'refund-policy.html'),
           notFound: resolve(__dirname, '404.html'),
+          contactUs: resolve(__dirname, 'contact-us.html'),
+          blog: resolve(__dirname, 'blog.html'),
+          ...Object.fromEntries(BLOG_POSTS.map(p => [`blog-${p.slug}`, resolve(__dirname, `blog/${p.slug}.html`)])),
         },
       },
     },

@@ -4,7 +4,7 @@
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Shop Sneakers, Watches & Accessories — Kicks Aura</title>
+  <title>Shop Sneakers, Watches &amp; Accessories Online | Kicks Aura</title>
   <meta name="description" content="Browse our full collection of premium sneakers, watches, sunglasses, perfumes & more. COD available. Extra ₹200 off on prepaid orders at Kicks Aura." />
   <meta name="robots" content="index, follow" />
   <!-- Canonical is set per URL by the SSR renderer (frontend/ssr). -->
@@ -22,37 +22,6 @@
   <link rel="stylesheet" href="/src/styles/products.css">
 </head>
 <body>
-  <!-- Global Preloader -->
-  <div id="global-ka-preloader" style="position: fixed; inset: 0; background: var(--bg-main, #f5f5f5); z-index: 999999; display: flex; align-items: center; justify-content: center; transition: opacity 0.5s ease, visibility 0.5s ease;">
-    <div class="ka-loader" style="min-height: 100vh; margin: 0;">
-      <div class="ka-loader__badge">
-        <div class="ka-loader__wordmark">KICKS<br>AURA</div>
-      </div>
-      <span class="ka-loader__text" style="font-size: 14px;">Loading...</span>
-    </div>
-  </div>
-  <script>
-    (function() {
-      const startTime = Date.now();
-      const minDelay = 0;
-      function hideLoader() {
-        const preloader = document.getElementById("global-ka-preloader");
-        if (!preloader) return;
-        const elapsed = Date.now() - startTime;
-        const remaining = Math.max(0, minDelay - elapsed);
-        setTimeout(() => {
-          preloader.style.opacity = "0";
-          preloader.style.visibility = "hidden";
-          setTimeout(() => preloader.remove(), 500);
-        }, remaining);
-      }
-      if (document.readyState === "complete") {
-        hideLoader();
-      } else {
-        window.addEventListener("load", hideLoader);
-      }
-    })();
-  </script>
   <div id="navbar-container"><!--ssr:navbar--><!--/ssr:navbar--></div>
 
   <div class="products-layout">
@@ -89,7 +58,7 @@
 
         <div class="quick-links" style="padding: 16px 16px 0;">
           <a href="/products" style="display: block; padding: 10px 14px; background: #f8fafc; color: #0f172a; font-weight: 600; text-decoration: none; border-radius: 6px; margin-bottom: 8px; border: 1px solid #e2e8f0; transition: all 0.2s;">All Products</a>
-          <a href="/products?trending=true" style="display: block; padding: 10px 14px; background: #f8fafc; color: #0f172a; font-weight: 600; text-decoration: none; border-radius: 6px; border: 1px solid #e2e8f0; transition: all 0.2s;">New Arrivals ✨</a>
+          <a href="/new-arrivals" style="display: block; padding: 10px 14px; background: #f8fafc; color: #0f172a; font-weight: 600; text-decoration: none; border-radius: 6px; border: 1px solid #e2e8f0; transition: all 0.2s;">New Arrivals ✨</a>
         </div>
         <div class="filter-divider" style="margin-top: 16px;"></div>
 
@@ -127,6 +96,7 @@
 
     <!-- Main Content -->
     <main class="products-main">
+      <div id="listing-breadcrumbs"><!--ssr:breadcrumbs--><!--/ssr:breadcrumbs--></div>
       <div class="products-header">
         <h1 class="category-title" id="products-page-title">All Products</h1>
         <p class="category-count" id="results-count"></p>
@@ -138,6 +108,8 @@
       <div class="products-grid" id="products-grid"><!--ssr:grid-->
         <!-- Products injected by JS -->
       <!--/ssr:grid--></div>
+
+      <div id="category-copy"><!--ssr:category-copy--><!--/ssr:category-copy--></div>
     </main>
   </div>
 

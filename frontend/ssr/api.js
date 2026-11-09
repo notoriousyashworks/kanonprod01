@@ -80,6 +80,11 @@ export function getNewArrivals(page = 0, size = 16) {
   });
 }
 
+/** Paged form of new arrivals, for /new-arrivals. */
+export function getNewArrivalsPage(page = 0, size = 16) {
+  return remember(`new-arrivals-page:${page}:${size}`, 5 * MIN, () => getJson(`/products/new-arrivals?page=${page}&size=${size}`));
+}
+
 /** Mirrors frontend/src/js/api.js filterProducts() so SSR shows the same first batch. */
 export function filterProducts({ categories = [] } = {}, page = 0, size = 16) {
   const qs = new URLSearchParams();

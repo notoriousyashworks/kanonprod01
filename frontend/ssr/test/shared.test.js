@@ -3,11 +3,13 @@ import assert from 'node:assert/strict';
 import { escapeHtml, safeJson } from '../../src/js/shared/escape.js';
 import {
   productCardHTML, productDetailHTML, navbarHTML, footerHTML, categoryCardHTML,
-  categoryHref, productHref, activeChipsHTML, buildProductView,
+  categoryHref, productHref, activeChipsHTML, buildProductView, slugify, displayDescription,
+  breadcrumbsHTML, viewMoreHTML,
 } from '../../src/js/shared/templates.js';
 import {
   classifyListing, productDescription, productTitle, truncate, productCanonicalPath,
-  safeHttpUrl, buildHeadTags, UUID_RE,
+  safeHttpUrl, buildHeadTags, UUID_RE, parseProductPath, parseCategoryPath, productLd,
+  organizationLd, breadcrumbLd, listingTitle,
 } from '../../src/js/shared/seo.js';
 
 const EVIL = '"><img src=x onerror=alert(1)>';
@@ -51,7 +53,7 @@ test('product card escapes untrusted product data', () => {
   assert.ok(!html.includes('<img src=x'));
   assert.ok(html.includes('&lt;img src=x onerror=alert(1)&gt;'));
   assert.ok(html.includes('&lt;b&gt;x&lt;/b&gt;'));
-  assert.ok(html.includes(`href="/product-details?id=${ID}"`));
+  assert.ok(html.includes(`/product/`) && html.includes(`-${ID}"`));
   assert.ok(html.includes('₹2,598') && html.includes('₹18,889'));
 });
 
@@ -85,18 +87,70 @@ test('product detail: out-of-stock product shows the disabled button', () => {
 test('navbar pre-fills category links only when categories are given', () => {
   assert.ok(navbarHTML('home').includes('<!-- Categories injected via JS -->'));
   const html = navbarHTML('home', { categories: [{ name: 'Mens Watches' }] });
-  assert.ok(html.includes('href="/products?categories=Mens%20Watches" class="nav-dropdown-link">Mens Watches</a>'));
+  assert.ok(html.includes('href="/category/mens-watches" class="nav-dropdown-link">Mens Watches</a>'));
 });
 
-test('footer uses the configured WhatsApp number with a default', () => {
-  assert.ok(footerHTML().includes('https://wa.me/916239379751?text=Hey!'));
-  assert.ok(footerHTML({ whatsappNumber: '911111111111' }).includes('https://wa.me/911111111111?text=Hey!'));
+test('footer links the key public pages', () => {
+  for (const href of ['/products', '/new-arrivals', '/blog', '/contact-us', '/refund-policy']) {
+    assert.ok(footerHTML().includes(`href="${href}"`), href);
+  }
 });
 
-test('category links use the canonical ?categories= form', () => {
-  assert.equal(categoryHref('Mens Sunglasses'), '/products?categories=Mens%20Sunglasses');
-  assert.ok(categoryCardHTML({ name: 'Belts', imageUrl: '' }).includes('href="/products?categories=Belts"'));
+test('clean URLs: categories and products', () => {
+  assert.equal(categoryHref('Mens Sunglasses'), '/category/mens-sunglasses');
+  assert.equal(categoryHref('Crocs / Flip-Flop'), '/category/crocs-flip-flop');
+  assert.ok(categoryCardHTML({ name: 'Belts', imageUrl: '' }).includes('href="/category/belts"'));
+  assert.equal(productHref(ID, "Men's Air 90!"), `/product/men-s-air-90-${ID}`);
+  assert.equal(productHref(ID, ''), `/product/${ID}`);
   assert.equal(productHref(ID), `/product-details?id=${ID}`);
+  assert.equal(parseProductPath(`/product/men-s-air-90-${ID.toUpperCase()}`), ID);
+  assert.equal(parseProductPath(`/product/${ID}`), ID);
+  assert.equal(parseProductPath('/product/no-id-here'), null);
+  assert.equal(parseCategoryPath('/category/mens-watches'), 'mens-watches');
+  assert.equal(parseCategoryPath('/category/a/b'), null);
+  assert.ok(slugify('x'.repeat(200)).length <= 80);
+});
+
+test('imported belt text is never shown on non-belt products', () => {
+  const text = 'Classic black belt with a clean, versatile design for everyday and formal wear.';
+  assert.equal(displayDescription(product({ category: 'Ladies Sunglasses', description: text })), '');
+  assert.equal(displayDescription(product({ category: 'Belts', description: text })), text);
+  assert.equal(displayDescription(product({ description: 'short' })), '');
+  assert.ok(!productDescription(product({ category: 'Ladies Sunglasses', description: text })).includes('belt'));
+});
+
+test('breadcrumbs: last item is not a link; values escaped', () => {
+  const html = breadcrumbsHTML([{ name: 'Home', href: '/' }, { name: '<x>', href: '/ignored' }]);
+  assert.ok(html.includes('<a href="/">Home</a>'));
+  assert.ok(html.includes('<span aria-current="page">&lt;x&gt;</span>'));
+  assert.ok(viewMoreHTML('/category/belts?page=2').includes('href="/category/belts?page=2"'));
+});
+
+test('Product JSON-LD: real offer only; no brand, sku, ratings or compared price', () => {
+  const url = `https://kicksaura.in/product/x-${ID}`;
+  const ld = productLd(product(), url);
+  assert.equal(ld['@type'], 'Product');
+  assert.equal(ld.offers.price, '2598.00');
+  assert.equal(ld.offers.priceCurrency, 'INR');
+  assert.equal(ld.offers.availability, 'https://schema.org/InStock');
+  assert.equal(productLd(product({ inStockFlag: false }), url).offers.availability, 'https://schema.org/OutOfStock');
+  for (const banned of ['brand', 'sku', 'aggregateRating', 'review']) assert.equal(ld[banned], undefined, banned);
+  assert.ok(!JSON.stringify(ld).includes('18889'));
+  assert.equal(productLd(product({ basePrice: null, discountedPrice: null }), url).offers, undefined);
+});
+
+test('Organization and breadcrumb JSON-LD', () => {
+  assert.equal(organizationLd().address.addressCountry, 'IN');
+  assert.equal(organizationLd().address.streetAddress, undefined);
+  const crumbs = breadcrumbLd([{ name: 'Home', href: '/' }, { name: 'Now' }]);
+  assert.equal(crumbs.itemListElement[0].item, 'https://kicksaura.in/');
+  assert.equal(crumbs.itemListElement[1].item, undefined);
+});
+
+test('listing titles: unique per category and page', () => {
+  assert.equal(listingTitle({ category: 'Sneakers', indexable: true }), 'Buy Sneakers Online in India | Kicks Aura');
+  assert.equal(listingTitle({ category: 'Sneakers', indexable: true }, 2), 'Buy Sneakers Online in India – Page 2 | Kicks Aura');
+  assert.equal(listingTitle({ indexable: false }), null);
 });
 
 test('chips are escaped', () => {
@@ -119,11 +173,11 @@ test('listing: a single known category is indexable, canonical uses the DB name'
   const r = classify('categories=mens%20watches&utm_source=ig&gclid=1');
   assert.equal(r.indexable, true);
   assert.equal(r.category, 'Mens Watches');
-  assert.equal(r.canonicalPath, '/products?categories=Mens%20Watches');
+  assert.equal(r.canonicalPath, '/category/mens-watches');
 });
 
 test('listing: legacy ?category= maps to the same canonical', () => {
-  assert.equal(classify('category=Belts').canonicalPath, '/products?categories=Belts');
+  assert.equal(classify('category=Belts').canonicalPath, '/category/belts');
 });
 
 test('listing: facets, search, multi-category, trending, unknown → noindex, no canonical', () => {
@@ -136,7 +190,7 @@ test('listing: facets, search, multi-category, trending, unknown → noindex, no
 });
 
 test('product canonical is lowercased and parameter-free', () => {
-  assert.equal(productCanonicalPath(ID.toUpperCase()), `/product-details?id=${ID}`);
+  assert.equal(productCanonicalPath({ id: ID.toUpperCase(), name: 'Red Shoe' }), `/product/red-shoe-${ID}`);
   assert.ok(UUID_RE.test(ID) && !UUID_RE.test('abc') && !UUID_RE.test(`${ID}x`));
 });
 
@@ -168,4 +222,11 @@ test('templates have balanced <div> tags (server-parsed HTML must not leak out o
     detailOutOfStock: productDetailHTML(product({ inStockFlag: false })),
     category: categoryCardHTML({ name: 'Belts', imageUrl: '' }),
   })) assert.equal(bal(html), 0, name);
+});
+
+test('product cards request a resized Bunny image; other CDNs keep their transforms', () => {
+  const bunny = productCardHTML(product({ imageUrls: ['https://x.b-cdn.net/a.jpg'] }));
+  assert.ok(bunny.includes('src="https://x.b-cdn.net/a.jpg?width=480&amp;quality=75"'));
+  const ik = productCardHTML(product({ imageUrls: ['https://ik.imagekit.io/a.jpg'] }));
+  assert.ok(ik.includes('tr=q-auto,f-auto,w-800'));
 });

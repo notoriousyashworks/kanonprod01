@@ -389,6 +389,7 @@ public class ProductService {
                 .isInStockFlag(product.isInStockFlag())
                 .limitedStock(product.isLimitedStock())
                 .createdAt(product.getCreatedAt())
+                .updatedAt(product.getUpdatedAt())
                 .originalName(isAdmin ? product.getOriginalName() : null)
                 .variants(variantDTOs)
                 .sourceSite(product.getSourceSite())

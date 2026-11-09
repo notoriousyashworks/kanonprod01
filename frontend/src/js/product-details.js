@@ -4,7 +4,7 @@
 import { getProductById, getRelatedProducts } from './api.js';
 import { getNavbarHTML, getFooterHTML, showToast, formatCloudinaryUrl, formatCloudinaryVideoPoster, formatCloudinaryVideoHls, formatCloudinaryVideoMp4, formatMediaUrl, formatVideoPoster, formatVideoHls, formatVideoMp4, formatVideoHoverPreview, initSearch, initMobileMenu, createProductCard } from './ui.js';
 import { buildProductView, productDetailHTML } from './shared/templates.js';
-import { productTitle } from './shared/seo.js';
+import { productTitle, parseProductPath } from './shared/seo.js';
 import { addToCart, updateCartBadge } from './cart.js';
 import { initWishlistSidebar, updateWishlistBadge, isWishlisted, toggleWishlistItem } from './wishlist.js';
 import { initCartSidebar, openShippingPolicyModal } from './cart-sidebar.js';
@@ -44,8 +44,9 @@ function hasSsrProductMarkup() {
 }
 
 async function loadProduct() {
+  // /product/<slug>-<uuid>; legacy ?id= still works when the page is served statically.
   const params = new URLSearchParams(window.location.search);
-  const productId = params.get('id');
+  const productId = parseProductPath(window.location.pathname) || params.get('id');
 
   if (!productId) {
     renderError('No product ID specified in the URL.');

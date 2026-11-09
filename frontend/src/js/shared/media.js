@@ -84,6 +84,17 @@ export function formatMediaUrl(url) {
   return url;
 }
 
+/**
+ * Product card image. Asks Bunny for a card-sized image: the parameter is ignored
+ * until Bunny Optimizer is enabled on the pull zone, then it applies automatically.
+ */
+export function formatCardImageUrl(url) {
+  if (typeof url === 'string' && url.includes('.b-cdn.net') && !url.includes('?')) {
+    return `${url}?width=480&quality=75`;
+  }
+  return formatMediaUrl(url);
+}
+
 /** Video poster — routes to the correct provider's still-frame function. */
 export function formatVideoPoster(url) {
   if (!url || typeof url !== 'string') return url;
