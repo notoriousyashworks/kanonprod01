@@ -127,7 +127,7 @@ export function productCardHTML(product, { liked = false, eager = false } = {}) 
   ` : '';
 
   return `
-    <a href="${escapeAttr(productHref(product.id, product.name || ''))}" class="product-card-link" aria-label="${name}" target="_blank" rel="noopener noreferrer">
+    <a href="${escapeAttr(productHref(product.id, product.name || ''))}" class="product-card-link" aria-label="${name}">
       <article class="product-card product-card-new ${isHandbag ? 'is-handbag' : ''} ${isOutOfStock ? 'is-sold-out' : ''}" data-product-id="${id}">
         <div class="pc-image-wrap">
           ${badgesContainer}

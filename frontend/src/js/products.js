@@ -498,17 +498,13 @@ async function fetchPage(page) {
       };
     }
 
-    // Sneakers: load everything at once (no View More); other categories stay at 16
-    const isSneakerCategory = state.categories.some(c => /sneaker/i.test(c));
-    let currentBatchSize = isSneakerCategory ? 500 : PRODUCTS_BATCH_SIZE;
-
     const pageData = await filterProducts({
       query: state.searchQuery,
       categories: state.categories,
       brands:     state.brands,
       minPrice:   state.minPrice,
       maxPrice:   state.maxPrice,
-    }, page, currentBatchSize);
+    }, page, PRODUCTS_BATCH_SIZE);
     return pageData;
 }
 

@@ -261,7 +261,7 @@ export async function initPurchaseNotifications() {
         <div class="live-toast-banner__content">
           <div class="live-toast-banner__text">
             <strong>${name}</strong> from 🇮🇳 <strong>India</strong> purchased
-            <a href="/product-details?id=${product.id}" class="live-toast-banner__product-link" target="_blank" rel="noopener noreferrer">${product.name}</a>
+            <a href="/product-details?id=${product.id}" class="live-toast-banner__product-link">${product.name}</a>
           </div>
           <div class="live-toast-banner__price">${price}</div>
         </div>
@@ -273,7 +273,7 @@ export async function initPurchaseNotifications() {
       });
 
       notificationEl.onclick = () => {
-        window.open(`/product-details?id=${product.id}`, '_blank', 'noopener');
+        window.location.href = `/product-details?id=${product.id}`;
       };
 
       // ── Swipe-to-dismiss (mobile touch) ────────────────
