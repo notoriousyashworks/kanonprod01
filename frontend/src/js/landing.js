@@ -280,14 +280,29 @@ async function initTrendingWidget() {
 }
 
 // ── Load New Arrivals ────────────────────────────────────
-let allNewArrivals = [];
 let arrivalsPage = 0;
 const ARRIVALS_PAGE_SIZE = 16;
 let hasMoreArrivals = true;
 
-let isFallbackMode = false;
-let fallbackPage = 0;
-const FALLBACK_CATEGORIES = ["Mens Watches", "Sneakers", "Mens Sunglasses", "Ladies Watches"];
+// renderedArrivalsCount tracks how many products are already in the DOM
+// so "View More" only appends new cards without touching existing positions.
+let renderedArrivalsCount = 0;
+
+// allNewArrivals stores every loaded product in stable display order.
+// Each batch is ordered once (12-hour seeded shuffle for in-stock items,
+// out-of-stock pushed to the end) and never re-ordered afterward.
+let allNewArrivals = [];
+
+/**
+ * Order a single batch for display:
+ *  - In-stock items are time-seeded-shuffled (12-hour window, stable seed per page)
+ *  - Out-of-stock items are appended after in-stock ones
+ */
+function orderArrivalsBatch(batch, page) {
+  const inStock = batch.filter(p => p.inStockFlag !== false);
+  const outOfStock = batch.filter(p => p.inStockFlag === false);
+  return [...timeSeededShuffle(inStock, 1 + page), ...outOfStock];
+}
 
 async function loadArrivals() {
   const grid = document.getElementById('new-arrivals-grid');
@@ -296,8 +311,9 @@ async function loadArrivals() {
 
   try {
     arrivalsPage = 0;
-    fallbackPage = 0;
-    isFallbackMode = false;
+    renderedArrivalsCount = 0;
+    allNewArrivals = [];
+
     const products = await getNewArrivals(arrivalsPage, ARRIVALS_PAGE_SIZE);
     
     if (!products || products.length === 0) {
@@ -310,11 +326,17 @@ async function loadArrivals() {
       return;
     }
 
-    allNewArrivals = products;
+    // Order this first batch once and lock it in
+    const orderedFirst = orderArrivalsBatch(products, 0);
+    allNewArrivals = orderedFirst;
     hasMoreArrivals = products.length === ARRIVALS_PAGE_SIZE;
-    isFallbackMode = !hasMoreArrivals;
 
-    renderArrivalsGrid();
+    // Render the first batch from scratch
+    grid.innerHTML = orderedFirst.map(createProductCard).join('');
+    renderedArrivalsCount = orderedFirst.length;
+    attachCardListeners(allNewArrivals);
+
+    if (moreWrap) moreWrap.style.display = hasMoreArrivals ? 'block' : 'none';
 
     if (viewMoreBtn) {
       viewMoreBtn.addEventListener('click', async () => {
@@ -326,8 +348,20 @@ async function loadArrivals() {
           const moreProducts = await getNewArrivals(arrivalsPage, ARRIVALS_PAGE_SIZE);
           
           if (moreProducts.length > 0) {
-            allNewArrivals = allNewArrivals.concat(moreProducts);
-            renderArrivalsGrid();
+            // Order the new batch independently — existing cards are untouched
+            const orderedBatch = orderArrivalsBatch(moreProducts, arrivalsPage);
+            allNewArrivals = allNewArrivals.concat(orderedBatch);
+
+            // Append only the new cards; do NOT rewrite the grid
+            const fragment = document.createDocumentFragment();
+            orderedBatch.forEach(p => {
+              const wrapper = document.createElement('div');
+              wrapper.innerHTML = createProductCard(p);
+              while (wrapper.firstChild) fragment.appendChild(wrapper.firstChild);
+            });
+            grid.appendChild(fragment);
+            renderedArrivalsCount = allNewArrivals.length;
+            attachCardListeners(allNewArrivals);
           }
           
           hasMoreArrivals = moreProducts.length === ARRIVALS_PAGE_SIZE;
@@ -353,27 +387,6 @@ async function loadArrivals() {
         <button style="margin-top:16px; padding:10px 24px; border:1px solid #111; border-radius:4px; cursor:pointer; background:#111; color:#fff;" onclick="location.reload()">Retry</button>
       </div>
     `;
-  }
-}
-
-function renderArrivalsGrid(hideButton = false) {
-  const grid = document.getElementById('new-arrivals-grid');
-  const moreWrap = document.getElementById('new-arrivals-more-wrap');
-  const viewMoreBtn = document.getElementById('new-arrivals-view-more');
-
-  // Separate in-stock and out-of-stock, shuffle in-stock ones every 12 hours
-  const inStock = allNewArrivals.filter(p => p.inStockFlag !== false);
-  const outOfStock = allNewArrivals.filter(p => p.inStockFlag === false);
-  const shuffledArrivals = [...timeSeededShuffle(inStock, 1), ...outOfStock];
-  grid.innerHTML = shuffledArrivals.map(createProductCard).join('');
-  attachCardListeners(allNewArrivals);
-
-  if (moreWrap) {
-    moreWrap.style.display = hideButton ? 'none' : 'block';
-  }
-  if (viewMoreBtn) {
-    viewMoreBtn.textContent = 'View More';
-    viewMoreBtn.disabled = false;
   }
 }
 

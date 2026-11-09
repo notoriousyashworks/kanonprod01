@@ -521,44 +521,106 @@ function nextPageHref() {
   return `${window.location.pathname}?${q}`;
 }
 
+// Tracks how many products are already rendered in the grid.
+// Used to append-only on "View More" without rewriting existing cards.
+let renderedProductCount = 0;
+
+/**
+ * Attach/refresh the "View More" button.
+ * Called after every render (initial load or append).
+ */
+function attachViewMoreBtn(grid) {
+  // Remove any existing view-more sentinel so we don't duplicate it
+  grid.querySelector('.products-view-more-wrap')?.remove();
+
+  const hasMore = currentPage + 1 < totalPages;
+  if (!hasMore) return;
+
+  const wrap = document.createElement('div');
+  wrap.innerHTML = viewMoreHTML(nextPageHref(), { loading: isLoadingMore });
+  // viewMoreHTML may produce a plain string; grab the first element
+  while (wrap.firstChild) grid.appendChild(wrap.firstChild);
+
+  grid.querySelector('.products-view-more-btn')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (!isLoadingMore) loadMore();
+  });
+}
+
+/**
+ * Full render — used on initial load / filter changes.
+ * Re-writes the entire grid because the product set changed.
+ */
 function renderProducts(grid) {
   const hasMore = currentPage + 1 < totalPages;
 
   // allLoadedProducts is already ordered per batch (see orderBatch), so
   // earlier cards never move when "View More" appends the next batch.
-  const sortedProducts = allLoadedProducts;
-
   grid.innerHTML = `
-    ${sortedProducts.map(createProductCard).join('')}
+    ${allLoadedProducts.map(createProductCard).join('')}
     ${hasMore ? viewMoreHTML(nextPageHref(), { loading: isLoadingMore }) : ''}
   `;
 
+  renderedProductCount = allLoadedProducts.length;
+
   grid.querySelector('.products-view-more-btn')?.addEventListener('click', (e) => {
     e.preventDefault();
-    if (!isLoadingMore) {
-      loadMore();
-    }
+    if (!isLoadingMore) loadMore();
   });
+}
+
+/**
+ * Append-only render — used when "View More" loads the next batch.
+ * Existing cards stay exactly where they are; only new cards are inserted.
+ */
+function appendProducts(grid, newBatch) {
+  // Remove the old view-more button/wrap before appending cards
+  grid.querySelector('.products-view-more-wrap')?.remove();
+  // Also handle cases where the btn is a direct child with no wrapper
+  grid.querySelector('.products-view-more-btn')?.closest('div')?.remove();
+  grid.querySelector('.products-view-more-btn')?.remove();
+
+  // Append only the genuinely new cards
+  const fragment = document.createDocumentFragment();
+  newBatch.forEach(p => {
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = createProductCard(p);
+    while (wrapper.firstChild) fragment.appendChild(wrapper.firstChild);
+  });
+  grid.appendChild(fragment);
+  renderedProductCount = allLoadedProducts.length;
+
+  // Re-attach the view-more button
+  attachViewMoreBtn(grid);
 }
 
 async function loadMore() {
   if (isLoadingMore || currentPage + 1 >= totalPages) return;
   isLoadingMore = true;
+
   const grid = document.getElementById('products-grid');
-  renderProducts(grid); // Update button to Loading...
-  
+
+  // Show "Loading…" state on the button without touching existing cards
+  const btn = grid.querySelector('.products-view-more-btn');
+  if (btn) { btn.textContent = 'Loading…'; btn.disabled = true; }
+
   try {
     const nextPage = currentPage + 1;
     const pageData = await fetchPage(nextPage);
-    allLoadedProducts = [...allLoadedProducts, ...orderBatch(pageData.content || [], nextPage)];
+    const newBatch = orderBatch(pageData.content || [], nextPage);
+    allLoadedProducts = [...allLoadedProducts, ...newBatch];
     currentPage = pageData.number;
     totalPages = pageData.totalPages;
     totalElements = pageData.totalElements;
+
+    isLoadingMore = false;
+    // Append only the new cards; existing positions are preserved
+    appendProducts(grid, newBatch);
   } catch(e) {
     console.error(e);
-  } finally {
     isLoadingMore = false;
-    renderProducts(grid); // Re-render after reset so button shows correctly
+    // Restore the button on error
+    if (btn) { btn.textContent = 'View More'; btn.disabled = false; }
   }
 }
 
@@ -597,6 +659,7 @@ async function loadAndRender() {
     // Fetch from backend with structural filters and search query (server-side)
     currentPage = state.startPage;
     allLoadedProducts = [];
+    renderedProductCount = 0;
     
     const pageData = await fetchPage(currentPage);
     allLoadedProducts = orderBatch(pageData.content || [], currentPage);
