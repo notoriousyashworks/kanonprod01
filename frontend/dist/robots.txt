@@ -1,0 +1,10 @@
+# Kicks Aura — https://kicksaura.in
+User-agent: *
+Allow: /
+
+# Internal search and price-filter combinations (unbounded, never indexed).
+Disallow: /*?*search=
+Disallow: /*?*minPrice=
+Disallow: /*?*maxPrice=
+
+Sitemap: https://kicksaura.in/sitemap.xml
