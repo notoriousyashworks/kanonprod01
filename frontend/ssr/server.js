@@ -24,9 +24,8 @@ import * as sitemap from './sitemap.js';
 import {
   navbarHTML, footerHTML, productCardHTML, categoryCardHTML, productDetailHTML,
   buildProductView, activeChipsHTML, breadcrumbsHTML, viewMoreHTML, relatedSectionHTML,
-  categoryHref, slugify,
+  categoryHref,
 } from '../src/js/shared/templates.js';
-import { categoryCopyHTML } from '../src/js/shared/category-content.js';
 import {
   SITE, UUID_RE, ROBOTS_INDEX, ROBOTS_NOINDEX, absoluteUrl, productTitle,
   productDescription, classifyListing, listingTitle, listingDescription,
@@ -156,9 +155,6 @@ async function renderListingPage(info, categories, pageNumber = 1) {
   if (gridHTML) {
     const more = pageNumber < totalPages ? viewMoreHTML(pagePath(pageNumber + 1)) : '';
     html = fillRegion(html, 'grid', gridHTML + more);
-  }
-  if (info.category && pageNumber === 1) {
-    html = fillRegion(html, 'category-copy', categoryCopyHTML(slugify(info.category), info.category));
   }
   if (info.category) html = embedData(html, { listing: { category: info.category } });
 

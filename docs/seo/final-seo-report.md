@@ -29,7 +29,7 @@ Lighthouse 12 mobile, single runs. "Before" is the live site on 9 Nov; "After" i
 **E-commerce (Phase 4)**
 - Clean URLs: `/product/<name>-<uuid>` and `/category/<slug>`. Old URLs 301 to them, and stale slugs correct themselves.
 - JSON-LD: `OnlineStore`, `WebSite`, `Product` + `Offer` (real selling price, currency, availability), `BreadcrumbList`, `Article`.
-- Visible breadcrumbs; server-rendered related products; written copy on all 8 category pages; a factual info block on product pages.
+- Visible breadcrumbs; server-rendered related products; a factual info block on product pages. (Category pages briefly had written copy below the grid; it was removed from the page on request, and the category titles and meta descriptions remain.)
 - Real product descriptions are now displayed. Imported belt text wrongly attached to other categories is suppressed.
 
 **Infrastructure (Phase 5)**

@@ -63,8 +63,7 @@ before(async () => {
   writeFileSync(join(dist, 'products.html'), TEMPLATE(`<h1 class="category-title" id="products-page-title">All Products</h1>
 <div id="active-chips-row"><!--ssr:chips--><!--/ssr:chips--></div>
 <!--ssr:breadcrumbs--><!--/ssr:breadcrumbs-->
-<div id="products-grid"><!--ssr:grid--><!--/ssr:grid--></div>
-<div id="category-copy"><!--ssr:category-copy--><!--/ssr:category-copy--></div>`));
+<div id="products-grid"><!--ssr:grid--><!--/ssr:grid--></div>`));
   writeFileSync(join(dist, 'product-details.html'), TEMPLATE(`<!--ssr:breadcrumbs--><!--/ssr:breadcrumbs--><div id="product-container"><!--ssr:product--><span>Loading product…</span><!--/ssr:product--></div><!--ssr:related--><!--/ssr:related-->`));
   writeFileSync(join(dist, '404.html'), TEMPLATE(`<h1>Page Not Found</h1>`).replace('index, follow', 'noindex, follow'));
 
@@ -144,7 +143,7 @@ test('product page: API failure → 503 + Retry-After with the untouched static 
   }
 });
 
-test('category page: indexable, self canonical, H1, chips, breadcrumb, copy, cards', async () => {
+test('category page: indexable, self canonical, H1, chips, breadcrumb, cards', async () => {
   const r = await get('/category/sneakers?utm_campaign=x');
   assert.equal(r.status, 200);
   assert.equal(canonicalOf(r.html), 'https://kicksaura.in/category/sneakers');
@@ -152,7 +151,7 @@ test('category page: indexable, self canonical, H1, chips, breadcrumb, copy, car
   assert.ok(r.html.includes('<title>Buy Sneakers Online in India | Kicks Aura</title>'));
   assert.ok(r.html.includes('id="products-page-title">Sneakers</h1>'));
   assert.ok(r.html.includes('filter-chip filter-chip--active'));
-  assert.ok(r.html.includes('class="category-copy"'));
+  assert.ok(!r.html.includes('class="category-copy"'), 'no intro copy under the grid');
   assert.ok(r.html.includes('aria-current="page">Sneakers'));
   assert.ok(r.html.includes(`-${ID}"`));
   assert.ok(!r.html.includes('Classic Belt'), 'only this category');
@@ -174,7 +173,6 @@ test('pagination: crawlable next link, self canonical per page, out of range 404
   assert.equal(second.status, 200);
   assert.equal(canonicalOf(second.html), 'https://kicksaura.in/category/belts?page=2');
   assert.ok(second.html.includes('Page 2'));
-  assert.ok(!second.html.includes('class="category-copy"'), 'intro copy only on page 1');
   assert.equal((await get('/category/belts?page=99')).status, 404);
   assert.equal((await get('/category/belts?page=1')).location, '/category/belts');
   assert.equal((await get('/category/belts?page=abc')).location, '/category/belts');

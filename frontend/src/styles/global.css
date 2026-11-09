@@ -2882,18 +2882,6 @@ body.sidebar-lock #wishlist-sidebar {
 .ka-breadcrumbs [aria-current="page"] { color: #0f172a; font-weight: 500; }
 .product-page > .ka-breadcrumbs { max-width: 1280px; margin: 14px auto; padding: 0 20px; }
 
-.category-copy {
-  margin: 32px 0 8px;
-  padding-top: 20px;
-  border-top: 1px solid #e5e7eb;
-  max-width: 820px;
-  font-size: 14.5px;
-  line-height: 1.65;
-  color: #475569;
-}
-.category-copy p { margin: 0 0 10px; }
-.category-copy a { color: #2563eb; text-decoration: underline; }
-
 .pd-info { margin: 0 0 24px; font-size: 14.5px; line-height: 1.6; color: #475569; }
 .pd-info__description { margin: 0 0 12px; }
 .pd-info__list { margin: 0; padding: 0; list-style: none; }

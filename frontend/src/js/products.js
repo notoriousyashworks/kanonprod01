@@ -4,7 +4,6 @@
 import { filterProducts, getCategories, getBrands, getAllProducts, getNewArrivalsPage, getTrendingProducts as apiGetTrendingProducts } from './api.js';
 import { timeSeededShuffle } from './shuffle.js';
 import { activeChipsHTML, breadcrumbsHTML, categoryHref, slugify, viewMoreHTML } from './shared/templates.js';
-import { categoryCopyHTML } from './shared/category-content.js';
 import { parseCategoryPath, findCategoryBySlug, listingTitle } from './shared/seo.js';
 import { updateCartBadge } from './cart.js';
 import { getNavbarHTML, getFooterHTML, createProductCard, showToast, initSearch, initMobileMenu } from './ui.js';
@@ -233,13 +232,6 @@ function updatePageTitle() {
       : null;
     crumbs.innerHTML = current
       ? breadcrumbsHTML([{ name: 'Home', href: '/' }, { name: 'All Products', href: '/products' }, { name: current }])
-      : '';
-  }
-
-  const copy = document.getElementById('category-copy');
-  if (copy) {
-    copy.innerHTML = state.categories.length === 1 && state.startPage === 0 && !state.searchQuery
-      ? categoryCopyHTML(slugify(state.categories[0]), state.categories[0])
       : '';
   }
 
@@ -602,7 +594,7 @@ async function loadMore() {
 
   // Show "Loading…" state on the button without touching existing cards
   const btn = grid.querySelector('.products-view-more-btn');
-  if (btn) { btn.textContent = 'Loading…'; btn.disabled = true; }
+  if (btn) { btn.textContent = 'Loading…'; btn.classList.add('is-loading'); }
 
   try {
     const nextPage = currentPage + 1;
@@ -620,7 +612,7 @@ async function loadMore() {
     console.error(e);
     isLoadingMore = false;
     // Restore the button on error
-    if (btn) { btn.textContent = 'View More'; btn.disabled = false; }
+    if (btn) { btn.textContent = 'View More'; btn.classList.remove('is-loading'); }
   }
 }
 

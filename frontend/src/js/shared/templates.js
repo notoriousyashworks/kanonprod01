@@ -52,7 +52,7 @@ export function breadcrumbsHTML(items = []) {
 export function viewMoreHTML(href, { loading = false } = {}) {
   return `
       <div class="products-view-more">
-        <a class="products-view-more-btn" href="${escapeAttr(href)}" style="display:inline-block;text-decoration:none;${loading ? 'pointer-events:none;opacity:.7;' : ''}">${loading ? 'Loading...' : 'View More'}</a>
+        <a class="products-view-more-btn${loading ? ' is-loading' : ''}" href="${escapeAttr(href)}">${loading ? 'Loading...' : 'View More'}</a>
       </div>`;
 }
 
