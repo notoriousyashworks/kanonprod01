@@ -1,13 +1,8 @@
 name: Deploy
-# Build images on GHCR from GitHub, then SSH into the VPS and roll them out.
-# The VPS must already be authenticated for ghcr.io pulls — either:
-#   a) packages set to public once after first successful run, or
-#   b) one-time `docker login ghcr.io` as the github-actions user (PAT: read:packages).
-# The workflow fails loudly below with instructions if the pull cannot authorize.
 
 on:
   push:
-    branches: [main]
+    branches: [dev]
   workflow_dispatch:
 
 permissions:
@@ -19,7 +14,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  IMAGE_TAG: main
+  IMAGE_TAG: dev
 
 jobs:
   build-push:
