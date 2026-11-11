@@ -396,6 +396,7 @@ export function footerHTML() {
 
       <div class="footer__bottom">
         <p>© 2026 Kicks Aura. All rights reserved.</p>
+        <a class="footer__credit" href="https://webinorbit.com/" target="_blank" rel="noopener">Powered by <span>WebInOrbit</span></a>
       </div>
     </footer>
   `;
