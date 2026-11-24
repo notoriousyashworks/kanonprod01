@@ -1,3 +1,4 @@
+/* Previous storefront configuration (disabled)
 import { defineConfig, loadEnv } from 'vite';
 import { resolve, basename } from 'path';
 import { existsSync } from 'fs';
@@ -79,6 +80,38 @@ export default defineConfig(({ mode }) => {
       port: 5173,
       fs: {
         allow: ['..'],
+      },
+      proxy: {
+        '/api': {
+          target: env.VITE_API_URL || 'http://localhost:8080',
+          changeOrigin: true,
+          secure: false,
+        },
+      },
+    },
+  };
+});
+*/
+
+import { defineConfig, loadEnv } from 'vite';
+import { resolve } from 'node:path';
+
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, __dirname, '');
+  const root = resolve(__dirname, 'welcome');
+
+  return {
+    root,
+    publicDir: false,
+    appType: 'mpa',
+    build: {
+      outDir: resolve(__dirname, 'dist'),
+      emptyOutDir: true,
+    },
+    server: {
+      port: 5173,
+      fs: {
+        allow: [root],
       },
       proxy: {
         '/api': {
